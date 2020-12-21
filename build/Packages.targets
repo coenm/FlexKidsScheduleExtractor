@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!--Need to be opted in -->
+  <ItemGroup>
+    <!-- Overall analyzers -->
+    <PackageReference IsImplicitlyDefined="true" Update="StyleCop.Analyzers" Version="1.1.118" />
+
+    <!-- Code Coverage -->
+    <PackageReference IsImplicitlyDefined="true" Update="coverlet.msbuild" Version="2.8.1" />
+    <PackageReference IsImplicitlyDefined="true" Update="coverlet.collector" Version="1.2.1" />
+  </ItemGroup>
+</Project>
