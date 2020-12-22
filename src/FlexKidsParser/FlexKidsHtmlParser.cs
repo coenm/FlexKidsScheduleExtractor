@@ -1,7 +1,7 @@
 namespace FlexKidsParser
 {
     using System.Collections.Generic;
-    using FlexKidsParser.Model;
+    using FlexKidsScheduler.Model;
 
     public class FlexKidsHtmlParser
     {

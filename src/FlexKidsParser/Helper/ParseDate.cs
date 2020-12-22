@@ -5,7 +5,7 @@ namespace FlexKidsParser.Helper
 
     public static class ParseDate
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         // time = 09:00
         public static DateTime AddStringTimeToDate(DateTime date, string time)
@@ -103,7 +103,7 @@ namespace FlexKidsParser.Helper
 
             switch (monthTxt)
             {
-                case "jan": //unchecked
+                case "jan": // unchecked
                     month = 1;
                     break;
 
@@ -153,7 +153,7 @@ namespace FlexKidsParser.Helper
                     break;
 
                 default:
-                    Logger.Error(monthTxt + "  is not catched");
+                    _logger.Error(monthTxt + "  is not catched");
                     throw new Exception(monthTxt + " is not catched");
             }
 
