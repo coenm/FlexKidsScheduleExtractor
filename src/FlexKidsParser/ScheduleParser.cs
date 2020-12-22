@@ -4,7 +4,7 @@ namespace FlexKidsParser
     using System.Collections.Generic;
     using System.Linq;
     using FlexKidsParser.Helper;
-    using FlexKidsParser.Model;
+    using FlexKidsScheduler.Model;
     using HtmlAgilityPack;
     using NLog;
 
@@ -54,7 +54,7 @@ namespace FlexKidsParser
             var tablesIdLocatieWeekoverzicht = divIdUrenregistratie.Descendants()
                                                                    .Where(x => x.IdEquals("locatie_weekoverzicht"))
                                                                    .ToList();
-            if (tablesIdLocatieWeekoverzicht.Count() != 1)
+            if (tablesIdLocatieWeekoverzicht.Count != 1)
             {
                 _logger.Error("tableLocaties");
                 return null;
@@ -108,12 +108,12 @@ namespace FlexKidsParser
                 // deze heeft 4 divs
                 var infoTdDivs = infoTd.ChildNodes.Where(x => x.IsDiv()).ToList();
 
-                //                for (int i = 0; i < infoTdDivs.Count; i++)
-                //                {
-                //                    Console.WriteLine(infoTdDivs[i].Attributes.First().Value);
-                //                    Console.WriteLine(infoTdDivs[i].InnerText);
-                //                    Console.WriteLine("+++++++++++++++++++++");
-                //                }
+                // for (int i = 0; i < infoTdDivs.Count; i++)
+                // {
+                //     Console.WriteLine(infoTdDivs[i].Attributes.First().Value);
+                //     Console.WriteLine(infoTdDivs[i].InnerText);
+                //     Console.WriteLine("+++++++++++++++++++++");
+                // }
 
                 // days
                 for (var i = 1; i < 6; i++)

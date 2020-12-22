@@ -1,4 +1,4 @@
-namespace FlexKidsParser.Model
+namespace FlexKidsScheduler.Model
 {
     using System.Collections.Generic;
 

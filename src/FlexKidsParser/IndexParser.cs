@@ -4,7 +4,7 @@ namespace FlexKidsParser
     using System.Collections.Generic;
     using System.Linq;
     using FlexKidsParser.Helper;
-    using FlexKidsParser.Model;
+    using FlexKidsScheduler.Model;
     using HtmlAgilityPack;
     using NLog;
 
@@ -69,7 +69,7 @@ namespace FlexKidsParser
 
                     // Week 09 - 2015
                     var weekText = option.NextSibling.InnerText.Trim();
-                    weekText = weekText.Replace("Week", "").Trim();
+                    weekText = weekText.Replace("Week", string.Empty).Trim();
                     var split = weekText.Split('-');
 
                     if (split.Length == 2)

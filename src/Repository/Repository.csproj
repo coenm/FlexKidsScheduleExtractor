@@ -15,8 +15,5 @@
       <_Parameter1>$(AssemblyName).Test</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FlexKidsScheduler\FlexKidsScheduler.csproj" />
-  </ItemGroup>
 
 </Project>

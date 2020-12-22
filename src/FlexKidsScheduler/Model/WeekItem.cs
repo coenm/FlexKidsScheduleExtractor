@@ -1,4 +1,4 @@
-﻿namespace FlexKidsParser.Model
+namespace FlexKidsScheduler.Model
 {
     public class WeekItem
     {
@@ -9,6 +9,7 @@
         }
 
         public int Year { get; set; }
+
         public int WeekNr { get; set; }
     }
 }

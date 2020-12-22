@@ -3,7 +3,7 @@ namespace FlexKidsParser.Test
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using FlexKidsParser.Model;
+    using FlexKidsScheduler.Model;
     using Xunit;
 
     public class ScheduleParserTest
