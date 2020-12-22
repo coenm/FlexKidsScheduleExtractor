@@ -21,7 +21,6 @@ namespace FlexKidsScheduler
 
         public string EmailToName1 => GetConfigProperty<string>("EmailToName1");
 
-
         public string SmtpHost => GetConfigProperty<string>("SmtpHost");
 
         public int SmtpPort => GetConfigProperty<int>("SmtpPort");

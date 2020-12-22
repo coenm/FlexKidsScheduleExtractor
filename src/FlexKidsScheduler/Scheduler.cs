@@ -12,10 +12,6 @@ namespace FlexKidsScheduler
 
     public class Scheduler : IDisposable
     {
-        // An event that clients can use to be notified whenever the
-        // elements of the list change.
-        public event ChangedEventHandler ScheduleChanged;
-
         private readonly IFlexKidsConnection _flexKidsConnection;
         private readonly IHash _hash;
         private readonly IKseParser _parser;
@@ -28,6 +24,10 @@ namespace FlexKidsScheduler
             _parser = parser;
             _repo = scheduleRepository;
         }
+
+        // An event that clients can use to be notified whenever the
+        // elements of the list change.
+        public event ChangedEventHandler ScheduleChanged;
 
         private static IList<ScheduleDiff> GetDiffs(ICollection<Schedule> dbSchedules, ICollection<ScheduleItem> parsedSchedules, Week week)
         {
@@ -98,7 +98,7 @@ namespace FlexKidsScheduler
                         Hash = htmlHash,
                         WeekNr = week.WeekNr,
                         Year = week.Year,
-                        Id = week.Id
+                        Id = week.Id,
                     };
 
                 // week.Hash = htmlHash;
@@ -141,7 +141,7 @@ namespace FlexKidsScheduler
                 });
             }
 
-            if(!somethingChanged)
+            if (!somethingChanged)
             {
                 return Enumerable.Empty<ScheduleDiff>();
             }

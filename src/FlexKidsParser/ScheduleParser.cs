@@ -152,7 +152,7 @@ namespace FlexKidsParser
                                 </table>
                                 */
                             HtmlNode[] rowsx = firstItem.ChildNodes.Where(x => x.IsElement()).ToArray();
-                            if (rowsx.Length >= 2 && rowsx.Length <= 3)
+                            if (rowsx.Length is >= 2 and <= 3)
                             {
                                 // var firstRow = firstItem.ChildNodes.First(x => x.IsElement());
                                 HtmlNode lastRow = rowsx[1];
