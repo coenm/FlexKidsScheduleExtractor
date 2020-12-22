@@ -21,7 +21,7 @@ namespace FlexKidsParser.Helper
                 throw new Exception("No hours found");
             }
 
-            if (hour < 0 || hour > 23)
+            if (hour is < 0 or > 23)
             {
                 throw new Exception("Hours not in range");
             }
@@ -31,7 +31,7 @@ namespace FlexKidsParser.Helper
                 throw new Exception("No minutes found");
             }
 
-            if (min < 0 || min >= 60)
+            if (min is < 0 or >= 60)
             {
                 throw new Exception("Minutes not in range");
             }

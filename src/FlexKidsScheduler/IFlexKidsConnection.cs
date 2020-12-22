@@ -43,7 +43,7 @@ namespace FlexKidsScheduler
 
         public string GetAvailableSchedulesPage()
         {
-            var result =  _flexKidsConnectionImplementation.GetAvailableSchedulesPage();
+            var result = _flexKidsConnectionImplementation.GetAvailableSchedulesPage();
             File.WriteAllText(Path.Combine(_options.Directory, "index.html"), result, Encoding.UTF8);
             return result;
         }

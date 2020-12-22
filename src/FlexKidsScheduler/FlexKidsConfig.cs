@@ -1,7 +1,6 @@
 namespace FlexKidsScheduler
 {
     using System;
-    // using System.Configuration;
 
     public class FlexKidsConfig : IFlexKidsConfig
     {

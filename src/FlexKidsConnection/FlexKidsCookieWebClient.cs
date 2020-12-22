@@ -11,13 +11,13 @@ namespace FlexKidsConnection
 
         public FlexKidsCookieWebClient(IWeb web, FlexKidsCookieConfig config)
         {
-            this._web = web;
-            this._config = config;
+            _web = web;
+            _config = config;
         }
 
         private void Login()
         {
-            var reqparm = new NameValueCollection
+            var requestParams = new NameValueCollection
                 {
                     { "username", _config.Username },
                     { "password", _config.Password },
@@ -25,9 +25,9 @@ namespace FlexKidsConnection
                     { "login", "Log in" },
                 };
 
-            _web.PostValues(_config.HostUrl + "/user/process", reqparm);
-//            var responsebytes = webclient.UploadValues(BaseUrl + "/user/process", "POST", reqparm);
-//            var responsebody = Encoding.UTF8.GetString(responsebytes);
+            _web.PostValues(_config.HostUrl + "/user/process", requestParams);
+            // var responsebytes = webclient.UploadValues(BaseUrl + "/user/process", "POST", reqparm);
+            // var responsebody = Encoding.UTF8.GetString(responsebytes);
 
             _isLoggedIn = true;
         }
