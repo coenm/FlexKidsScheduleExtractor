@@ -5,6 +5,9 @@
     <!-- Overall analyzers -->
     <PackageReference IsImplicitlyDefined="true" Update="StyleCop.Analyzers" Version="1.1.118" />
 
+    <PackageReference IsImplicitlyDefined="true" Update="HtmlAgilityPack" Version="1.6.0" />
+    <PackageReference IsImplicitlyDefined="true" Update="NLog" Version="4.7.6" />
+
     <!-- Code Coverage -->
     <PackageReference IsImplicitlyDefined="true" Update="coverlet.msbuild" Version="2.8.1" />
     <PackageReference IsImplicitlyDefined="true" Update="coverlet.collector" Version="1.2.1" />
