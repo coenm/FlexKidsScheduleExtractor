@@ -1,9 +1,10 @@
 namespace FlexKidsParser
 {
     using System.Collections.Generic;
+    using FlexKidsScheduler;
     using FlexKidsScheduler.Model;
 
-    public class FlexKidsHtmlParser
+    public class FlexKidsHtmlParser : IKseParser
     {
         public IndexContent GetIndexContent(string html)
         {
