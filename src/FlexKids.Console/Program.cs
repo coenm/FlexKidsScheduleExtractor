@@ -1,14 +1,15 @@
 namespace FlexKids.Console
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
-    using System.Net;
     using FlexKids.Console.Configuration;
     using FlexKidsConnection;
     using FlexKidsParser;
     using FlexKidsScheduler;
     using Microsoft.Extensions.Configuration;
     using NLog;
+    using Reporter.GoogleCalendar;
     using Repository;
     using SimpleInjector;
     using SimpleInjector.Lifestyles;
@@ -26,7 +27,7 @@ namespace FlexKids.Console
 
             // validate configurations.
 
-            AcceptAllCertificates();
+            // AcceptAllCertificates();
             _logger.Info("Certificate validation disabled.");
 
             SetupDependencyContainer();
@@ -47,15 +48,15 @@ namespace FlexKids.Console
             var scheduler = _container.GetInstance<Scheduler>();
             scheduler.ScheduleChanged += (_, changedArgs) =>
                 {
-                    var allHandlers = _container.GetAllInstances<IReportScheduleChange>();
-                    foreach (var handler in allHandlers)
+                    IEnumerable<IReportScheduleChange> allHandlers = _container.GetAllInstances<IReportScheduleChange>();
+                    foreach (IReportScheduleChange handler in allHandlers)
                     {
                         _ = handler.HandleChange(changedArgs.Diff);
                     }
                 };
 
             _logger.Info("Start scheduler");
-            scheduler.GetChanges();
+            _ = scheduler.GetChanges();
             _logger.Info("Finished scheduler");
 
             scheduler.Dispose();
@@ -88,10 +89,9 @@ namespace FlexKids.Console
             RegisterFlexKidsConnection(_container);
 
             _container.Register<IScheduleRepository, DummyScheduleRepository>();
-            // Container.RegisterAll<IReportScheduleChange>(
-            //     typeof(EmailReportScheduleChange),
-            //     typeof(ConsoleReportScheduleChange),
-            //     typeof(CalendarReportScheduleChange));
+            _container.Collection.Register<IReportScheduleChange>(typeof(CalendarReportScheduleChange));
+            // typeof(EmailReportScheduleChange),
+            // typeof(ConsoleReportScheduleChange),
         }
 
         private static void RegisterSettings(Container container)
@@ -140,16 +140,8 @@ namespace FlexKids.Console
         {
             container.Register<IWeb, WebClientAdapter>(Lifestyle.Scoped);
             container.Register<IFlexKidsConnection, FlexKidsCookieWebClient>(Lifestyle.Scoped);
-            container.Register<WriteToDiskOptions>(() => new WriteToDiskOptions { Directory = "C:\\temp\\20201223" });
+            container.Register<WriteToDiskOptions>(() => new WriteToDiskOptions { Directory = $"C:\\temp\\{DateTime.Now:yyyyMMddHHmmss}", });
             container.RegisterDecorator(typeof(IFlexKidsConnection), typeof(WriteToDiskDecorator), Lifestyle.Scoped);
-        }
-
-        private static void AcceptAllCertificates()
-        {
-            ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, error) =>
-            {
-                return true; //cert.GetCertHashString() == "xxxxxxxxxxxxxxxx";
-            };
         }
     }
 }

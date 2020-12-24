@@ -19,7 +19,7 @@ namespace FlexKids.Console
 
         public Schedule GetSchedule(int id)
         {
-            return new Schedule();
+            return null;
         }
 
         public Schedule Insert(Schedule schedule)
@@ -39,17 +39,17 @@ namespace FlexKids.Console
 
         public Week Insert(Week week)
         {
-            return new Week();
+            return week;
         }
 
         public Week Update(Week originalWeek, Week updatedWeek)
         {
-            return new Week();
+            return updatedWeek;
         }
 
         public Week GetWeek(int year, int weekNr)
         {
-            return new Week();
+            return null;
         }
 
         public Week GetWeek(int weekId)

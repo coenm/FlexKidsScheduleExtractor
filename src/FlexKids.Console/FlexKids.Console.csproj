@@ -19,6 +19,7 @@
     <ProjectReference Include="..\FlexKidsConnection\FlexKidsConnection.csproj" />
     <ProjectReference Include="..\FlexKidsParser\FlexKidsParser.csproj" />
     <ProjectReference Include="..\FlexKidsScheduler\FlexKidsScheduler.csproj" />
+    <ProjectReference Include="..\Reporter.GoogleCalendar\Reporter.GoogleCalendar.csproj" />
   </ItemGroup>
 
   <ItemGroup>
