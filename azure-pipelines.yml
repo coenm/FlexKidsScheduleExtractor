@@ -11,7 +11,7 @@ trigger:
       - v*
 
 pool:
-  name: windows-2019
+  name: windows-latest
 
 variables:
   - name: DOTNET_CLI_TELEMETRY_OPTOUT
