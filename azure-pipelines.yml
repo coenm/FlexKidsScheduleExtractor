@@ -5,6 +5,7 @@ trigger:
       - main
       - develop
       - feature/*
+      - release/*
   tags:
     exclude:
       - v*
