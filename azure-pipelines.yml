@@ -5,13 +5,13 @@ trigger:
       - main
       - develop
       - feature/*
-      - release/*
   tags:
     exclude:
       - v*
 
 pool:
-  name: windows-latest
+  # vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest'
 
 variables:
   - name: DOTNET_CLI_TELEMETRY_OPTOUT
@@ -28,16 +28,19 @@ steps:
     clean: true
 
   - task: NuGetToolInstaller@1
+    displayName: Install Nuget 5x
     inputs:
       versionSpec: '5.*'
       checkLatest: true
 
   - task: DotNetCoreCLI@2
+    displayName: Restore
     inputs:
       command: 'restore'
       projects: '**/*.csproj'
 
   - task: DotNetCoreCLI@2
+    displayName: Build
     inputs:
       command: 'build'
       projects: '**/*.sln'
@@ -46,13 +49,5 @@ steps:
     displayName: Test
     inputs:
       command: test
-      projects: '**/*.sln'
-      arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true "/p:CoverletOutputFormat=\"opencover,cobertura\"" /p:ExcludeByAttribute=CompilerGenerated /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ /p:MergeWith=$(Build.SourcesDirectory)/coverage/ --no-restore --no-build --logger trx;LogFileName=$(Common.TestResultsDirectory)/run.trx'
-
-  # Run unittests with code coverage.
-  - task: DotNetCoreCLI@2
-    displayName: Test
-    inputs:
-      command: test
-      projects: '**/*[Tt]ests/*.csproj'
-      arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:ExcludeByAttribute=CompilerGenerated --no-restore --no-build --logger trx'
+      projects: '**/*[Tt]est/*.csproj'
+      arguments: '--configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:ExcludeByAttribute=CompilerGenerated --logger trx'
