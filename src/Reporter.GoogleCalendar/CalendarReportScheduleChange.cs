@@ -35,7 +35,7 @@ namespace Reporter.GoogleCalendar
             }
             catch (Exception ex)
             {
-                _logger.Error("Something went wrong using Google Calendar.", ex);
+                _logger.Error(ex, "Something went wrong using Google Calendar.");
                 return false;
             }
 
