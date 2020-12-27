@@ -64,5 +64,4 @@ namespace Reporter.GoogleCalendar
             _service = null;
         }
     }
-
 }

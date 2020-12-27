@@ -19,25 +19,23 @@ namespace FlexKids.Console
         private static readonly Container _container = new Container();
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-        public static void Main(string[] args)
+        public static void Main()
         {
             _logger.Info("Starting.. ");
 
             _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
 
-            // validate configurations.
-
-            // AcceptAllCertificates();
             _logger.Info("Certificate validation disabled.");
 
             SetupDependencyContainer();
+
             try
             {
                 _container.Verify();
             }
             catch (Exception e)
             {
-                _logger.Error("Cannot verify the dependency injection container", e);
+                _logger.Error(e, "Cannot verify the dependency injection container");
                 return;
             }
 
@@ -90,8 +88,6 @@ namespace FlexKids.Console
 
             _container.Register<IScheduleRepository, DummyScheduleRepository>();
             _container.Collection.Register<IReportScheduleChange>(typeof(CalendarReportScheduleChange));
-            // typeof(EmailReportScheduleChange),
-            // typeof(ConsoleReportScheduleChange),
         }
 
         private static void RegisterSettings(Container container)

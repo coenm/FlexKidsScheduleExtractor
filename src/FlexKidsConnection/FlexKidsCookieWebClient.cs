@@ -15,23 +15,6 @@ namespace FlexKidsConnection
             _config = config;
         }
 
-        private void Login()
-        {
-            var requestParams = new NameValueCollection
-                {
-                    { "username", _config.Username },
-                    { "password", _config.Password },
-                    { "role", "4" },
-                    { "login", "Log in" },
-                };
-
-            _web.PostValues(_config.HostUrl + "/user/process", requestParams);
-            // var responsebytes = webclient.UploadValues(BaseUrl + "/user/process", "POST", reqparm);
-            // var responsebody = Encoding.UTF8.GetString(responsebytes);
-
-            _isLoggedIn = true;
-        }
-
         public string GetSchedulePage(int id)
         {
             if (!_isLoggedIn)
@@ -56,6 +39,21 @@ namespace FlexKidsConnection
         public void Dispose()
         {
             _web?.Dispose();
+        }
+
+        private void Login()
+        {
+            var requestParams = new NameValueCollection
+                {
+                    { "username", _config.Username },
+                    { "password", _config.Password },
+                    { "role", "4" },
+                    { "login", "Log in" },
+                };
+
+            _ = _web.PostValues(_config.HostUrl + "/user/process", requestParams);
+
+            _isLoggedIn = true;
         }
     }
 }

@@ -97,7 +97,7 @@ namespace Reporter.GoogleCalendar
                             },
                     };
 
-                //  queryEvent.SharedExtendedProperty = "EventID=3684";
+                // queryEvent.SharedExtendedProperty = "EventID=3684";
                 var newEvent = new Event
                     {
                         Start = new EventDateTime
