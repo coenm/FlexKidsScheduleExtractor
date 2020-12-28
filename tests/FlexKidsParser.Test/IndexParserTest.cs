@@ -23,7 +23,7 @@ namespace FlexKidsParser.Test
                 };
 
             // act
-            var htmlContent = GetFileContent("index.html");
+            var htmlContent = GetFileContent("index.txt");
             var indexParser = new IndexParser(htmlContent);
             IndexContent indexContent = indexParser.Parse();
 

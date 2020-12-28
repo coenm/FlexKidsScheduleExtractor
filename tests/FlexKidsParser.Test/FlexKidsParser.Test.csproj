@@ -7,23 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="resources\2020\index.html" />
-    <None Remove="resources\2020\page_0.html" />
-    <None Remove="resources\2020\page_1.html" />
-    <None Remove="resources\2020\page_2.html" />
+    <None Remove="resources\2020\*.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="resources\2020\index.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="resources\2020\page_0.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="resources\2020\page_1.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="resources\2020\page_2.html">
+    <Content Include="resources\2020\*.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

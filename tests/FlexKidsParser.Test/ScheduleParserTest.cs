@@ -45,7 +45,7 @@ namespace FlexKidsParser.Test
                 };
 
             // act
-            var htmlContent = GetFileContent("2020/page_0.html");
+            var htmlContent = GetFileContent("2020/page_0.txt");
             var contentParser = new ScheduleParser(htmlContent, YEAR);
             List<ScheduleItem> schedule = contentParser.GetScheduleFromContent();
 
