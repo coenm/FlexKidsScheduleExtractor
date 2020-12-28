@@ -1,4 +1,4 @@
-﻿namespace FlexKids.Console
+namespace FlexKids.Console
 {
     using System.Security.Cryptography;
     using System.Text;
@@ -14,16 +14,16 @@
 
         public string Hash(string input)
         {
-            using (var sha1 = new SHA1Managed())
+            using var sha1 = new SHA1Managed();
+            var hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(input));
+            var sb = new StringBuilder(hash.Length * 2);
+
+            foreach (var b in hash)
             {
-                var hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(input));
-                var sb = new StringBuilder(hash.Length * 2);
-
-                foreach (var b in hash)
-                    sb.Append(b.ToString("x2"));
-
-                return sb.ToString();
+                _ = sb.Append(b.ToString("x2"));
             }
+
+            return sb.ToString();
         }
     }
 }

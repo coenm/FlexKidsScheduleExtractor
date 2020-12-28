@@ -1,0 +1,15 @@
+{
+  "ServerUri": "https://sonarcloud.io/",
+  "Organization": {
+    "Key": "coenm-github",
+    "Name": "CoenM"
+  },
+  "ProjectKey": "coenm_FlexKidsScheduleExtractor",
+  "ProjectName": "FlexKidsScheduleExtractor",
+  "Profiles": {
+    "CSharp": {
+      "ProfileKey": "AV9Av6iRKRUdRrN4kCMD",
+      "ProfileTimestamp": "2020-12-28T10:06:24Z"
+    }
+  }
+}
