@@ -167,7 +167,13 @@ namespace FlexKidsScheduler
         {
             if (week == null)
             {
-                week = _repo.Insert(new Week { Hash = htmlHash, Year = year, WeekNr = weekNr });
+                week = _repo.Insert(new Week
+                    {
+                        Hash = htmlHash,
+                        Year = year,
+                        WeekNr = weekNr,
+                    });
+
                 if (week == null)
                 {
                     throw new Exception();

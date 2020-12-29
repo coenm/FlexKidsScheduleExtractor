@@ -151,27 +151,29 @@ namespace FlexKidsParser
                                 // var firstRow = firstItem.ChildNodes.First(x => x.IsElement());
                                 HtmlNode lastRow = rowsx[1];
 
-                                if (lastRow.ChildNodes.Count(x => x.IsElement()) == 2)
+                                if (lastRow.ChildNodes.Count(x => x.IsElement()) != 2)
                                 {
-                                    HtmlNode firstTd = lastRow.ChildNodes.First(x => x.IsElement()); // <td class="left">09:00-18:30</td>
-                                    HtmlNode lastTd = lastRow.ChildNodes.Last(x => x.IsElement()); // <td class="right">(09:00)</td>
-
-                                    var times = firstTd.InnerText.Trim(); // ie. 09:00-18:00
-                                    var divs = cols[i].Descendants().Where(x => x.IsDiv()).ToList();
-                                    var dateString = divs[0].InnerText.Trim();
-
-                                    var locationString = infoTdDivs[3].InnerText;
-
-                                    DateTime dateWithoutTime = ParseDate.StringToDateTime(dateString, _year);
-                                    Tuple<DateTime, DateTime> startEndDateTimeTuple = ParseDate.CreateStartEndDateTimeTuple(dateWithoutTime, times);
-
-                                    result.Add(new ScheduleItem
-                                        {
-                                            Start = startEndDateTimeTuple.Item1,
-                                            End = startEndDateTimeTuple.Item2,
-                                            Location = locationString,
-                                        });
+                                    continue;
                                 }
+
+                                HtmlNode firstTd = lastRow.ChildNodes.First(x => x.IsElement()); // <td class="left">09:00-18:30</td>
+                                HtmlNode lastTd = lastRow.ChildNodes.Last(x => x.IsElement()); // <td class="right">(09:00)</td>
+
+                                var times = firstTd.InnerText.Trim(); // i.e. 09:00-18:00
+                                var divs = cols[i].Descendants().Where(x => x.IsDiv()).ToList();
+                                var dateString = divs[0].InnerText.Trim();
+
+                                var locationString = infoTdDivs[3].InnerText;
+
+                                DateTime dateWithoutTime = ParseDate.StringToDateTime(dateString, _year);
+                                (DateTime start, DateTime end) = ParseDate.CreateStartEndDateTimeTuple(dateWithoutTime, times);
+
+                                result.Add(new ScheduleItem
+                                    {
+                                        Start = start,
+                                        End = end,
+                                        Location = locationString,
+                                    });
                             }
                         }
                     }

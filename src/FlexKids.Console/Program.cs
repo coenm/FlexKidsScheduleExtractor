@@ -44,7 +44,7 @@ namespace FlexKids.Console
             using Scope scope = AsyncScopedLifestyle.BeginScope(_container);
 
             var scheduler = _container.GetInstance<Scheduler>();
-            scheduler.ScheduleChanged += (_, changedArgs) =>
+            scheduler.ScheduleChanged += (sender, changedArgs) =>
                 {
                     IEnumerable<IReportScheduleChange> allHandlers = _container.GetAllInstances<IReportScheduleChange>();
                     foreach (IReportScheduleChange handler in allHandlers)

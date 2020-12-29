@@ -7,13 +7,11 @@ namespace FlexKidsScheduler
 
     public class ScheduleChangedArgs : EventArgs
     {
-        private readonly IOrderedEnumerable<ScheduleDiff> _diff;
-
         public ScheduleChangedArgs(IOrderedEnumerable<ScheduleDiff> diff)
         {
-            _diff = diff;
+            Diff = diff.ToList();
         }
 
-        public IList<ScheduleDiff> Diff => _diff.ToList();
+        public IReadOnlyList<ScheduleDiff> Diff { get; }
     }
 }

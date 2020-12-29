@@ -16,7 +16,7 @@ namespace Reporter.GoogleCalendar
             _flexKidsConfig = flexKidsConfig ?? throw new ArgumentNullException(nameof(flexKidsConfig));
         }
 
-        public bool HandleChange(IList<FlexKidsScheduler.Model.ScheduleDiff> schedule)
+        public bool HandleChange(IReadOnlyList<FlexKidsScheduler.Model.ScheduleDiff> schedule)
         {
             if (schedule == null || !schedule.Any())
             {
