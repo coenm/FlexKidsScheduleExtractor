@@ -80,4 +80,4 @@ steps:
     inputs:
       command: 'custom'
       custom: 'sonarscanner'
-      arguments: 'end'
+      arguments: 'end /d:sonar.login=$(SONAR_TOKEN)'
