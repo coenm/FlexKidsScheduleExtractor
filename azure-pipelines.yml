@@ -45,6 +45,14 @@ steps:
     inputs:
       command: 'restore'
       projects: '**/*.csproj'
+
+  - task: DotNetCoreCLI@2
+    displayName: Initialize Sonar Scanner
+    inputs:
+      command: 'custom'
+      custom: 'scanner'
+      arguments: 'begin /o:"coenm-github" /k:"coenm_FlexKidsScheduleExtractor" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.branch.name=$(Build.SourceBranchName)'
+
   - task: DotNetCoreCLI@2
     displayName: Build
     inputs:
@@ -58,3 +66,10 @@ steps:
       command: test
       projects: '**/*[Tt]est/*.csproj'
       arguments: '--configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:ExcludeByAttribute=CompilerGenerated --logger trx'
+
+  - task: DotNetCoreCLI@2
+    displayName: Finalize Sonar Scanner
+    inputs:
+      command: 'custom'
+      custom: 'scanner'
+      arguments: 'end'
