@@ -34,11 +34,17 @@ steps:
       checkLatest: true
 
   - task: DotNetCoreCLI@2
+    displayName: "Install tool: dotnet-sonarscanner"
+    inputs:
+      command: "custom"
+      custom: "tool"
+      arguments: "update --global dotnet-sonarscanner"
+
+  - task: DotNetCoreCLI@2
     displayName: Restore
     inputs:
       command: 'restore'
       projects: '**/*.csproj'
-
   - task: DotNetCoreCLI@2
     displayName: Build
     inputs:
