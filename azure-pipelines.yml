@@ -44,6 +44,7 @@ steps:
     inputs:
       command: 'build'
       projects: '**/*.sln'
+      arguments: '--configuration Release --verbosity normal'
 
   - task: DotNetCoreCLI@2
     displayName: Test
