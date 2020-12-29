@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RuleSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="SonarQube - FlexKidsScheduleExtractor CoenM Way" Description="This rule set was automatically generated from SonarQube https://sonarcloud.io/profiles/show?key=AV9Av6iRKRUdRrN4kCMD" ToolsVersion="14.0">
+<RuleSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="SonarQube - FlexKidsScheduleExtractor CoenM2021" Description="This rule set was automatically generated from SonarQube https://sonarcloud.io/profiles/show?key=AXatZoatAbtFseM5u-8P" ToolsVersion="14.0">
   <Rules AnalyzerId="SonarAnalyzer.CSharp" RuleNamespace="SonarAnalyzer.CSharp">
     <Rule Id="S100" Action="None" />
     <Rule Id="S1006" Action="Warning" />
@@ -178,7 +178,7 @@
     <Rule Id="S3169" Action="Warning" />
     <Rule Id="S3172" Action="Warning" />
     <Rule Id="S3215" Action="None" />
-    <Rule Id="S3216" Action="Warning" />
+    <Rule Id="S3216" Action="None" />
     <Rule Id="S3217" Action="Warning" />
     <Rule Id="S3218" Action="Warning" />
     <Rule Id="S3220" Action="Info" />
@@ -253,7 +253,7 @@
     <Rule Id="S3876" Action="None" />
     <Rule Id="S3877" Action="Warning" />
     <Rule Id="S3880" Action="None" />
-    <Rule Id="S3881" Action="Warning" />
+    <Rule Id="S3881" Action="None" />
     <Rule Id="S3884" Action="Warning" />
     <Rule Id="S3885" Action="Warning" />
     <Rule Id="S3887" Action="Info" />
