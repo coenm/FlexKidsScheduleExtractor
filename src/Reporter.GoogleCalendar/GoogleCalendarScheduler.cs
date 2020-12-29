@@ -50,7 +50,7 @@ namespace Reporter.GoogleCalendar
             }
         }
 
-        public void MakeEvents(IList<ScheduleDiff> schedule)
+        public void MakeEvents(IReadOnlyList<ScheduleDiff> schedule)
         {
             var weeks = schedule.Select(x => x.Schedule.Week).Distinct();
 
