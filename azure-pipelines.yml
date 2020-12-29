@@ -27,6 +27,14 @@ steps:
     persistCredentials: true
     clean: true
 
+  - task: PowerShell@2
+    displayName: "Use JDK11 by default"
+    inputs:
+      targetType: 'inline'
+      script: |
+        $jdkPath = $env:JAVA_HOME_11_X64
+        Write-Host "##vso[task.setvariable variable=JAVA_HOME]$jdkPath"
+
   - task: NuGetToolInstaller@1
     displayName: Install Nuget 5x
     inputs:
