@@ -75,14 +75,14 @@ namespace FlexKidsScheduler
                     var schedulesToDelete = diffResult
                         .Where(x => x.Status == ScheduleStatus.Removed)
                         .Select(x => x.Schedule);
-                    _repo.Delete(schedulesToDelete);
+                    _ = _repo.Delete(schedulesToDelete);
 
                     var schedulesToInsert = diffResult
                         .Where(x => x.Status == ScheduleStatus.Added)
                         .Select(x => x.Schedule);
                     foreach (var schedule in schedulesToInsert)
                     {
-                        _repo.Insert(schedule);
+                        _ = _repo.Insert(schedule);
                     }
 
                     OnScheduleChanged(diffResult.OrderBy(x => x.Start).ThenBy(x => x.Status));
@@ -132,7 +132,7 @@ namespace FlexKidsScheduler
                 if (selectItem != null)
                 {
                     diffResultItem.Status = ScheduleStatus.Unchanged;
-                    parsedSchedules.Remove(selectItem);
+                    _ = parsedSchedules.Remove(selectItem);
                 }
                 else
                 {

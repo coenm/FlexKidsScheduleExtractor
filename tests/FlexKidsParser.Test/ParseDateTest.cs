@@ -35,7 +35,7 @@ namespace FlexKidsParser.Test
 
             // act
             // assert
-            Assert.Throws<FormatException>(() => Sut.AddStringTimeToDate(d, input));
+            _ = Assert.Throws<FormatException>(() => Sut.AddStringTimeToDate(d, input));
         }
 
         [Theory]
@@ -113,7 +113,7 @@ namespace FlexKidsParser.Test
 
             // act
             // assert
-            Assert.Throws<FormatException>(() => Sut.StringToDateTime(input, YEAR));
+            _ = Assert.Throws<FormatException>(() => Sut.StringToDateTime(input, YEAR));
         }
 
         [Theory]

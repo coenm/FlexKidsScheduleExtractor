@@ -9,12 +9,10 @@ namespace Reporter.GoogleCalendar
     public class CalendarReportScheduleChange : IReportScheduleChange
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IFlexKidsConfig _flexKidsConfig;
 
-        public CalendarReportScheduleChange(IDateTimeProvider dateTimeProvider, IFlexKidsConfig flexKidsConfig)
+        public CalendarReportScheduleChange(IFlexKidsConfig flexKidsConfig)
         {
-            _dateTimeProvider = dateTimeProvider ?? throw new ArgumentNullException(nameof(dateTimeProvider));
             _flexKidsConfig = flexKidsConfig ?? throw new ArgumentNullException(nameof(flexKidsConfig));
         }
 
