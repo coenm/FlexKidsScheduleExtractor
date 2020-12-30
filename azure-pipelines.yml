@@ -86,7 +86,7 @@ steps:
         /p:ExcludeByAttribute=CompilerGenerated 
         --logger trx --results-directory $(Common.TestResultsDirectory)
         --collect:"Code Coverage"
-        --verbosity verbose
+        --verbosity detailed
 #  /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ /p:MergeWith=$(Build.SourcesDirectory)/coverage/  --logger trx;LogFileName=$(Common.TestResultsDirectory)/run.trx'
     continueOnError: true
 
