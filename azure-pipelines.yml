@@ -84,12 +84,13 @@ steps:
         --configuration Release 
         /p:CollectCoverage=true /p:CoverletOutputFormat=opencover 
         /p:ExcludeByAttribute=CompilerGenerated 
-        --logger trx 
-        "--results-directory $(Common.TestResultsDirectory)"
+        --logger "trx;LogFileName=./tests.trx" 
         --collect:"Code Coverage"
         --verbosity detailed
     continueOnError: true
 
+#"--results-directory $(Common.TestResultsDirectory)"
+        
   - task: DotNetCoreCLI@2
     displayName: Finalize Sonar Scanner
     inputs:
