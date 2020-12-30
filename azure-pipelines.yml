@@ -85,6 +85,7 @@ steps:
         /p:ExcludeByAttribute=CompilerGenerated 
         --logger trx 
         --collect:"Code Coverage"
+        --verbosity normal
     continueOnError: true
 
   - task: DotNetCoreCLI@2
