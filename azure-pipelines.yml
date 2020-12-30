@@ -58,7 +58,7 @@ steps:
     inputs:
       command: 'custom'
       custom: 'sonarscanner'
-      arguments: |
+      arguments: >-
         begin 
         /o:"coenm-github" 
         /k:"coenm_FlexKidsScheduleExtractor" 
