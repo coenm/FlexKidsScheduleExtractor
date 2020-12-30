@@ -8,7 +8,7 @@ namespace FlexKidsScheduler
     using Repository.Model;
 
     // A delegate type for hooking up change notifications.
-    public delegate void ChangedEventHandler(object sender, ScheduleChangedArgs e);
+    public delegate void ChangedEventHandler(object sender, ScheduleChangedEventArgs e);
 
     public class Scheduler : IDisposable
     {
@@ -113,7 +113,7 @@ namespace FlexKidsScheduler
 
         protected virtual void OnScheduleChanged(IOrderedEnumerable<ScheduleDiff> diffs)
         {
-            ScheduleChanged?.Invoke(this, new ScheduleChangedArgs(diffs));
+            ScheduleChanged?.Invoke(this, new ScheduleChangedEventArgs(diffs));
         }
 
         private static IList<ScheduleDiff> GetDiffs(ICollection<Schedule> dbSchedules, ICollection<ScheduleItem> parsedSchedules, Week week)

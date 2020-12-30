@@ -5,9 +5,9 @@ namespace FlexKidsScheduler
     using System.Linq;
     using FlexKidsScheduler.Model;
 
-    public class ScheduleChangedArgs : EventArgs
+    public class ScheduleChangedEventArgs : EventArgs
     {
-        public ScheduleChangedArgs(IOrderedEnumerable<ScheduleDiff> diff)
+        public ScheduleChangedEventArgs(IOrderedEnumerable<ScheduleDiff> diff)
         {
             Diff = diff.ToList();
         }
