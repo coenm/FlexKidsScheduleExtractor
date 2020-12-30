@@ -65,6 +65,7 @@ steps:
         /d:sonar.login=$(SONAR_TOKEN) 
         /d:sonar.host.url="https://sonarcloud.io" 
         /d:sonar.branch.name=$(Build.SourceBranchName)
+        /d:sonar.ws.timeout=300
 
   - task: DotNetCoreCLI@2
     displayName: Build
@@ -78,8 +79,12 @@ steps:
     inputs:
       command: test
       projects: '**/*[Tt]est/*.csproj'
-      arguments: '--configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:ExcludeByAttribute=CompilerGenerated --logger trx --collect:"Code Coverage"'
-      # arguments: '--collect:"Code Coverage"'
+      arguments: >-
+        --configuration Release 
+        /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura 
+        /p:ExcludeByAttribute=CompilerGenerated 
+        --logger trx 
+        --collect:"Code Coverage"
     continueOnError: true
 
   - task: DotNetCoreCLI@2
