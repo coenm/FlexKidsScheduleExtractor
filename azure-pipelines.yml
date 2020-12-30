@@ -27,6 +27,14 @@ steps:
     persistCredentials: true
     clean: true
 
+  - task: PowerShell@2
+    displayName: "Use JDK11 by default"
+    inputs:
+      targetType: 'inline'
+      script: |
+        $jdkPath = $env:JAVA_HOME_11_X64
+        Write-Host "##vso[task.setvariable variable=JAVA_HOME]$jdkPath"
+
   - task: NuGetToolInstaller@1
     displayName: Install Nuget 5x
     inputs:
@@ -34,10 +42,24 @@ steps:
       checkLatest: true
 
   - task: DotNetCoreCLI@2
+    displayName: "Install tool: dotnet-sonarscanner"
+    inputs:
+      command: "custom"
+      custom: "tool"
+      arguments: "update --global dotnet-sonarscanner"
+
+  - task: DotNetCoreCLI@2
     displayName: Restore
     inputs:
       command: 'restore'
       projects: '**/*.csproj'
+
+  - task: DotNetCoreCLI@2
+    displayName: Initialize Sonar Scanner
+    inputs:
+      command: 'custom'
+      custom: 'sonarscanner'
+      arguments: 'begin /o:"coenm-github" /k:"coenm_FlexKidsScheduleExtractor" /d:sonar.login=$(SONAR_TOKEN) /d:sonar.host.url="https://sonarcloud.io" /d:sonar.branch.name=$(Build.SourceBranchName)'
 
   - task: DotNetCoreCLI@2
     displayName: Build
@@ -52,3 +74,10 @@ steps:
       command: test
       projects: '**/*[Tt]est/*.csproj'
       arguments: '--configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:ExcludeByAttribute=CompilerGenerated --logger trx'
+
+  - task: DotNetCoreCLI@2
+    displayName: Finalize Sonar Scanner
+    inputs:
+      command: 'custom'
+      custom: 'sonarscanner'
+      arguments: 'end /d:sonar.login=$(SONAR_TOKEN)'
