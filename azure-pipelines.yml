@@ -66,6 +66,7 @@ steps:
         /d:sonar.host.url="https://sonarcloud.io" 
         /d:sonar.branch.name=$(Build.SourceBranchName)
         /d:sonar.ws.timeout=300
+        /d:sonar.cs.vstest.reportsPaths=$(Common.TestResultsDirectory)/**/*.trx
 
   - task: DotNetCoreCLI@2
     displayName: Build
@@ -81,11 +82,12 @@ steps:
       projects: '**/*[Tt]est/*.csproj'
       arguments: >-
         --configuration Release 
-        /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura 
+        /p:CollectCoverage=true /p:CoverletOutputFormat=opencover,cobertura 
         /p:ExcludeByAttribute=CompilerGenerated 
-        --logger trx 
+        --logger trx --results-directory $(Common.TestResultsDirectory)
         --collect:"Code Coverage"
-        --verbosity normal
+        --verbosity verbose
+#  /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ /p:MergeWith=$(Build.SourcesDirectory)/coverage/  --logger trx;LogFileName=$(Common.TestResultsDirectory)/run.trx'
     continueOnError: true
 
   - task: DotNetCoreCLI@2
