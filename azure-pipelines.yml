@@ -66,7 +66,9 @@ steps:
         /d:sonar.host.url="https://sonarcloud.io" 
         /d:sonar.branch.name=$(Build.SourceBranchName)
         /d:sonar.ws.timeout=300
-        /d:sonar.cs.vstest.reportsPaths=$(Common.TestResultsDirectory)/**/*.trx
+        /d:sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
+
+#/d:sonar.cs.vstest.reportsPaths=$(Common.TestResultsDirectory)/**/*.trx
 
   - task: DotNetCoreCLI@2
     displayName: Build
@@ -75,6 +77,7 @@ steps:
       projects: '**/*.sln'
       arguments: '--configuration Release --verbosity normal'
 
+  # --logger trx and --results-directory $(Common.TestResultsDirectory) is already set
   - task: DotNetCoreCLI@2
     displayName: Test
     inputs:
@@ -84,14 +87,10 @@ steps:
         --configuration Release 
         /p:CollectCoverage=true /p:CoverletOutputFormat=opencover 
         /p:ExcludeByAttribute=CompilerGenerated 
-        --logger trx
         --collect:"Code Coverage"
         --verbosity detailed
     continueOnError: true
 
-# --logger "trx;LogFileName=./tests.trx" 
-#"--results-directory $(Common.TestResultsDirectory)"
-        
   - task: DotNetCoreCLI@2
     displayName: Finalize Sonar Scanner
     inputs:
