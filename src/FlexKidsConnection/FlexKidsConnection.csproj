@@ -9,6 +9,11 @@
     <PackageReference Include="NLog" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <!-- Project guid to satisfy SonarQube -->
+    <ProjectGuid>9EBF3F5F-BCAE-48B5-8637-CA0DA3F39FB0</ProjectGuid>
+  </PropertyGroup>
+
   <!-- Each production project automatically makes internals visible to testproject with same name (suffixed with ".Tests"). -->
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
