@@ -84,11 +84,12 @@ steps:
         --configuration Release 
         /p:CollectCoverage=true /p:CoverletOutputFormat=opencover 
         /p:ExcludeByAttribute=CompilerGenerated 
-        --logger "trx;LogFileName=./tests.trx" 
+        --logger trx
         --collect:"Code Coverage"
         --verbosity detailed
     continueOnError: true
 
+# --logger "trx;LogFileName=./tests.trx" 
 #"--results-directory $(Common.TestResultsDirectory)"
         
   - task: DotNetCoreCLI@2
