@@ -4,10 +4,6 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>84a99ecf-5bcd-48d1-bf4a-49412c849813</UserSecretsId>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <!-- Project guid to satisfy SonarQube -->
     <ProjectGuid>7951AA4A-E83E-417A-B73C-CAD72B2D81A3</ProjectGuid>
   </PropertyGroup>
 

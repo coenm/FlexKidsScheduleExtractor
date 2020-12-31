@@ -2,10 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <!-- Project guid to satisfy SonarQube -->
     <ProjectGuid>47D53EE4-3F77-483F-9EAA-71E705C87E6C</ProjectGuid>
   </PropertyGroup>
 
