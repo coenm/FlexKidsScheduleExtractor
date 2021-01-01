@@ -78,6 +78,7 @@ steps:
         /d:sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/tests/**/coverage.opencover.xml
         /d:sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
         /d:sonar.coverageReportPaths=$(Agent.TempDirectory)/reportgenerator/SonarQube.xml
+        /d:sonar.testExecutionReportPaths=$(Agent.TempDirectory)/reportgenerator/SonarQube.xml
 
 #/d:sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
 #/d:sonar.cs.vstest.reportsPaths=$(Common.TestResultsDirectory)/**/*.trx
