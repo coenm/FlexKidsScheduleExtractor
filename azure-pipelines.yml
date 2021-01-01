@@ -93,13 +93,15 @@ steps:
         --no-build
         /p:CollectCoverage=true 
         "/p:CoverletOutputFormat=\"opencover,cobertura\""
-        /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ 
-        /p:MergeWith=$(Build.SourcesDirectory)/coverage/
         /p:ExcludeByAttribute=CompilerGenerated 
         --collect:"XPlat Code Coverage"
         --verbosity detailed
     continueOnError: true
 
+#   /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ 
+#    /p:MergeWith=$(Build.SourcesDirectory)/coverage/
+
+#    --collect:"Code Coverage"
 # '--configuration $(BuildConfiguration) 
 #   "/p:CoverletOutputFormat=\"opencover,cobertura\"" 
 #  /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ 
