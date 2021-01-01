@@ -50,6 +50,13 @@ steps:
       arguments: "update --global dotnet-sonarscanner"
 
   - task: DotNetCoreCLI@2
+    displayName: "Install tool: dotnet-reportgenerator-globaltool"
+    inputs:
+      command: "custom"
+      custom: "tool"
+      arguments: "update --global dotnet-reportgenerator-globaltool"
+
+  - task: DotNetCoreCLI@2
     displayName: Restore
     inputs:
       command: 'restore'
@@ -114,3 +121,9 @@ steps:
       command: 'custom'
       custom: 'sonarscanner'
       arguments: 'end /d:sonar.login=$(SONAR_TOKEN)'
+
+  - task: PublishCodeCoverageResults@1
+    displayName: "Publish code coverage"
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: "**/coverage.cobertura.xml"
