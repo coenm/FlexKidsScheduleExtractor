@@ -17,10 +17,8 @@ variables:
     value: 1
   - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
     value: 1
-  - name: sonarcloudBranchName1
-    value: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
   - name: sonarcloudBranchName
-    value: $[replace(variables['sonarcloudBranchName1'], '/', '')]
+    value: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
 
 workspace:
   clean: all
@@ -75,7 +73,7 @@ steps:
         /k:"coenm_FlexKidsScheduleExtractor" 
         /d:sonar.login=$(SONAR_TOKEN) 
         /d:sonar.host.url="https://sonarcloud.io" 
-        /d:sonar.branch.name=$(sonarcloudBranchName)
+        /d:sonar.branch.name=$(Build.SourceBranchName)
         /d:sonar.ws.timeout=300
         /d:sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/tests/**/coverage.opencover.xml
         /d:sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
