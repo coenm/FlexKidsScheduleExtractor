@@ -17,8 +17,10 @@ variables:
     value: 1
   - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
     value: 1
-  - name: sonarcloudBranchName
+  - name: sonarcloudBranchName1
     value: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
+  - name: sonarcloudBranchName
+    value: $[replace(variables['sonarcloudBranchName1'], '/', '')]
 
 workspace:
   clean: all
