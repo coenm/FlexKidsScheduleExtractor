@@ -77,6 +77,7 @@ steps:
         /d:sonar.ws.timeout=300
         /d:sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/tests/**/coverage.opencover.xml
         /d:sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
+        /d:sonar.coverageReportPaths=$(Agent.TempDirectory)/reportgenerator/SonarQube.xml
 
 #/d:sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
 #/d:sonar.cs.vstest.reportsPaths=$(Common.TestResultsDirectory)/**/*.trx
@@ -105,7 +106,7 @@ steps:
         --verbosity detailed
     continueOnError: true
 
-  - script: reportgenerator "-reports:$(Build.SourcesDirectory)\**\coverage.opencover.xml" "-targetDir:$(Agent.TempDirectory)/coverage/Cobertura" -tag:$(Build.BuildNumber) "-reporttypes:Cobertura;HTMLInline;HTMLChart;SonarQube"
+  - script: reportgenerator "-reports:$(Build.SourcesDirectory)\**\coverage.opencover.xml" "-targetDir:$(Agent.TempDirectory)/reportgenerator" -tag:$(Build.BuildNumber) "-reporttypes:Cobertura;HTMLInline;HTMLChart;SonarQube"
     workingDirectory: $(Build.SourcesDirectory)/tests
     displayName: "dotnet reportgenerator"
 
