@@ -105,6 +105,10 @@ steps:
         --verbosity detailed
     continueOnError: true
 
+  - script: reportgenerator "-reports:$(Build.SourcesDirectory)\**\coverage.opencover.xml" "-targetDir:$(Agent.TempDirectory)/coverage/Cobertura" -tag:$(Build.BuildNumber) "-reporttypes:Cobertura;HTMLInline;HTMLChart;SonarQube"
+    workingDirectory: $(Build.SourcesDirectory)/tests
+    displayName: "dotnet reportgenerator"
+
 #   /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ 
 #    /p:MergeWith=$(Build.SourcesDirectory)/coverage/
 
