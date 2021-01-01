@@ -68,8 +68,10 @@ steps:
         /d:sonar.host.url="https://sonarcloud.io" 
         /d:sonar.branch.name=$(sonarcloudBranchName)
         /d:sonar.ws.timeout=300
+        /d:sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/coverage/coverage.opencover.xml
         /d:sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
 
+#/d:sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
 #/d:sonar.cs.vstest.reportsPaths=$(Common.TestResultsDirectory)/**/*.trx
 
   - task: DotNetCoreCLI@2
@@ -87,11 +89,22 @@ steps:
       projects: '**/*[Tt]est/*.csproj'
       arguments: >-
         --configuration Release 
-        /p:CollectCoverage=true /p:CoverletOutputFormat=opencover 
+        --no-restore 
+        --no-build
+        /p:CollectCoverage=true 
+        /p:CoverletOutputFormat=opencover 
+        /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ 
+        /p:MergeWith=$(Build.SourcesDirectory)/coverage/
         /p:ExcludeByAttribute=CompilerGenerated 
         --collect:"Code Coverage"
         --verbosity detailed
     continueOnError: true
+
+# '--configuration $(BuildConfiguration) 
+#   "/p:CoverletOutputFormat=\"opencover,cobertura\"" 
+#  /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ 
+# /p:MergeWith=$(Build.SourcesDirectory)/coverage/ 
+# --no-restore --no-build --logger trx;LogFileName=$(Common.TestResultsDirectory)/run.trx'
 
   - task: DotNetCoreCLI@2
     displayName: Finalize Sonar Scanner
