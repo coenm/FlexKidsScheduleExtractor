@@ -92,7 +92,7 @@ steps:
         --no-restore 
         --no-build
         /p:CollectCoverage=true 
-        /p:CoverletOutputFormat="opencover,cobertura"
+        "/p:CoverletOutputFormat=\"opencover,cobertura\""
         /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ 
         /p:MergeWith=$(Build.SourcesDirectory)/coverage/
         /p:ExcludeByAttribute=CompilerGenerated 
