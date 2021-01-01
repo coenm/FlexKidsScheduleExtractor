@@ -96,7 +96,7 @@ steps:
         /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ 
         /p:MergeWith=$(Build.SourcesDirectory)/coverage/
         /p:ExcludeByAttribute=CompilerGenerated 
-        --collect:"Code Coverage"
+        --collect:"XPlat Code Coverage"
         --verbosity detailed
     continueOnError: true
 
