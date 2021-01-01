@@ -15,7 +15,13 @@
     <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.0" />
     <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.0" />
 
+    <!-- Unittest -->
+    <PackageReference IsImplicitlyDefined="true" Update="FluentAssertions" Version="5.10.3" />
+    <PackageReference IsImplicitlyDefined="true" Update="FluentAssertions.Analyzers" Version="0.11.4" />
+    <PackageReference IsImplicitlyDefined="true" Update="FakeItEasy" Version="6.2.1" />
     <PackageReference IsImplicitlyDefined="true" Update="coverlet.msbuild" Version="2.8.1" />
     <PackageReference IsImplicitlyDefined="true" Update="coverlet.collector" Version="1.2.1" />
+    <PackageReference IsImplicitlyDefined="true" Update="xunit" Version="2.4.1" />
+    <PackageReference IsImplicitlyDefined="true" Update="xunit.runner.visualstudio" Version="2.4.3" />
   </ItemGroup>
 </Project>
