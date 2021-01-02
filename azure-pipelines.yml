@@ -9,6 +9,10 @@ trigger:
     exclude:
       - v*
 
+pr:
+  - develop
+  - feature/*
+
 pool:
   vmImage: 'windows-latest'
 
