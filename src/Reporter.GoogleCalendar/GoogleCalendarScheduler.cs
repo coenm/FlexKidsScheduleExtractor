@@ -43,10 +43,10 @@ namespace Reporter.GoogleCalendar
 
             _calendarService = new GoogleCalendarService(service);
 
-            var calendar = _calendarService.GetCalendarById(_googleCalendarId);
+            Calendar calendar = _calendarService.GetCalendarById(_googleCalendarId);
             if (calendar == null)
             {
-                throw new Exception("Cannot find calendar");
+                throw new CalendarNotFoundException(_googleCalendarId);
             }
         }
 

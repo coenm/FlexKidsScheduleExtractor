@@ -62,10 +62,10 @@ namespace FlexKidsParser
                 return null;
             }
 
-            HtmlNode tableIdLocatieWeekoverzicht = tablesIdLocatieWeekoverzicht.First();
+            HtmlNode tableIdLocatieWeekOverzicht = tablesIdLocatieWeekoverzicht.First();
 
             // get head (hierin zitten de dagen en de datums)
-            var theads = tableIdLocatieWeekoverzicht.Descendants().Where(x => x.IsThead()).ToList();
+            var theads = tableIdLocatieWeekOverzicht.Descendants().Where(x => x.IsThead()).ToList();
             if (theads.Count != 1)
             {
                 _logger.Error("theads");
@@ -96,7 +96,7 @@ namespace FlexKidsParser
 
             // first column is nothing..
             // second till 6th are Monday till Friday
-            var tbodys = tableIdLocatieWeekoverzicht.ChildNodes.Where(x => x.IsTbody()).ToList();
+            var tbodys = tableIdLocatieWeekOverzicht.ChildNodes.Where(x => x.IsTbody()).ToList();
             HtmlNode tbody = tbodys.First();
 
             var trs2 = tbody.ChildNodes.Where(x => x.IsTr()).ToList();
@@ -148,7 +148,6 @@ namespace FlexKidsParser
                             HtmlNode[] rowsx = firstItem.ChildNodes.Where(x => x.IsElement()).ToArray();
                             if (rowsx.Length is >= 2 and <= 3)
                             {
-                                // var firstRow = firstItem.ChildNodes.First(x => x.IsElement());
                                 HtmlNode lastRow = rowsx[1];
 
                                 if (lastRow.ChildNodes.Count(x => x.IsElement()) != 2)

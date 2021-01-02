@@ -26,7 +26,7 @@ namespace FlexKidsScheduler
         {
             if (message == null)
             {
-                throw new ArgumentNullException("message");
+                throw new ArgumentNullException(nameof(message));
             }
 
             _client.Send(message); // TODO exception handling
