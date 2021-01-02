@@ -156,10 +156,9 @@ namespace FlexKidsParser
                                     continue;
                                 }
 
-                                HtmlNode firstTd = lastRow.ChildNodes.First(x => x.IsElement()); // <td class="left">09:00-18:30</td>
-                                HtmlNode lastTd = lastRow.ChildNodes.Last(x => x.IsElement()); // <td class="right">(09:00)</td>
+                                HtmlNode tdStartEndTime = lastRow.ChildNodes.First(x => x.IsElement()); // <td class="left">09:00-18:30</td>
 
-                                var times = firstTd.InnerText.Trim(); // i.e. 09:00-18:00
+                                var times = tdStartEndTime.InnerText.Trim(); // i.e. 09:00-18:00
                                 var divs = cols[i].Descendants().Where(x => x.IsDiv()).ToList();
                                 var dateString = divs[0].InnerText.Trim();
 

@@ -1,6 +1,7 @@
 namespace FlexKidsParser.Helper
 {
     using System;
+    using System.IO;
     using NLog;
 
     public static class ParseDate
@@ -13,27 +14,27 @@ namespace FlexKidsParser.Helper
             var split = time.Trim().Split(':');
             if (split.Length != 2)
             {
-                throw new FormatException("Not a valid time format.");
+                throw new InvalidDataException("Not a valid time format.");
             }
 
             if (!int.TryParse(split[0].Trim(), out var hour))
             {
-                throw new Exception("No hours found");
+                throw new InvalidDataException("No hours found");
             }
 
             if (hour is < 0 or > 23)
             {
-                throw new Exception("Hours not in range");
+                throw new InvalidDataException("Hours not in range");
             }
 
             if (!int.TryParse(split[1].Trim(), out var min))
             {
-                throw new Exception("No minutes found");
+                throw new InvalidDataException("No minutes found");
             }
 
             if (min is < 0 or >= 60)
             {
-                throw new Exception("Minutes not in range");
+                throw new InvalidDataException("Minutes not in range");
             }
 
             return new DateTime(date.Year, date.Month, date.Day, hour, min, 0);
@@ -46,7 +47,7 @@ namespace FlexKidsParser.Helper
             var splitBothTimes = startEndTime.Trim().Split('-');
             if (splitBothTimes.Length != 2)
             {
-                throw new Exception();
+                throw new InvalidDataException("Split character '-' not found or found multiple times.");
             }
 
             return new Tuple<DateTime, DateTime>(
@@ -74,28 +75,28 @@ namespace FlexKidsParser.Helper
             var splitInput = input.Split(' ');
             if (splitInput.Length != 2)
             {
-                throw new FormatException("Not a valid format.");
+                throw new InvalidDataException("Not a valid format.");
             }
 
             var spitDate = splitInput[1].Trim().Split('-');
             if (spitDate.Length != 2)
             {
-                throw new Exception();
+                throw new InvalidDataException("Split character '-' not found or found multiple times.");
             }
 
             if (!int.TryParse(spitDate[0].Trim(), out var day))
             {
-                throw new Exception();
+                throw new InvalidDataException("Not an integer.");
             }
 
             if (day <= 0)
             {
-                throw new Exception();
+                throw new InvalidDataException($"Found day ({day}) not in range");
             }
 
             if (day > 31)
             {
-                throw new Exception();
+                throw new InvalidDataException($"Found day ({day}) not in range");
             }
 
             int month;
@@ -154,7 +155,7 @@ namespace FlexKidsParser.Helper
 
                 default:
                     _logger.Error(monthTxt + "  is not catched");
-                    throw new Exception(monthTxt + " is not catched");
+                    throw new InvalidDataException(monthTxt + " is not catched");
             }
 
             var result = new DateTime(year, month, day, 0, 0, 0);
