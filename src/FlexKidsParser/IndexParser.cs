@@ -2,6 +2,7 @@ namespace FlexKidsParser
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using FlexKidsParser.Helper;
     using FlexKidsScheduler.Model;
@@ -40,7 +41,7 @@ namespace FlexKidsParser
             {
                 var s = $"Nr of weekselections is {weekSelections.Count} but should be equal to 1.";
                 _logger.Error(s);
-                throw new ApplicationException(s);
+                throw new InvalidDataException(s);
             }
 
             HtmlNode weekSelection = weekSelections.First();
@@ -104,7 +105,7 @@ namespace FlexKidsParser
             var logins = _document.DocumentNode.Descendants().Where(x => x.IsDiv() && x.ClassContains("username")).ToList();
             if (logins.Count != 1)
             {
-                throw new Exception();
+                throw new InvalidDataException("Cannot find email");
             }
 
             HtmlNode loginEmailAddress = logins.First();

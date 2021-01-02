@@ -1,6 +1,7 @@
 namespace FlexKidsParser.Test
 {
     using System;
+    using System.IO;
     using Xunit;
     using Sut = FlexKidsParser.Helper.ParseDate;
 
@@ -35,7 +36,7 @@ namespace FlexKidsParser.Test
 
             // act
             // assert
-            _ = Assert.Throws<FormatException>(() => Sut.AddStringTimeToDate(d, input));
+            _ = Assert.Throws<InvalidDataException>(() => Sut.AddStringTimeToDate(d, input));
         }
 
         [Theory]
@@ -58,7 +59,7 @@ namespace FlexKidsParser.Test
 
             // act
             // assert
-            Exception ex = Assert.Throws<Exception>(() => Sut.AddStringTimeToDate(d, input));
+            Exception ex = Assert.Throws<InvalidDataException>(() => Sut.AddStringTimeToDate(d, input));
             Assert.Equal(ex.Message, expectedMsg);
         }
 
@@ -113,7 +114,7 @@ namespace FlexKidsParser.Test
 
             // act
             // assert
-            _ = Assert.Throws<FormatException>(() => Sut.StringToDateTime(input, YEAR));
+            _ = Assert.Throws<InvalidDataException>(() => Sut.StringToDateTime(input, YEAR));
         }
 
         [Theory]

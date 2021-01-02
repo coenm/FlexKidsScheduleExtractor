@@ -194,7 +194,6 @@ namespace FlexKidsScheduler
                         Id = week.Id,
                     };
 
-                // week.Hash = htmlHash;
                 var w = _repo.Update(week, newWeek);
                 if (w == null)
                 {
