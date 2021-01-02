@@ -72,11 +72,11 @@ steps:
       command: 'custom'
       custom: 'sonarscanner'
       arguments: >-
-        begin 
-        /o:"coenm-github" 
-        /k:"coenm_FlexKidsScheduleExtractor" 
-        /d:sonar.login=$(SONAR_TOKEN) 
-        /d:sonar.host.url="https://sonarcloud.io" 
+        begin
+        /o:"coenm-github"
+        /k:"coenm_FlexKidsScheduleExtractor"
+        /d:sonar.login=$(SONAR_TOKEN)
+        /d:sonar.host.url="https://sonarcloud.io"
         /d:sonar.branch.name=$(sonarcloudBranchName)
         /d:sonar.ws.timeout=300
         /d:sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/tests/**/coverage.opencover.xml
@@ -100,28 +100,27 @@ steps:
       command: test
       projects: '**/*[Tt]est/*.csproj'
       arguments: >-
-        --configuration Release 
-        --no-restore 
+        --configuration Release
+        --no-restore
         --no-build
-        /p:CollectCoverage=true 
+        /p:CollectCoverage=true
         "/p:CoverletOutputFormat=\"opencover,cobertura\""
-        /p:ExcludeByAttribute=CompilerGenerated 
+        /p:ExcludeByAttribute=CompilerGenerated
         --collect:"XPlat Code Coverage"
         --verbosity detailed
-    continueOnError: true
 
   - script: reportgenerator "-reports:$(Build.SourcesDirectory)\**\coverage.opencover.xml" "-targetDir:$(Agent.TempDirectory)/reportgenerator" -tag:$(Build.BuildNumber) "-reporttypes:Cobertura;HTMLInline;HTMLChart;SonarQube"
     workingDirectory: $(Build.SourcesDirectory)/tests
     displayName: "dotnet reportgenerator"
 
-#   /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ 
+#   /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/
 #    /p:MergeWith=$(Build.SourcesDirectory)/coverage/
 
 #    --collect:"Code Coverage"
-# '--configuration $(BuildConfiguration) 
-#   "/p:CoverletOutputFormat=\"opencover,cobertura\"" 
-#  /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ 
-# /p:MergeWith=$(Build.SourcesDirectory)/coverage/ 
+# '--configuration $(BuildConfiguration)
+#   "/p:CoverletOutputFormat=\"opencover,cobertura\""
+#  /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/
+# /p:MergeWith=$(Build.SourcesDirectory)/coverage/
 # --no-restore --no-build --logger trx;LogFileName=$(Common.TestResultsDirectory)/run.trx'
 
   - task: DotNetCoreCLI@2
