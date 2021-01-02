@@ -8,7 +8,7 @@ namespace FlexKidsScheduler
     using Repository.Model;
 
     // A delegate type for hooking up change notifications.
-    public delegate void ChangedEventHandler(object sender, ScheduleChangedArgs e);
+    public delegate void ChangedEventHandler(object sender, ScheduleChangedEventArgs e);
 
     public class Scheduler : IDisposable
     {
@@ -28,91 +28,6 @@ namespace FlexKidsScheduler
         // An event that clients can use to be notified whenever the
         // elements of the list change.
         public event ChangedEventHandler ScheduleChanged;
-
-        private static IList<ScheduleDiff> GetDiffs(ICollection<Schedule> dbSchedules, ICollection<ScheduleItem> parsedSchedules, Week week)
-        {
-            var diffResult = new List<ScheduleDiff>(parsedSchedules.Count + dbSchedules.Count);
-
-            foreach (var item in dbSchedules)
-            {
-                var diffResultItem = new ScheduleDiff
-                {
-                    Schedule = item,
-                };
-
-                var selectItem = parsedSchedules.FirstOrDefault(x => x.Start == item.StartDateTime && x.End == item.EndDateTime && x.Location == item.Location);
-
-                if (selectItem != null)
-                {
-                    diffResultItem.Status = ScheduleStatus.Unchanged;
-                    parsedSchedules.Remove(selectItem);
-                }
-                else
-                {
-                    diffResultItem.Status = ScheduleStatus.Removed;
-                }
-
-                diffResult.Add(diffResultItem);
-            }
-
-            foreach (var parsedSchedule in parsedSchedules)
-            {
-                var schedule = new Schedule
-                    {
-                        WeekId = week.Id,
-                        Week = week,
-                        Location = parsedSchedule.Location,
-                        StartDateTime = parsedSchedule.Start,
-                        EndDateTime = parsedSchedule.End,
-                    };
-
-                diffResult.Add(new ScheduleDiff
-                    {
-                        Schedule = schedule,
-                        Status = ScheduleStatus.Added,
-                    });
-            }
-
-            return diffResult;
-        }
-
-        private Week GetCreateOrUpdateWeek(Week week, int year, int weekNr, string htmlHash)
-        {
-            if (week == null)
-            {
-                week = _repo.Insert(new Week { Hash = htmlHash, Year = year, WeekNr = weekNr });
-                if (week == null)
-                {
-                    throw new Exception();
-                }
-            }
-            else
-            {
-                if (week.Hash == htmlHash)
-                {
-                    return week;
-                }
-
-                var newWeek = new Week
-                    {
-                        Hash = htmlHash,
-                        WeekNr = week.WeekNr,
-                        Year = week.Year,
-                        Id = week.Id,
-                    };
-
-                // week.Hash = htmlHash;
-                var w = _repo.Update(week, newWeek);
-                if (w == null)
-                {
-                    throw new Exception();
-                }
-
-                return w;
-            }
-
-            return week;
-        }
 
         public IEnumerable<ScheduleDiff> GetChanges()
         {
@@ -160,14 +75,14 @@ namespace FlexKidsScheduler
                     var schedulesToDelete = diffResult
                         .Where(x => x.Status == ScheduleStatus.Removed)
                         .Select(x => x.Schedule);
-                    _repo.Delete(schedulesToDelete);
+                    _ = _repo.Delete(schedulesToDelete);
 
                     var schedulesToInsert = diffResult
                         .Where(x => x.Status == ScheduleStatus.Added)
                         .Select(x => x.Schedule);
                     foreach (var schedule in schedulesToInsert)
                     {
-                        _repo.Insert(schedule);
+                        _ = _repo.Insert(schedule);
                     }
 
                     OnScheduleChanged(diffResult.OrderBy(x => x.Start).ThenBy(x => x.Status));
@@ -198,19 +113,98 @@ namespace FlexKidsScheduler
 
         protected virtual void OnScheduleChanged(IOrderedEnumerable<ScheduleDiff> diffs)
         {
-            ScheduleChanged?.Invoke(this, new ScheduleChangedArgs(diffs));
+            ScheduleChanged?.Invoke(this, new ScheduleChangedEventArgs(diffs));
         }
-    }
 
-    public class ScheduleChangedArgs : EventArgs
-    {
-        private readonly IOrderedEnumerable<ScheduleDiff> _diff;
-
-        public ScheduleChangedArgs(IOrderedEnumerable<ScheduleDiff> diff)
+        private static IList<ScheduleDiff> GetDiffs(ICollection<Schedule> dbSchedules, ICollection<ScheduleItem> parsedSchedules, Week week)
         {
-            this._diff = diff;
+            var diffResult = new List<ScheduleDiff>(parsedSchedules.Count + dbSchedules.Count);
+
+            foreach (var item in dbSchedules)
+            {
+                var diffResultItem = new ScheduleDiff
+                    {
+                        Schedule = item,
+                    };
+
+                var selectItem = parsedSchedules.FirstOrDefault(x => x.Start == item.StartDateTime && x.End == item.EndDateTime && x.Location == item.Location);
+
+                if (selectItem != null)
+                {
+                    diffResultItem.Status = ScheduleStatus.Unchanged;
+                    _ = parsedSchedules.Remove(selectItem);
+                }
+                else
+                {
+                    diffResultItem.Status = ScheduleStatus.Removed;
+                }
+
+                diffResult.Add(diffResultItem);
+            }
+
+            foreach (var parsedSchedule in parsedSchedules)
+            {
+                var schedule = new Schedule
+                    {
+                        WeekId = week.Id,
+                        Week = week,
+                        Location = parsedSchedule.Location,
+                        StartDateTime = parsedSchedule.Start,
+                        EndDateTime = parsedSchedule.End,
+                    };
+
+                diffResult.Add(new ScheduleDiff
+                    {
+                        Schedule = schedule,
+                        Status = ScheduleStatus.Added,
+                    });
+            }
+
+            return diffResult;
         }
 
-        public IList<ScheduleDiff> Diff => _diff.ToList();
+        private Week GetCreateOrUpdateWeek(Week week, int year, int weekNr, string htmlHash)
+        {
+            if (week == null)
+            {
+                week = _repo.Insert(new Week
+                    {
+                        Hash = htmlHash,
+                        Year = year,
+                        WeekNr = weekNr,
+                    });
+
+                if (week == null)
+                {
+                    throw new Exception();
+                }
+            }
+            else
+            {
+                if (week.Hash == htmlHash)
+                {
+                    return week;
+                }
+
+                var newWeek = new Week
+                    {
+                        Hash = htmlHash,
+                        WeekNr = week.WeekNr,
+                        Year = week.Year,
+                        Id = week.Id,
+                    };
+
+                // week.Hash = htmlHash;
+                var w = _repo.Update(week, newWeek);
+                if (w == null)
+                {
+                    throw new Exception();
+                }
+
+                return w;
+            }
+
+            return week;
+        }
     }
 }

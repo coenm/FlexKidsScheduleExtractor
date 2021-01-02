@@ -1,6 +1,5 @@
 namespace FlexKidsScheduler.Test
 {
-    using System;
     using System.Collections.Generic;
     using FakeItEasy;
     using FlexKidsScheduler.Model;
@@ -110,18 +109,6 @@ namespace FlexKidsScheduler.Test
                     Id = 1,
                     WeekNr = 6,
                     Year = 2015,
-                };
-            weekNew.Schedules = new List<Schedule>
-                {
-                    new Schedule()
-                        {
-                            Id = 2,
-                            Location = "LocA",
-                            Week = weekNew,
-                            WeekId = weekNew.Id,
-                            StartDateTime = new DateTime(2015, 01, 02, 12, 13, 14),
-                            EndDateTime = new DateTime(2015, 01, 02, 17, 13, 14),
-                        },
                 };
 
             IFlexKidsConnection flexKidsConnection = A.Fake<IFlexKidsConnection>();

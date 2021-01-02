@@ -6,7 +6,9 @@ namespace FlexKidsScheduler
     {
         public static readonly IDateTimeProvider Instance = new DateTimeProvider();
 
-        private DateTimeProvider() { }
+        private DateTimeProvider()
+        {
+        }
 
         public DateTime Today => DateTime.Today;
 

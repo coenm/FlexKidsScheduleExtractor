@@ -50,7 +50,7 @@ namespace Reporter.GoogleCalendar
             }
         }
 
-        public void MakeEvents(IList<ScheduleDiff> schedule)
+        public void MakeEvents(IReadOnlyList<ScheduleDiff> schedule)
         {
             var weeks = schedule.Select(x => x.Schedule.Week).Distinct();
 
@@ -97,7 +97,7 @@ namespace Reporter.GoogleCalendar
                             },
                     };
 
-                //  queryEvent.SharedExtendedProperty = "EventID=3684";
+                // queryEvent.SharedExtendedProperty = "EventID=3684";
                 var newEvent = new Event
                     {
                         Start = new EventDateTime

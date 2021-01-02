@@ -9,8 +9,11 @@ trigger:
     exclude:
       - v*
 
+pr:
+  - develop
+  - feature/*
+
 pool:
-  # vmImage: 'ubuntu-latest'
   vmImage: 'windows-latest'
 
 variables:
@@ -18,6 +21,8 @@ variables:
     value: 1
   - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
     value: 1
+  - name: sonarcloudBranchName
+    value: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
 
 workspace:
   clean: all
@@ -27,11 +32,33 @@ steps:
     persistCredentials: true
     clean: true
 
+  - task: PowerShell@2
+    displayName: "Use JDK11 by default"
+    inputs:
+      targetType: 'inline'
+      script: |
+        $jdkPath = $env:JAVA_HOME_11_X64
+        Write-Host "##vso[task.setvariable variable=JAVA_HOME]$jdkPath"
+
   - task: NuGetToolInstaller@1
     displayName: Install Nuget 5x
     inputs:
       versionSpec: '5.*'
       checkLatest: true
+
+  - task: DotNetCoreCLI@2
+    displayName: "Install tool: dotnet-sonarscanner"
+    inputs:
+      command: "custom"
+      custom: "tool"
+      arguments: "update --global dotnet-sonarscanner"
+
+  - task: DotNetCoreCLI@2
+    displayName: "Install tool: dotnet-reportgenerator-globaltool"
+    inputs:
+      command: "custom"
+      custom: "tool"
+      arguments: "update --global dotnet-reportgenerator-globaltool"
 
   - task: DotNetCoreCLI@2
     displayName: Restore
@@ -40,14 +67,73 @@ steps:
       projects: '**/*.csproj'
 
   - task: DotNetCoreCLI@2
+    displayName: Initialize Sonar Scanner
+    inputs:
+      command: 'custom'
+      custom: 'sonarscanner'
+      arguments: >-
+        begin 
+        /o:"coenm-github" 
+        /k:"coenm_FlexKidsScheduleExtractor" 
+        /d:sonar.login=$(SONAR_TOKEN) 
+        /d:sonar.host.url="https://sonarcloud.io" 
+        /d:sonar.branch.name=$(sonarcloudBranchName)
+        /d:sonar.ws.timeout=300
+        /d:sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/tests/**/coverage.opencover.xml
+        /d:sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
+        /d:sonar.coverageReportPaths=$(Agent.TempDirectory)/reportgenerator/SonarQube.xml
+
+#/d:sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
+#/d:sonar.cs.vstest.reportsPaths=$(Common.TestResultsDirectory)/**/*.trx
+
+  - task: DotNetCoreCLI@2
     displayName: Build
     inputs:
       command: 'build'
       projects: '**/*.sln'
+      arguments: '--configuration Release --verbosity normal'
 
+  # --logger trx and --results-directory $(Common.TestResultsDirectory) is already set
   - task: DotNetCoreCLI@2
     displayName: Test
     inputs:
       command: test
       projects: '**/*[Tt]est/*.csproj'
-      arguments: '--configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:ExcludeByAttribute=CompilerGenerated --logger trx'
+      arguments: >-
+        --configuration Release 
+        --no-restore 
+        --no-build
+        /p:CollectCoverage=true 
+        "/p:CoverletOutputFormat=\"opencover,cobertura\""
+        /p:ExcludeByAttribute=CompilerGenerated 
+        --collect:"XPlat Code Coverage"
+        --verbosity detailed
+    continueOnError: true
+
+  - script: reportgenerator "-reports:$(Build.SourcesDirectory)\**\coverage.opencover.xml" "-targetDir:$(Agent.TempDirectory)/reportgenerator" -tag:$(Build.BuildNumber) "-reporttypes:Cobertura;HTMLInline;HTMLChart;SonarQube"
+    workingDirectory: $(Build.SourcesDirectory)/tests
+    displayName: "dotnet reportgenerator"
+
+#   /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ 
+#    /p:MergeWith=$(Build.SourcesDirectory)/coverage/
+
+#    --collect:"Code Coverage"
+# '--configuration $(BuildConfiguration) 
+#   "/p:CoverletOutputFormat=\"opencover,cobertura\"" 
+#  /p:CoverletOutput=$(Build.SourcesDirectory)/coverage/ 
+# /p:MergeWith=$(Build.SourcesDirectory)/coverage/ 
+# --no-restore --no-build --logger trx;LogFileName=$(Common.TestResultsDirectory)/run.trx'
+
+  - task: DotNetCoreCLI@2
+    displayName: Finalize Sonar Scanner
+    inputs:
+      command: 'custom'
+      custom: 'sonarscanner'
+      arguments: 'end /d:sonar.login=$(SONAR_TOKEN)'
+
+  - task: PublishCodeCoverageResults@1
+    displayName: "Publish code coverage"
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: "**/coverage.cobertura.xml"
+

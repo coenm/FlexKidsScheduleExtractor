@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <ProjectGuid>47D53EE4-3F77-483F-9EAA-71E705C87E6C</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Apis.Calendar.v3" Version="1.49.0.2161" />
+    <PackageReference Include="Google.Apis.Calendar.v3" />
   </ItemGroup>
 
   <ItemGroup>

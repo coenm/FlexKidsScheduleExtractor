@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <ProjectGuid>6E1181E6-6E8C-4534-AA95-A35EF6913550</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" />
     <PackageReference Include="NLog" />
   </ItemGroup>
 

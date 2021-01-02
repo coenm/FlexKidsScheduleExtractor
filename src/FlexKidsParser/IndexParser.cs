@@ -25,6 +25,7 @@ namespace FlexKidsParser
                 {
                     Email = ExtractEmailFromContent(),
                 };
+
             result.IsLoggedin = !string.IsNullOrWhiteSpace(result.Email);
             result.Weeks = ExtractWeeksFromContent();
             return result;
@@ -32,61 +33,66 @@ namespace FlexKidsParser
 
         private Dictionary<int, WeekItem> ExtractWeeksFromContent()
         {
-            var weekselections = _document.DocumentNode.Descendants()
+            var weekSelections = _document.DocumentNode.Descendants()
                                           .Where(x => x.IsSelect() && x.IdEquals("week_selectie"))
                                           .ToList();
-            if (weekselections.Count != 1)
+            if (weekSelections.Count != 1)
             {
-                var s = $"Nr of weekselections is {weekselections.Count} but should be equal to 1.";
+                var s = $"Nr of weekselections is {weekSelections.Count} but should be equal to 1.";
                 _logger.Error(s);
                 throw new ApplicationException(s);
             }
 
-            HtmlNode weekselection = weekselections.First();
+            HtmlNode weekSelection = weekSelections.First();
 
             // select options
-            var options = weekselection.ChildNodes.Where(x => x.IsOption()).ToList();
+            var options = weekSelection.ChildNodes.Where(x => x.IsOption()).ToList();
 
-            var weeks = new Dictionary<int, WeekItem>();
-            if (options.Any())
+            var weeks = new Dictionary<int, WeekItem>(options.Count);
+
+            if (!options.Any())
             {
-                foreach (HtmlNode option in options)
+                return weeks;
+            }
+
+            foreach (HtmlNode option in options)
+            {
+                if (option.Attributes?["value"] == null)
                 {
-                    if (option.Attributes?["value"] == null)
-                    {
-                        throw new Exception();
-                    }
+                    throw new Exception();
+                }
 
-                    if (!int.TryParse(option.Attributes["value"].Value, out var nr))
-                    {
-                        throw new Exception();
-                    }
+                if (!int.TryParse(option.Attributes["value"].Value, out var nr))
+                {
+                    throw new Exception();
+                }
 
-                    if (option.NextSibling == null)
-                    {
-                        throw new Exception();
-                    }
+                if (option.NextSibling == null)
+                {
+                    throw new Exception();
+                }
 
-                    // Week 09 - 2015
-                    var weekText = option.NextSibling.InnerText.Trim();
-                    weekText = weekText.Replace("Week", string.Empty).Trim();
-                    var split = weekText.Split('-');
+                // Week 09 - 2015
+                var weekText = option.NextSibling.InnerText.Trim();
+                weekText = weekText.Replace("Week", string.Empty).Trim();
+                var split = weekText.Split('-');
 
-                    if (split.Length == 2)
-                    {
-                        var sWeek = split[0].Trim(); // 09
-                        var sYear = split[1].Trim(); // 2015
+                if (split.Length != 2)
+                {
+                    continue;
+                }
 
-                        if (int.TryParse(sWeek, out var weekNr) && int.TryParse(sYear, out var year))
-                        {
-                            var w = new WeekItem(weekNr, year);
-                            weeks.Add(nr, w);
-                        }
-                        else
-                        {
-                            throw new Exception();
-                        }
-                    }
+                var sWeek = split[0].Trim(); // 09
+                var sYear = split[1].Trim(); // 2015
+
+                if (int.TryParse(sWeek, out var weekNr) && int.TryParse(sYear, out var year))
+                {
+                    var w = new WeekItem(weekNr, year);
+                    weeks.Add(nr, w);
+                }
+                else
+                {
+                    throw new Exception();
                 }
             }
 
@@ -101,9 +107,8 @@ namespace FlexKidsParser
                 throw new Exception();
             }
 
-            HtmlNode login = logins.First();
-            var email = login.InnerText.Replace("&nbsp;", string.Empty).Trim();
-            return email;
+            HtmlNode loginEmailAddress = logins.First();
+            return loginEmailAddress.InnerText.Replace("&nbsp;", string.Empty).Trim();
         }
     }
 }
