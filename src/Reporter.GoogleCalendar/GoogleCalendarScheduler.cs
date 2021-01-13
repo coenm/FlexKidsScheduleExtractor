@@ -2,7 +2,6 @@ namespace Reporter.GoogleCalendar
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Security.Cryptography.X509Certificates;
     using FlexKidsScheduler;
@@ -16,7 +15,6 @@ namespace Reporter.GoogleCalendar
     internal class GoogleCalendarScheduler : IDisposable
     {
         private readonly IGoogleCalendarService _calendarService;
-
         private readonly string _googleCalendarId;
 
         public GoogleCalendarScheduler(IFlexKidsConfig flexKidsConfig)
@@ -24,22 +22,21 @@ namespace Reporter.GoogleCalendar
             _ = flexKidsConfig ?? throw new ArgumentNullException(nameof(flexKidsConfig));
             _googleCalendarId = flexKidsConfig.GoogleCalendarId;
 
-            var certFilename = Path.Combine(flexKidsConfig.GoogleCalendarKeyFile);
-            var certificate = new X509Certificate2(certFilename, "notasecret", X509KeyStorageFlags.Exportable);
+            var certificate = new X509Certificate2(flexKidsConfig.GoogleCalendarKey);
 
             var credential = new ServiceAccountCredential(
                 new ServiceAccountCredential.Initializer(flexKidsConfig.GoogleCalendarAccount)
-                {
-                    Scopes = new[] { CalendarService.Scope.Calendar, },
-                }.FromCertificate(certificate));
+                    {
+                        Scopes = new[] { CalendarService.Scope.Calendar, },
+                    }.FromCertificate(certificate));
 
             // Create the service.
             var service = new CalendarService(new BaseClientService.Initializer
-            {
-                HttpClientFactory = new Google.Apis.Http.HttpClientFactory(),
-                HttpClientInitializer = credential,
-                ApplicationName = "FlexKids Rooster by CoenM",
-            });
+                {
+                    HttpClientFactory = new Google.Apis.Http.HttpClientFactory(),
+                    HttpClientInitializer = credential,
+                    ApplicationName = "FlexKids Rooster by CoenM",
+                });
 
             _calendarService = new GoogleCalendarService(service);
 

@@ -24,6 +24,6 @@ namespace FlexKidsScheduler
 
         string GoogleCalendarId { get; }
 
-        string GoogleCalendarKeyFile { get; }
+        byte[] GoogleCalendarKey { get; }
     }
 }
