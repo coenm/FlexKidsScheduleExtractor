@@ -120,7 +120,7 @@ namespace FlexKids.Console
                 smtpConfig.Password,
                 googleCalendarConfig.Account,
                 googleCalendarConfig.CalendarId,
-                googleCalendarConfig.KeyFileContent);
+                System.Convert.FromBase64String(googleCalendarConfig.KeyFileContent));
 
             _container.RegisterInstance<IFlexKidsConfig>(staticFlexKidsConfig);
 
