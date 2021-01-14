@@ -9,8 +9,6 @@ namespace Repository
 
         Schedule Insert(Schedule schedule);
 
-        Schedule Update(Schedule originalSchedule, Schedule updatedSchedule);
-
         int Delete(IEnumerable<Schedule> schedules);
 
         Week Insert(Week week);
@@ -18,7 +16,5 @@ namespace Repository
         Week Update(Week originalWeek, Week updatedWeek);
 
         Week GetWeek(int year, int weekNr);
-
-        Week GetWeek(int weekId);
     }
 }

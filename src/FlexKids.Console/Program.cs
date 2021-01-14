@@ -7,10 +7,13 @@ namespace FlexKids.Console
     using FlexKidsConnection;
     using FlexKidsParser;
     using FlexKidsScheduler;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using NLog;
+    using NLog.Filters;
     using Reporter.GoogleCalendar;
     using Repository;
+    using Repository.EntityFramework;
     using SimpleInjector;
     using SimpleInjector.Lifestyles;
 
@@ -18,6 +21,7 @@ namespace FlexKids.Console
     {
         private static readonly Container _container = new Container();
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private static IConfigurationRoot _config;
 
         public static void Main()
         {
@@ -25,7 +29,17 @@ namespace FlexKids.Console
 
             _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
 
-            _logger.Info("Certificate validation disabled.");
+            IConfigurationBuilder builder = new ConfigurationBuilder()
+                                            .SetBasePath(Directory.GetCurrentDirectory())
+                                            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+                                            .AddEnvironmentVariables();
+
+            if (IsDevelopment())
+            {
+                _ = builder.AddUserSecrets<Program>();
+            }
+
+            _config = builder.Build();
 
             SetupDependencyContainer();
 
@@ -86,27 +100,26 @@ namespace FlexKids.Console
             _container.Register<IKseParser, FlexKidsHtmlParser>();
             RegisterFlexKidsConnection(_container);
 
-            _container.Register<IScheduleRepository, DummyScheduleRepository>();
+            _container.RegisterSingleton<FlexKidsContext>();
+            _container.RegisterSingleton<DbContextOptions<FlexKidsContext>>(
+                () =>
+                    {
+                        var connectionString = _config.GetConnectionString("FlexKidsContext");
+                        var result = new DbContextOptionsBuilder<FlexKidsContext>()
+                            .UseSqlServer(connectionString);
+
+                        return result.Options;
+                    });
+            _container.Register<IScheduleRepository, EntityFrameworkScheduleRepository>();
             _container.Collection.Register<IReportScheduleChange>(typeof(CalendarReportScheduleChange));
         }
 
         private static void RegisterSettings(Container container)
         {
-            IConfigurationBuilder builder = new ConfigurationBuilder()
-                                            .SetBasePath(Directory.GetCurrentDirectory())
-                                            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
-                                            .AddEnvironmentVariables();
-
-            if (IsDevelopment())
-            {
-                _ = builder.AddUserSecrets<Program>();
-            }
-
-            IConfigurationRoot config = builder.Build();
-            FlexKids flexKidsConfig = config.GetSection("FlexKids").Get<FlexKids>();
-            GoogleCalendar googleCalendarConfig = config.GetSection("GoogleCalendar").Get<GoogleCalendar>();
-            Smtp smtpConfig = config.GetSection("Smtp").Get<Smtp>();
-            NotificationSubscriptions notificationSubscriptions = config.GetSection("NotificationSubscriptions").Get<NotificationSubscriptions>();
+            FlexKids flexKidsConfig = _config.GetSection("FlexKids").Get<FlexKids>();
+            GoogleCalendar googleCalendarConfig = _config.GetSection("GoogleCalendar").Get<GoogleCalendar>();
+            Smtp smtpConfig = _config.GetSection("Smtp").Get<Smtp>();
+            NotificationSubscriptions notificationSubscriptions = _config.GetSection("NotificationSubscriptions").Get<NotificationSubscriptions>();
 
             var staticFlexKidsConfig = new StaticFlexKidsConfig(
                 notificationSubscriptions.From.Email,
