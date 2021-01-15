@@ -1,6 +1,7 @@
 namespace FlexKidsScheduler.Test
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using FakeItEasy;
     using FlexKidsScheduler.Model;
     using Repository;
@@ -12,7 +13,7 @@ namespace FlexKidsScheduler.Test
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void GetChangesWithNoChangesReturnsEmptyListTest(bool isLoggedIn)
+        public async Task GetChangesWithNoChangesReturnsEmptyListTest(bool isLoggedIn)
         {
             // arrange
             IFlexKidsConnection flexKidsConnection = A.Fake<IFlexKidsConnection>();
@@ -29,7 +30,7 @@ namespace FlexKidsScheduler.Test
             var sut = new Scheduler(flexKidsConnection, parser, scheduleRepository, hash);
 
             // act
-            IEnumerable<ScheduleDiff> result = sut.GetChanges();
+            IEnumerable<ScheduleDiff> result = await sut.GetChanges();
 
             // assert
             Assert.NotNull(result);
@@ -45,7 +46,7 @@ namespace FlexKidsScheduler.Test
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void GetChangesWithOneScheduleWichAlreadyExistsAndDidntChangeReturnsEmptyListTest(bool isLoggedIn)
+        public async Task GetChangesWithOneScheduleWichAlreadyExistsAndDidNotChangeReturnsEmptyListTest(bool isLoggedIn)
         {
             // arrange
             var weeks = new Dictionary<int, WeekItem>
@@ -66,30 +67,30 @@ namespace FlexKidsScheduler.Test
                  IsLoggedin = isLoggedIn,
                  Weeks = weeks,
              });
-            _ = A.CallTo(() => flexKidsConnection.GetSchedulePage(A<int>.That.IsEqualTo(0))).Returns("GetSchedulePage0");
-            _ = A.CallTo(() => hash.Hash(A<string>.That.IsEqualTo("GetSchedulePage0"))).Returns("hash0");
-            _ = A.CallTo(() => scheduleRepository.GetWeek(A<int>.That.IsEqualTo(2015), A<int>.That.IsEqualTo(6))).Returns(new Week
+            _ = A.CallTo(() => flexKidsConnection.GetSchedulePage(0)).Returns("GetSchedulePage0");
+            _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).Returns("hash0");
+            _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6)).Returns(new Week
             {
                 Hash = "hash0",
             });
 
             // act
-            IEnumerable<ScheduleDiff> result = sut.GetChanges();
+            IEnumerable<ScheduleDiff> result = await sut.GetChanges();
 
             // assert
             Assert.NotNull(result);
             Assert.Empty(result);
             _ = A.CallTo(() => flexKidsConnection.GetAvailableSchedulesPage()).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._)).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => flexKidsConnection.GetSchedulePage(A<int>.That.IsEqualTo(0))).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => hash.Hash(A<string>.That.IsEqualTo("GetSchedulePage0"))).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => scheduleRepository.GetWeek(A<int>.That.IsEqualTo(2015), A<int>.That.IsEqualTo(6))).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => flexKidsConnection.GetSchedulePage(0)).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6)).MustHaveHappenedOnceExactly();
         }
 
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void GetaChangesWithOneScheduleWichAlreadyExistsAndDidNotChangeReturnsEmptyListTest(bool isLoggedIn)
+        public async Task GetaChangesWithOneScheduleWichAlreadyExistsAndDidNotChangeReturnsEmptyListTest(bool isLoggedIn)
         {
             // arrange
             var weeks = new Dictionary<int, WeekItem>
@@ -124,22 +125,22 @@ namespace FlexKidsScheduler.Test
                          IsLoggedin = isLoggedIn,
                          Weeks = weeks,
                      });
-            _ = A.CallTo(() => flexKidsConnection.GetSchedulePage(A<int>.That.IsEqualTo(0))).Returns("GetSchedulePage0");
-            _ = A.CallTo(() => hash.Hash(A<string>.That.IsEqualTo("GetSchedulePage0"))).Returns(weekNew.Hash);
-            _ = A.CallTo(() => scheduleRepository.GetWeek(A<int>.That.IsEqualTo(2015), A<int>.That.IsEqualTo(6))).Returns(weekOld);
+            _ = A.CallTo(() => flexKidsConnection.GetSchedulePage(0)).Returns("GetSchedulePage0");
+            _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).Returns(weekNew.Hash);
+            _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6)).Returns(weekOld);
             _ = A.CallTo(() => scheduleRepository.Update(A<Week>._, A<Week>._)).Returns(weekNew);
 
             // act
-            IEnumerable<ScheduleDiff> result = sut.GetChanges();
+            IEnumerable<ScheduleDiff> result = await sut.GetChanges();
 
             // assert
             Assert.NotNull(result);
             Assert.Empty(result);
             _ = A.CallTo(() => flexKidsConnection.GetAvailableSchedulesPage()).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._)).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => flexKidsConnection.GetSchedulePage(A<int>.That.IsEqualTo(0))).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => hash.Hash(A<string>.That.IsEqualTo("GetSchedulePage0"))).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => scheduleRepository.GetWeek(A<int>.That.IsEqualTo(2015), A<int>.That.IsEqualTo(6))).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => flexKidsConnection.GetSchedulePage(0)).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6)).MustHaveHappenedOnceExactly();
         }
     }
 }

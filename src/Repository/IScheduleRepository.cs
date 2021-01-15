@@ -1,24 +1,21 @@
 namespace Repository
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Repository.Model;
 
     public interface IScheduleRepository
     {
-        IList<Schedule> GetSchedules(int year, int week);
+        Task<IList<Schedule>> GetSchedules(int year, int week);
 
-        Schedule Insert(Schedule schedule);
+        Task<Schedule> Insert(Schedule schedule);
 
-        Schedule Update(Schedule originalSchedule, Schedule updatedSchedule);
+        Task<int> Delete(IEnumerable<Schedule> schedules);
 
-        int Delete(IEnumerable<Schedule> schedules);
+        Task<Week> Insert(Week week);
 
-        Week Insert(Week week);
+        Task<Week> Update(Week originalWeek, Week updatedWeek);
 
-        Week Update(Week originalWeek, Week updatedWeek);
-
-        Week GetWeek(int year, int weekNr);
-
-        Week GetWeek(int weekId);
+        Task<Week> GetWeek(int year, int weekNr);
     }
 }

@@ -2,6 +2,7 @@ namespace FlexKidsScheduler
 {
     using System.IO;
     using System.Text;
+    using System.Threading.Tasks;
 
     public class WriteToDiskDecorator : IFlexKidsConnection
     {
@@ -19,22 +20,22 @@ namespace FlexKidsScheduler
             _flexKidsConnectionImplementation.Dispose();
         }
 
-        public string GetSchedulePage(int id)
+        public async Task<string> GetSchedulePage(int id)
         {
             _ = Directory.CreateDirectory(_options.Directory);
 
-            var result = _flexKidsConnectionImplementation.GetSchedulePage(id);
+            var result = await _flexKidsConnectionImplementation.GetSchedulePage(id);
 
             File.WriteAllText(Path.Combine(_options.Directory, $"page_{id}.html"), result, Encoding.UTF8);
 
             return result;
         }
 
-        public string GetAvailableSchedulesPage()
+        public async Task<string> GetAvailableSchedulesPage()
         {
             _ = Directory.CreateDirectory(_options.Directory);
 
-            var result = _flexKidsConnectionImplementation.GetAvailableSchedulesPage();
+            var result = await _flexKidsConnectionImplementation.GetAvailableSchedulesPage();
             File.WriteAllText(Path.Combine(_options.Directory, "index.html"), result, Encoding.UTF8);
             return result;
         }

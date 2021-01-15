@@ -1,11 +1,12 @@
 namespace FlexKidsScheduler
 {
     using System;
+    using System.Threading.Tasks;
 
     public interface IFlexKidsConnection : IDisposable
     {
-        string GetSchedulePage(int id);
+        Task<string> GetSchedulePage(int id);
 
-        string GetAvailableSchedulesPage();
+        Task<string> GetAvailableSchedulesPage();
     }
 }
