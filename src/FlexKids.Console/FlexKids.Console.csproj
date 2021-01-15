@@ -20,6 +20,7 @@
     <ProjectReference Include="..\FlexKidsConnection\FlexKidsConnection.csproj" />
     <ProjectReference Include="..\FlexKidsParser\FlexKidsParser.csproj" />
     <ProjectReference Include="..\FlexKidsScheduler\FlexKidsScheduler.csproj" />
+    <ProjectReference Include="..\Reporter.Email\Reporter.Email.csproj" />
     <ProjectReference Include="..\Reporter.GoogleCalendar\Reporter.GoogleCalendar.csproj" />
     <ProjectReference Include="..\Repository.EntityFramework\Repository.EntityFramework.csproj" />
   </ItemGroup>

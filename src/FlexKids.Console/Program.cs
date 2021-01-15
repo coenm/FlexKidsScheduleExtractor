@@ -12,6 +12,7 @@ namespace FlexKids.Console
     using Microsoft.Extensions.Configuration;
     using NLog;
     using NLog.Filters;
+    using Reporter.Email;
     using Reporter.GoogleCalendar;
     using Repository;
     using Repository.EntityFramework;
@@ -113,6 +114,7 @@ namespace FlexKids.Console
                     });
             _container.Register<IScheduleRepository, EntityFrameworkScheduleRepository>();
             _container.Collection.Register<IReportScheduleChange>(typeof(CalendarReportScheduleChange));
+            _container.Collection.Register<IReportScheduleChange>(typeof(EmailReportScheduleChange));
         }
 
         private static void RegisterSettings(Container container)

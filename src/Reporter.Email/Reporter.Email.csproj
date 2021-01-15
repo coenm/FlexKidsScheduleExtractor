@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <ProjectGuid>{9E061DD0-30B7-4C3B-A2F3-E40FDBF61AFA}</ProjectGuid>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FlexKidsScheduler\FlexKidsScheduler.csproj" />
+  </ItemGroup>
+
+</Project>
