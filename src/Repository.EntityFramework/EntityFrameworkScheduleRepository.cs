@@ -55,32 +55,5 @@ namespace Repository.EntityFramework
         {
             return await _context.WeekSchedules.FirstOrDefaultAsync(x => x.Year == year && x.WeekNr == weekNr);
         }
-
-        // public async Task<IList<WeekSchedule>> GetSchedules(int year, int week)
-        // {
-        //     return await _context.WeekSchedules
-        //                                .Where(x => x.Year == year && x.WeekNr == week)
-        //                                .ToListAsync();
-        // }
-        //
-        // public async Task<WeekSchedule> Insert(WeekSchedule schedule)
-        // {
-        //     EntityEntry<WeekSchedule> entity = await _context.WeekSchedules.AddAsync(schedule);
-        //     _ = await _context.SaveChangesAsync();
-        //     return entity.Entity;
-        // }
-        //
-        // public async Task<WeekSchedule> Update(WeekSchedule schedule)
-        // {
-        //     EntityEntry<WeekSchedule> entity = _context.WeekSchedules.Update(schedule);
-        //     _ = await _context.SaveChangesAsync();
-        //     return entity.Entity;
-        // }
-        //
-        // public async Task<int> Delete(WeekSchedule schedule)
-        // {
-        //     _ = _context.WeekSchedules.Remove(schedule);
-        //     return await _context.SaveChangesAsync();
-        // }
     }
 }

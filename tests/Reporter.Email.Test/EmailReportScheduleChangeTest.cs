@@ -55,7 +55,6 @@ namespace Reporter.Email.Test
             _scheduleC.WeekId = _week.Id;
         }
 
-
         [Fact]
         public void HandleChangeWithEmptyListTest()
         {
@@ -78,9 +77,9 @@ namespace Reporter.Email.Test
             var emailService = A.Fake<IEmailService>();
             var flexKidsConfig = A.Fake<IFlexKidsConfig>();
 
-            A.CallTo(() => flexKidsConfig.EmailTo2).Returns("een@hotmail.com");
-            A.CallTo(() => flexKidsConfig.EmailTo1).Returns("twee@gmail.com");
-            A.CallTo(() => flexKidsConfig.EmailFrom).Returns("from@gmail.com");
+            _ = A.CallTo(() => flexKidsConfig.EmailTo2).Returns("een@hotmail.com");
+            _ = A.CallTo(() => flexKidsConfig.EmailTo1).Returns("twee@gmail.com");
+            _ = A.CallTo(() => flexKidsConfig.EmailFrom).Returns("from@gmail.com");
 
             var sut = new EmailReportScheduleChange(flexKidsConfig, emailService);
 
@@ -89,18 +88,18 @@ namespace Reporter.Email.Test
                 new ScheduleDiff
                 {
                     Schedule = _scheduleA,
-                    Status = ScheduleStatus.Added
+                    Status = ScheduleStatus.Added,
                 },
                 new ScheduleDiff
                 {
                     Schedule = _scheduleB,
-                    Status = ScheduleStatus.Removed
+                    Status = ScheduleStatus.Removed,
                 },
                 new ScheduleDiff
                 {
                     Schedule = _scheduleC,
-                    Status = ScheduleStatus.Unchanged
-                }
+                    Status = ScheduleStatus.Unchanged,
+                },
             };
 
             // act
@@ -108,7 +107,7 @@ namespace Reporter.Email.Test
 
             // assert
             Assert.True(result);
-            A.CallTo(() => emailService.Send(A<System.Net.Mail.MailMessage>._)).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => emailService.Send(A<System.Net.Mail.MailMessage>._)).MustHaveHappenedOnceExactly();
         }
     }
 }

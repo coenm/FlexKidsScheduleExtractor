@@ -93,7 +93,7 @@ namespace Reporter.Email.Test
             var result = Sut.ScheduleToPlainTextString(scheduleDiff);
 
             // assert
-            var expected = "";
+            var expected = string.Empty;
             expected += "+ 08-04 08:05-17:05 Jacob" + Environment.NewLine;
             expected += "- 08-01 10:05-12:05 New York" + Environment.NewLine;
             expected += "= 08-04 08:30-22:00 Madrid" + Environment.NewLine;
@@ -178,7 +178,7 @@ namespace Reporter.Email.Test
 </tr>
 </table>
 </p>";
-            result.Trim().Should().Be(expected.Trim());
+            _ = result.Trim().Should().Be(expected.Trim());
         }
     }
 }

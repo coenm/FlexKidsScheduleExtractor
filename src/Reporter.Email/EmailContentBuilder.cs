@@ -42,7 +42,7 @@ namespace Reporter.Email
             _ = sb.AppendLine($"<p>Hier is het rooster voor week {schedule.First().Schedule.Week.WeekNr}:</p>");
             _ = sb.AppendLine("<table style='border: 1px solid black; border-collapse:collapse;'>");
 
-            //header
+            // header
             _ = sb.AppendLine($"<tr style='{StyleString("left")}'>");
             _ = sb.AppendLine($"<td style='{StyleString("center")}'></td>");
             _ = sb.AppendLine($"<td colspan=2 style='{StyleString("left")}'><b>Dag</b></td>");
@@ -50,12 +50,11 @@ namespace Reporter.Email
             _ = sb.AppendLine($"<td style='{StyleString("left")}'><b>Locatie</b></td>");
             _ = sb.AppendLine("</tr>");
 
-            foreach (var item in schedule)
+            foreach (ScheduleDiff item in schedule)
             {
                 _ = sb.AppendLine($"<tr style='{StyleString("left")}'>");
                 _ = sb.AppendLine($"<td style='{StyleString("center")}'>{StatusToString(item)}</td>");
-                _ = sb.AppendLine(
-                    $"<td style='{StyleString("left")}{LineThrough(item.Status)} border-right:hidden;'>{item.Schedule.StartDateTime.ToString("ddd", CultureInfo.CreateSpecificCulture("nl-NL"))}</td>");
+                _ = sb.AppendLine($"<td style='{StyleString("left")}{LineThrough(item.Status)} border-right:hidden;'>{item.Schedule.StartDateTime.ToString("ddd", CultureInfo.CreateSpecificCulture("nl-NL"))}</td>");
                 _ = sb.AppendLine($"<td style='{StyleString("left")}{LineThrough(item.Status)}'>{item.Schedule.StartDateTime.ToString("dd-MM")}</td>");
                 _ = sb.AppendLine($"<td style='{StyleString("left")}{LineThrough(item.Status)} text-align: right; padding-right:0px;'>{item.Schedule.StartDateTime.ToString("HH:mm")}</td>");
                 _ = sb.AppendLine($"<td style='{StyleString("center")} border-left: hidden; border-right: hidden;'>-</td>");
@@ -87,17 +86,13 @@ namespace Reporter.Email
 
         private static string StatusToString(ScheduleDiff item)
         {
-            switch (item.Status)
-            {
-                case ScheduleStatus.Added:
-                    return "+";
-                case ScheduleStatus.Removed:
-                    return "-";
-                case ScheduleStatus.Unchanged:
-                    return "=";
-                default:
-                    return String.Empty;
-            }
+            return item.Status switch
+                {
+                    ScheduleStatus.Added => "+",
+                    ScheduleStatus.Removed => "-",
+                    ScheduleStatus.Unchanged => "=",
+                    _ => string.Empty
+                };
         }
     }
 }
