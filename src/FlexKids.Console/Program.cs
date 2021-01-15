@@ -11,7 +11,6 @@ namespace FlexKids.Console
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using NLog;
-    using NLog.Filters;
     using Reporter.Email;
     using Reporter.GoogleCalendar;
     using Repository;
@@ -57,12 +56,12 @@ namespace FlexKids.Console
 
             _logger.Info("Dependencies registered");
 
-            using Scope scope = AsyncScopedLifestyle.BeginScope(_container);
+            await using Scope scope = AsyncScopedLifestyle.BeginScope(_container);
 
-            var scheduler = _container.GetInstance<Scheduler>();
+            Scheduler scheduler = _container.GetInstance<Scheduler>();
+            IEnumerable<IReportScheduleChange> allHandlers = _container.GetAllInstances<IReportScheduleChange>();
             scheduler.ScheduleChanged += (sender, changedArgs) =>
                 {
-                    IEnumerable<IReportScheduleChange> allHandlers = _container.GetAllInstances<IReportScheduleChange>();
                     foreach (IReportScheduleChange handler in allHandlers)
                     {
                         _ = handler.HandleChange(changedArgs.Diff);
