@@ -1,12 +1,14 @@
 namespace FlexKids.Console
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Linq;
     using System.Net.Http;
+    using System.Threading.Tasks;
     using FlexKidsConnection;
 
-    public class WebClientAdapter : IWeb
+    public class WebClientAdapter : IWeb, IDisposable
     {
         private HttpClient _webclient;
 
@@ -15,28 +17,17 @@ namespace FlexKids.Console
             _webclient = new HttpClient();
         }
 
-        public byte[] PostValues(string address, NameValueCollection data)
+        public async Task<byte[]> PostValues(string address, NameValueCollection data)
         {
             var nameValueCollection = data.AllKeys.Select(key => new KeyValuePair<string, string>(key, data.Get(key))).ToList();
-
-            return _webclient.PostAsync(address, new FormUrlEncodedContent(nameValueCollection))
-                            .GetAwaiter()
-                            .GetResult()
-                            .Content
-                            .ReadAsByteArrayAsync()
-                            .GetAwaiter()
-                            .GetResult();
+            HttpResponseMessage result = await _webclient.PostAsync(address, new FormUrlEncodedContent(nameValueCollection));
+            return await result.Content.ReadAsByteArrayAsync();
         }
 
-        public string DownloadPageAsString(string address)
+        public async Task<string> DownloadPageAsString(string address)
         {
-            return _webclient.GetAsync(address)
-                            .GetAwaiter()
-                            .GetResult()
-                            .Content
-                            .ReadAsStringAsync()
-                            .GetAwaiter()
-                            .GetResult();
+            HttpResponseMessage result = await _webclient.GetAsync(address);
+            return await result.Content.ReadAsStringAsync();
         }
 
         public void Dispose()

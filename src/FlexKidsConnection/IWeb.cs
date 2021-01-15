@@ -1,12 +1,12 @@
 namespace FlexKidsConnection
 {
-    using System;
     using System.Collections.Specialized;
+    using System.Threading.Tasks;
 
-    public interface IWeb : IDisposable
+    public interface IWeb
     {
-        byte[] PostValues(string address, NameValueCollection data);
+        Task<byte[]> PostValues(string address, NameValueCollection data);
 
-        string DownloadPageAsString(string address);
+        Task<string> DownloadPageAsString(string address);
     }
 }

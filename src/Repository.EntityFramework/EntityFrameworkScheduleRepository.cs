@@ -3,6 +3,8 @@ namespace Repository.EntityFramework
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.ChangeTracking;
     using Repository.Model;
 
@@ -15,43 +17,43 @@ namespace Repository.EntityFramework
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        IList<Schedule> IScheduleRepository.GetSchedules(int year, int week)
+        async Task<IList<Schedule>> IScheduleRepository.GetSchedules(int year, int week)
         {
-            return _context.SingleShifts
+            return await _context.SingleShifts
                            .Where(x => x.Week.Year == year && x.Week.WeekNr == week)
-                           .ToList();
+                           .ToListAsync();
         }
 
-        public Schedule Insert(Schedule schedule)
+        public async Task<Schedule> Insert(Schedule schedule)
         {
-            EntityEntry<Schedule> result = _context.SingleShifts.Add(schedule);
-            _ = _context.SaveChanges();
+            EntityEntry<Schedule> result = await _context.SingleShifts.AddAsync(schedule);
+            _ = await _context.SaveChangesAsync();
             return result.Entity;
         }
 
-        public int Delete(IEnumerable<Schedule> schedules)
+        public async Task<int> Delete(IEnumerable<Schedule> schedules)
         {
             _context.SingleShifts.RemoveRange(schedules);
-            return _context.SaveChanges();
+            return await _context.SaveChangesAsync();
         }
 
-        public Week Insert(Week week)
+        public async Task<Week> Insert(Week week)
         {
-            EntityEntry<Week> result = _context.WeekSchedules.Add(week);
-            _ = _context.SaveChanges();
+            EntityEntry<Week> result = await _context.WeekSchedules.AddAsync(week);
+            _ = await _context.SaveChangesAsync();
             return result.Entity;
         }
 
-        public Week Update(Week originalWeek, Week updatedWeek)
+        public async Task<Week> Update(Week originalWeek, Week updatedWeek)
         {
             EntityEntry<Week> result = _context.WeekSchedules.Update(updatedWeek);
-            _ = _context.SaveChanges();
+            _ = await _context.SaveChangesAsync();
             return result.Entity;
         }
 
-        public Week GetWeek(int year, int weekNr)
+        public async Task<Week> GetWeek(int year, int weekNr)
         {
-            return _context.WeekSchedules.FirstOrDefault(x => x.Year == year && x.WeekNr == weekNr);
+            return await _context.WeekSchedules.FirstOrDefaultAsync(x => x.Year == year && x.WeekNr == weekNr);
         }
 
         // public async Task<IList<WeekSchedule>> GetSchedules(int year, int week)

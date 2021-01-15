@@ -3,6 +3,7 @@ namespace FlexKids.Console
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
     using FlexKids.Console.Configuration;
     using FlexKidsConnection;
     using FlexKidsParser;
@@ -23,7 +24,7 @@ namespace FlexKids.Console
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private static IConfigurationRoot _config;
 
-        public static void Main()
+        public static async Task Main()
         {
             _logger.Info("Starting.. ");
 
@@ -68,7 +69,7 @@ namespace FlexKids.Console
                 };
 
             _logger.Info("Start scheduler");
-            _ = scheduler.GetChanges();
+            _ = await scheduler.GetChanges();
             _logger.Info("Finished scheduler");
 
             scheduler.Dispose();

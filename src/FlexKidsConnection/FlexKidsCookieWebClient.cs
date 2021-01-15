@@ -1,6 +1,7 @@
 namespace FlexKidsConnection
 {
     using System.Collections.Specialized;
+    using System.Threading.Tasks;
     using FlexKidsScheduler;
 
     public class FlexKidsCookieWebClient : IFlexKidsConnection
@@ -15,33 +16,33 @@ namespace FlexKidsConnection
             _config = config;
         }
 
-        public string GetSchedulePage(int id)
+        public async Task<string> GetSchedulePage(int id)
         {
             if (!_isLoggedIn)
             {
-                Login();
+                await Login();
             }
 
             var urlSchedule = string.Format(_config.HostUrl + "/personeel/rooster/week?week={0}", id);
-            return _web.DownloadPageAsString(urlSchedule);
+            return await _web.DownloadPageAsString(urlSchedule);
         }
 
-        public string GetAvailableSchedulesPage()
+        public async Task<string> GetAvailableSchedulesPage()
         {
             if (!_isLoggedIn)
             {
-                Login();
+                await Login();
             }
 
-            return _web.DownloadPageAsString(_config.HostUrl + "/personeel/rooster/index");
+            return await _web.DownloadPageAsString(_config.HostUrl + "/personeel/rooster/index");
         }
 
         public void Dispose()
         {
-            _web?.Dispose();
+            // do nothing
         }
 
-        private void Login()
+        private async Task Login()
         {
             var requestParams = new NameValueCollection
                 {
@@ -51,7 +52,7 @@ namespace FlexKidsConnection
                     { "login", "Log in" },
                 };
 
-            _ = _web.PostValues(_config.HostUrl + "/user/process", requestParams);
+            _ = await _web.PostValues(_config.HostUrl + "/user/process", requestParams);
 
             _isLoggedIn = true;
         }

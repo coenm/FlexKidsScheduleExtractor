@@ -3,6 +3,7 @@ namespace FlexKidsScheduler
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using FlexKidsScheduler.Model;
     using Repository;
     using Repository.Model;
@@ -19,28 +20,28 @@ namespace FlexKidsScheduler
 
         public Scheduler(IFlexKidsConnection flexKidsConnection, IKseParser parser, IScheduleRepository scheduleRepository, IHash hash)
         {
-            _flexKidsConnection = flexKidsConnection;
-            _hash = hash;
-            _parser = parser;
-            _repo = scheduleRepository;
+            _flexKidsConnection = flexKidsConnection ?? throw new ArgumentNullException(nameof(flexKidsConnection));
+            _hash = hash ?? throw new ArgumentNullException(nameof(hash));
+            _parser = parser ?? throw new ArgumentNullException(nameof(parser));
+            _repo = scheduleRepository ?? throw new ArgumentNullException(nameof(scheduleRepository));
         }
 
         // An event that clients can use to be notified whenever the
         // elements of the list change.
         public event ChangedEventHandler ScheduleChanged;
 
-        public IEnumerable<ScheduleDiff> GetChanges()
+        public async Task<IEnumerable<ScheduleDiff>> GetChanges()
         {
-            var rooterFirstPage = _flexKidsConnection.GetAvailableSchedulesPage();
-            var indexContent = _parser.GetIndexContent(rooterFirstPage);
+            var indexPage = await _flexKidsConnection.GetAvailableSchedulesPage();
+            var indexContent = _parser.GetIndexContent(indexPage);
             var somethingChanged = false;
             var weekAndHtml = new Dictionary<int, WeekAndHtml>(indexContent.Weeks.Count);
 
             foreach (var i in indexContent.Weeks)
             {
-                var htmlSchedule = _flexKidsConnection.GetSchedulePage(i.Key);
+                var htmlSchedule = await _flexKidsConnection.GetSchedulePage(i.Key);
                 var htmlHash = _hash.Hash(htmlSchedule);
-                var week = _repo.GetWeek(i.Value.Year, i.Value.WeekNr);
+                var week = await _repo.GetWeek(i.Value.Year, i.Value.WeekNr);
 
                 if (week == null || htmlHash != week.Hash)
                 {
@@ -49,7 +50,7 @@ namespace FlexKidsScheduler
 
                 weekAndHtml.Add(i.Key, new WeekAndHtml
                 {
-                    Week = GetCreateOrUpdateWeek(week, i.Value.Year, i.Value.WeekNr, htmlHash),
+                    Week = await GetCreateOrUpdateWeek(week, i.Value.Year, i.Value.WeekNr, htmlHash),
                     Hash = htmlHash,
                     Html = htmlSchedule,
                     ScheduleChanged = week == null || htmlHash != week.Hash,
@@ -61,11 +62,26 @@ namespace FlexKidsScheduler
                 return Enumerable.Empty<ScheduleDiff>();
             }
 
+            return await ProcessRawData(weekAndHtml);
+        }
+
+        public void Dispose()
+        {
+            // should we dispose injected instances?
+        }
+
+        private void OnScheduleChanged(IOrderedEnumerable<ScheduleDiff> diffs)
+        {
+            ScheduleChanged?.Invoke(this, new ScheduleChangedEventArgs(diffs));
+        }
+
+        private async Task<IEnumerable<ScheduleDiff>> ProcessRawData(Dictionary<int, WeekAndHtml> weekAndHtml)
+        {
             var diffsResult = new List<ScheduleDiff>();
 
             foreach (var item in weekAndHtml.Select(a => a.Value))
             {
-                var dbSchedules = _repo.GetSchedules(item.Week.Year, item.Week.WeekNr);
+                var dbSchedules = await _repo.GetSchedules(item.Week.Year, item.Week.WeekNr);
                 IList<ScheduleDiff> diffResult;
                 if (item.ScheduleChanged)
                 {
@@ -73,16 +89,21 @@ namespace FlexKidsScheduler
                     diffResult = GetDiffs(dbSchedules, parsedSchedules, item.Week);
 
                     var schedulesToDelete = diffResult
-                        .Where(x => x.Status == ScheduleStatus.Removed)
-                        .Select(x => x.Schedule);
-                    _ = _repo.Delete(schedulesToDelete);
+                                            .Where(x => x.Status == ScheduleStatus.Removed)
+                                            .Select(x => x.Schedule)
+                                            .ToArray();
+
+                    if (schedulesToDelete.Any())
+                    {
+                        _ = await _repo.Delete(schedulesToDelete);
+                    }
 
                     var schedulesToInsert = diffResult
-                        .Where(x => x.Status == ScheduleStatus.Added)
-                        .Select(x => x.Schedule);
+                                            .Where(x => x.Status == ScheduleStatus.Added)
+                                            .Select(x => x.Schedule);
                     foreach (var schedule in schedulesToInsert)
                     {
-                        _ = _repo.Insert(schedule);
+                        _ = await _repo.Insert(schedule);
                     }
 
                     OnScheduleChanged(diffResult.OrderBy(x => x.Start).ThenBy(x => x.Status));
@@ -104,16 +125,6 @@ namespace FlexKidsScheduler
             }
 
             return diffsResult;
-        }
-
-        public void Dispose()
-        {
-            // should we dispose injected instances?
-        }
-
-        protected virtual void OnScheduleChanged(IOrderedEnumerable<ScheduleDiff> diffs)
-        {
-            ScheduleChanged?.Invoke(this, new ScheduleChangedEventArgs(diffs));
         }
 
         private static IList<ScheduleDiff> GetDiffs(ICollection<Schedule> dbSchedules, ICollection<ScheduleItem> parsedSchedules, Week week)
@@ -163,11 +174,11 @@ namespace FlexKidsScheduler
             return diffResult;
         }
 
-        private Week GetCreateOrUpdateWeek(Week week, int year, int weekNr, string htmlHash)
+        private async Task<Week> GetCreateOrUpdateWeek(Week week, int year, int weekNr, string htmlHash)
         {
             if (week == null)
             {
-                week = _repo.Insert(new Week
+                week = await _repo.Insert(new Week
                     {
                         Hash = htmlHash,
                         Year = year,
@@ -194,7 +205,7 @@ namespace FlexKidsScheduler
                         Id = week.Id,
                     };
 
-                var w = _repo.Update(week, newWeek);
+                var w = await _repo.Update(week, newWeek);
                 if (w == null)
                 {
                     throw new Exception();
