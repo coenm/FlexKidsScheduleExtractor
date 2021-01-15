@@ -16,6 +16,8 @@ namespace FlexKidsScheduler
 
         int SmtpPort { get; }
 
+        bool SslTls { get; }
+
         string SmtpUsername { get; }
 
         string SmtpPassword { get; }

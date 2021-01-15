@@ -113,8 +113,9 @@ namespace FlexKids.Console
                         return result.Options;
                     });
             _container.Register<IScheduleRepository, EntityFrameworkScheduleRepository>();
-            _container.Collection.Register<IReportScheduleChange>(typeof(CalendarReportScheduleChange));
-            _container.Collection.Register<IReportScheduleChange>(typeof(EmailReportScheduleChange));
+            _container.Collection.Register<IReportScheduleChange>(
+                typeof(EmailReportScheduleChange),
+                typeof(CalendarReportScheduleChange));
         }
 
         private static void RegisterSettings(Container container)
@@ -136,7 +137,8 @@ namespace FlexKids.Console
                 smtpConfig.Password,
                 googleCalendarConfig.Account,
                 googleCalendarConfig.CalendarId,
-                System.Convert.FromBase64String(googleCalendarConfig.KeyFileContent));
+                System.Convert.FromBase64String(googleCalendarConfig.KeyFileContent),
+                smtpConfig.Secure);
 
             _container.RegisterInstance<IFlexKidsConfig>(staticFlexKidsConfig);
 

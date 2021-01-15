@@ -4,7 +4,7 @@ namespace FlexKids.Console
 
     public class StaticFlexKidsConfig : IFlexKidsConfig
     {
-        public StaticFlexKidsConfig(string emailFrom, string emailTo2, string emailToName2, string emailTo1, string emailToName1, string smtpHost, int smtpPort, string smtpUsername, string smtpPassword, string googleCalendarAccount, string googleCalendarId, byte[] googleCalendarKey)
+        public StaticFlexKidsConfig(string emailFrom, string emailTo2, string emailToName2, string emailTo1, string emailToName1, string smtpHost, int smtpPort, string smtpUsername, string smtpPassword, string googleCalendarAccount, string googleCalendarId, byte[] googleCalendarKey, bool sslTls)
         {
             EmailFrom = emailFrom;
             EmailTo2 = emailTo2;
@@ -18,6 +18,7 @@ namespace FlexKids.Console
             GoogleCalendarAccount = googleCalendarAccount;
             GoogleCalendarId = googleCalendarId;
             GoogleCalendarKey = googleCalendarKey;
+            SslTls = sslTls;
         }
 
         public string EmailFrom { get; }
@@ -33,6 +34,8 @@ namespace FlexKids.Console
         public string SmtpHost { get; }
 
         public int SmtpPort { get; }
+
+        public bool SslTls { get; }
 
         public string SmtpUsername { get; }
 
