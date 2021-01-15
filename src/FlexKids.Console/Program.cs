@@ -11,7 +11,7 @@ namespace FlexKids.Console
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using NLog;
-    using NLog.Filters;
+    using Reporter.Email;
     using Reporter.GoogleCalendar;
     using Repository;
     using Repository.EntityFramework;
@@ -56,12 +56,12 @@ namespace FlexKids.Console
 
             _logger.Info("Dependencies registered");
 
-            using Scope scope = AsyncScopedLifestyle.BeginScope(_container);
+            await using Scope scope = AsyncScopedLifestyle.BeginScope(_container);
 
-            var scheduler = _container.GetInstance<Scheduler>();
+            Scheduler scheduler = _container.GetInstance<Scheduler>();
+            IEnumerable<IReportScheduleChange> allHandlers = _container.GetAllInstances<IReportScheduleChange>();
             scheduler.ScheduleChanged += (sender, changedArgs) =>
                 {
-                    IEnumerable<IReportScheduleChange> allHandlers = _container.GetAllInstances<IReportScheduleChange>();
                     foreach (IReportScheduleChange handler in allHandlers)
                     {
                         _ = handler.HandleChange(changedArgs.Diff);
@@ -112,7 +112,9 @@ namespace FlexKids.Console
                         return result.Options;
                     });
             _container.Register<IScheduleRepository, EntityFrameworkScheduleRepository>();
-            _container.Collection.Register<IReportScheduleChange>(typeof(CalendarReportScheduleChange));
+            _container.Collection.Register<IReportScheduleChange>(
+                typeof(EmailReportScheduleChange),
+                typeof(CalendarReportScheduleChange));
         }
 
         private static void RegisterSettings(Container container)
@@ -134,7 +136,8 @@ namespace FlexKids.Console
                 smtpConfig.Password,
                 googleCalendarConfig.Account,
                 googleCalendarConfig.CalendarId,
-                System.Convert.FromBase64String(googleCalendarConfig.KeyFileContent));
+                System.Convert.FromBase64String(googleCalendarConfig.KeyFileContent),
+                smtpConfig.Secure);
 
             _container.RegisterInstance<IFlexKidsConfig>(staticFlexKidsConfig);
 

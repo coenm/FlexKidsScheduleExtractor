@@ -127,18 +127,23 @@ namespace FlexKidsScheduler
             return diffsResult;
         }
 
-        private static IList<ScheduleDiff> GetDiffs(ICollection<Schedule> dbSchedules, ICollection<ScheduleItem> parsedSchedules, Week week)
+        private IList<ScheduleDiff> GetDiffs(ICollection<Schedule> dbSchedules, ICollection<ScheduleItem> parsedSchedules, Week week)
         {
             var diffResult = new List<ScheduleDiff>(parsedSchedules.Count + dbSchedules.Count);
 
-            foreach (var item in dbSchedules)
+            foreach (Schedule item in dbSchedules)
             {
                 var diffResultItem = new ScheduleDiff
                     {
                         Schedule = item,
                     };
 
-                var selectItem = parsedSchedules.FirstOrDefault(x => x.Start == item.StartDateTime && x.End == item.EndDateTime && x.Location == item.Location);
+                ScheduleItem selectItem = parsedSchedules.FirstOrDefault(scheduleItem =>
+                    scheduleItem.Start == item.StartDateTime
+                    &&
+                    scheduleItem.End == item.EndDateTime
+                    &&
+                    scheduleItem.Location == item.Location);
 
                 if (selectItem != null)
                 {
@@ -153,7 +158,7 @@ namespace FlexKidsScheduler
                 diffResult.Add(diffResultItem);
             }
 
-            foreach (var parsedSchedule in parsedSchedules)
+            foreach (ScheduleItem parsedSchedule in parsedSchedules)
             {
                 var schedule = new Schedule
                     {
@@ -205,7 +210,7 @@ namespace FlexKidsScheduler
                         Id = week.Id,
                     };
 
-                var w = await _repo.Update(week, newWeek);
+                Week w = await _repo.Update(week, newWeek);
                 if (w == null)
                 {
                     throw new Exception();

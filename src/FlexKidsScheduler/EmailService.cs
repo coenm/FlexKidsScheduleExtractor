@@ -14,7 +14,7 @@ namespace FlexKidsScheduler
                 {
                     Port = flexKidsConfig.SmtpPort,
                     Host = flexKidsConfig.SmtpHost,
-                    EnableSsl = false,
+                    EnableSsl = flexKidsConfig.SslTls,
                     Timeout = 10000,
                     DeliveryMethod = SmtpDeliveryMethod.Network,
                     UseDefaultCredentials = false,
