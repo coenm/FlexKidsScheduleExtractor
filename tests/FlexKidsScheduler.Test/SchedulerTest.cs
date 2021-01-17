@@ -16,7 +16,7 @@ namespace FlexKidsScheduler.Test
         public async Task GetChangesWithNoChangesReturnsEmptyListTest(bool isLoggedIn)
         {
             // arrange
-            IFlexKidsConnection flexKidsConnection = A.Fake<IFlexKidsConnection>();
+            IFlexKidsClient flexKidsClient = A.Fake<IFlexKidsClient>();
             IKseParser parser = A.Fake<IKseParser>();
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._))
              .Returns(new IndexContent
@@ -27,7 +27,7 @@ namespace FlexKidsScheduler.Test
              });
             IScheduleRepository scheduleRepository = A.Dummy<IScheduleRepository>();
             IHash hash = A.Dummy<IHash>();
-            var sut = new Scheduler(flexKidsConnection, parser, scheduleRepository, hash);
+            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository, hash);
 
             // act
             IEnumerable<ScheduleDiff> result = await sut.GetChanges();
@@ -35,10 +35,10 @@ namespace FlexKidsScheduler.Test
             // assert
             Assert.NotNull(result);
             Assert.Empty(result);
-            _ = A.CallTo(() => flexKidsConnection.GetAvailableSchedulesPage()).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => flexKidsClient.GetAvailableSchedulesPage()).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._)).MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => flexKidsConnection.GetSchedulePage(A<int>._)).MustNotHaveHappened();
+            A.CallTo(() => flexKidsClient.GetSchedulePage(A<int>._)).MustNotHaveHappened();
             A.CallTo(hash).MustNotHaveHappened();
             A.CallTo(scheduleRepository).MustNotHaveHappened();
         }
@@ -54,11 +54,11 @@ namespace FlexKidsScheduler.Test
                     { 0, new WeekItem(6, 2015) },
                 };
 
-            IFlexKidsConnection flexKidsConnection = A.Fake<IFlexKidsConnection>();
+            IFlexKidsClient flexKidsClient = A.Fake<IFlexKidsClient>();
             IKseParser parser = A.Fake<IKseParser>();
             IScheduleRepository scheduleRepository = A.Dummy<IScheduleRepository>();
             IHash hash = A.Dummy<IHash>();
-            var sut = new Scheduler(flexKidsConnection, parser, scheduleRepository, hash);
+            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository, hash);
 
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._))
              .Returns(new IndexContent
@@ -67,7 +67,7 @@ namespace FlexKidsScheduler.Test
                  IsLoggedin = isLoggedIn,
                  Weeks = weeks,
              });
-            _ = A.CallTo(() => flexKidsConnection.GetSchedulePage(0)).Returns("GetSchedulePage0");
+            _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).Returns("GetSchedulePage0");
             _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).Returns("hash0");
             _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6)).Returns(new Week
             {
@@ -80,9 +80,9 @@ namespace FlexKidsScheduler.Test
             // assert
             Assert.NotNull(result);
             Assert.Empty(result);
-            _ = A.CallTo(() => flexKidsConnection.GetAvailableSchedulesPage()).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => flexKidsClient.GetAvailableSchedulesPage()).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._)).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => flexKidsConnection.GetSchedulePage(0)).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6)).MustHaveHappenedOnceExactly();
         }
@@ -112,11 +112,11 @@ namespace FlexKidsScheduler.Test
                     Year = 2015,
                 };
 
-            IFlexKidsConnection flexKidsConnection = A.Fake<IFlexKidsConnection>();
+            IFlexKidsClient flexKidsClient = A.Fake<IFlexKidsClient>();
             IKseParser parser = A.Fake<IKseParser>();
             IScheduleRepository scheduleRepository = A.Dummy<IScheduleRepository>();
             IHash hash = A.Dummy<IHash>();
-            var sut = new Scheduler(flexKidsConnection, parser, scheduleRepository, hash);
+            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository, hash);
 
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._))
                  .Returns(new IndexContent
@@ -125,7 +125,7 @@ namespace FlexKidsScheduler.Test
                          IsLoggedin = isLoggedIn,
                          Weeks = weeks,
                      });
-            _ = A.CallTo(() => flexKidsConnection.GetSchedulePage(0)).Returns("GetSchedulePage0");
+            _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).Returns("GetSchedulePage0");
             _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).Returns(weekNew.Hash);
             _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6)).Returns(weekOld);
             _ = A.CallTo(() => scheduleRepository.Update(A<Week>._, A<Week>._)).Returns(weekNew);
@@ -136,9 +136,9 @@ namespace FlexKidsScheduler.Test
             // assert
             Assert.NotNull(result);
             Assert.Empty(result);
-            _ = A.CallTo(() => flexKidsConnection.GetAvailableSchedulesPage()).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => flexKidsClient.GetAvailableSchedulesPage()).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._)).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => flexKidsConnection.GetSchedulePage(0)).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6)).MustHaveHappenedOnceExactly();
         }

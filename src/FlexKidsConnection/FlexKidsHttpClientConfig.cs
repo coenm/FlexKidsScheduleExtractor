@@ -1,8 +1,8 @@
 namespace FlexKidsConnection
 {
-    public class FlexKidsCookieConfig
+    public class FlexKidsHttpClientConfig
     {
-        public FlexKidsCookieConfig(string hostUrl, string username, string password)
+        public FlexKidsHttpClientConfig(string hostUrl, string username, string password)
         {
             HostUrl = hostUrl;
             Username = username;

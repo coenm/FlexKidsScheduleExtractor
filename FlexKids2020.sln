@@ -19,8 +19,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "src\Repositor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKidsScheduler.Test", "tests\FlexKidsScheduler.Test\FlexKidsScheduler.Test.csproj", "{72BD9759-F7F4-4622-B3C2-B9D34B13F54E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKidsConnection.Test", "tests\FlexKidsConnection.Test\FlexKidsConnection.Test.csproj", "{B5F8BB6A-C98A-4BDF-BC4D-20A7F0F31687}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKidsConnection", "src\FlexKidsConnection\FlexKidsConnection.csproj", "{9EBF3F5F-BCAE-48B5-8637-CA0DA3F39FB0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKids.Console", "src\FlexKids.Console\FlexKids.Console.csproj", "{7951AA4A-E83E-417A-B73C-CAD72B2D81A3}"
@@ -61,10 +59,6 @@ Global
 		{72BD9759-F7F4-4622-B3C2-B9D34B13F54E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72BD9759-F7F4-4622-B3C2-B9D34B13F54E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72BD9759-F7F4-4622-B3C2-B9D34B13F54E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B5F8BB6A-C98A-4BDF-BC4D-20A7F0F31687}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B5F8BB6A-C98A-4BDF-BC4D-20A7F0F31687}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B5F8BB6A-C98A-4BDF-BC4D-20A7F0F31687}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B5F8BB6A-C98A-4BDF-BC4D-20A7F0F31687}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9EBF3F5F-BCAE-48B5-8637-CA0DA3F39FB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9EBF3F5F-BCAE-48B5-8637-CA0DA3F39FB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EBF3F5F-BCAE-48B5-8637-CA0DA3F39FB0}.Release|Any CPU.ActiveCfg = Release|Any CPU

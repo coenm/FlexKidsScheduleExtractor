@@ -9,11 +9,11 @@ namespace Reporter.GoogleCalendar
     public class CalendarReportScheduleChange : IReportScheduleChange
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly IFlexKidsConfig _flexKidsConfig;
+        private readonly GoogleCalendarConfig _config;
 
-        public CalendarReportScheduleChange(IFlexKidsConfig flexKidsConfig)
+        public CalendarReportScheduleChange(GoogleCalendarConfig config)
         {
-            _flexKidsConfig = flexKidsConfig ?? throw new ArgumentNullException(nameof(flexKidsConfig));
+            _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
         public bool HandleChange(IReadOnlyList<FlexKidsScheduler.Model.ScheduleDiff> schedule)
@@ -27,7 +27,7 @@ namespace Reporter.GoogleCalendar
             try
             {
                 _logger.Trace("Create Google Calendar");
-                var google = new GoogleCalendarScheduler(_flexKidsConfig);
+                var google = new GoogleCalendarScheduler(_config);
                 _logger.Trace("Make events");
                 google.MakeEvents(schedule);
             }

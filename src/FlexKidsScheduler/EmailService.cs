@@ -8,8 +8,13 @@ namespace FlexKidsScheduler
     {
         private readonly SmtpClient _client;
 
-        public EmailService(IFlexKidsConfig flexKidsConfig)
+        public EmailService(EmailServerConfig flexKidsConfig)
         {
+            if (flexKidsConfig == null)
+            {
+                throw new ArgumentNullException(nameof(flexKidsConfig));
+            }
+
             _client = new SmtpClient
                 {
                     Port = flexKidsConfig.SmtpPort,
@@ -29,6 +34,7 @@ namespace FlexKidsScheduler
                 throw new ArgumentNullException(nameof(message));
             }
 
+            // todo async await
             _client.Send(message); // TODO exception handling
         }
     }

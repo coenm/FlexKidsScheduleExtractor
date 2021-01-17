@@ -3,6 +3,7 @@ namespace FlexKids.Console
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Net.Http;
     using System.Threading.Tasks;
     using FlexKids.Console.Configuration;
     using FlexKidsConnection;
@@ -23,6 +24,10 @@ namespace FlexKids.Console
         private static readonly Container _container = new Container();
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private static IConfigurationRoot _config;
+
+        protected Program()
+        {
+        }
 
         public static async Task Main()
         {
@@ -106,7 +111,7 @@ namespace FlexKids.Console
                 () =>
                     {
                         var connectionString = _config.GetConnectionString("FlexKidsContext");
-                        var result = new DbContextOptionsBuilder<FlexKidsContext>()
+                        DbContextOptionsBuilder<FlexKidsContext> result = new DbContextOptionsBuilder<FlexKidsContext>()
                             .UseSqlServer(connectionString);
 
                         return result.Options;
@@ -124,37 +129,45 @@ namespace FlexKids.Console
             Smtp smtpConfig = _config.GetSection("Smtp").Get<Smtp>();
             NotificationSubscriptions notificationSubscriptions = _config.GetSection("NotificationSubscriptions").Get<NotificationSubscriptions>();
 
-            var staticFlexKidsConfig = new StaticFlexKidsConfig(
-                notificationSubscriptions.From.Email,
-                notificationSubscriptions.To[1].Email,
-                notificationSubscriptions.To[1].Name,
-                notificationSubscriptions.To[0].Email,
-                notificationSubscriptions.To[0].Name,
+            var staticEmailServerConfig = new EmailServerConfig(
                 smtpConfig.Host,
                 smtpConfig.Port,
                 smtpConfig.Username,
                 smtpConfig.Password,
+                smtpConfig.Secure);
+            container.RegisterInstance(staticEmailServerConfig);
+
+            var staticGoogleCalendarConfig = new GoogleCalendarConfig(
                 googleCalendarConfig.Account,
                 googleCalendarConfig.CalendarId,
-                System.Convert.FromBase64String(googleCalendarConfig.KeyFileContent),
-                smtpConfig.Secure);
+                System.Convert.FromBase64String(googleCalendarConfig.KeyFileContent));
+            container.RegisterInstance(staticGoogleCalendarConfig);
 
-            _container.RegisterInstance<IFlexKidsConfig>(staticFlexKidsConfig);
+            var staticEmailConfig = new EmailConfig(
+                notificationSubscriptions.From.Email,
+                notificationSubscriptions.To[1].Email,
+                notificationSubscriptions.To[1].Name,
+                notificationSubscriptions.To[0].Email,
+                notificationSubscriptions.To[0].Name);
+            container.RegisterInstance(staticEmailConfig);
 
-            var flexKidsCookieConfig = new FlexKidsCookieConfig(
+            var staticFlexKidsHttpClientConfig = new FlexKidsHttpClientConfig(
                 flexKidsConfig.Host,
                 flexKidsConfig.Username,
                 flexKidsConfig.Password);
-
-            container.RegisterInstance(flexKidsCookieConfig);
+            container.RegisterInstance(staticFlexKidsHttpClientConfig);
         }
 
         private static void RegisterFlexKidsConnection(Container container)
         {
-            container.Register<IWeb, WebClientAdapter>(Lifestyle.Scoped);
-            container.Register<IFlexKidsConnection, FlexKidsCookieWebClient>(Lifestyle.Scoped);
+            // todo, fix this
+            // https://github.com/simpleinjector/SimpleInjector/issues/668
+            // https://github.com/simpleinjector/SimpleInjector/issues/654
+            container.Register<HttpClient>(() => new HttpClient(), Lifestyle.Scoped);
+
+            container.Register<IFlexKidsClient, HttpFlexKidsClient>(Lifestyle.Scoped);
             container.Register<WriteToDiskOptions>(() => new WriteToDiskOptions { Directory = $"C:\\temp\\{DateTime.Now:yyyyMMddHHmmss}", });
-            container.RegisterDecorator(typeof(IFlexKidsConnection), typeof(WriteToDiskDecorator), Lifestyle.Scoped);
+            container.RegisterDecorator(typeof(IFlexKidsClient), typeof(WriteToDiskFlexKidsClientDecorator), Lifestyle.Scoped);
         }
     }
 }

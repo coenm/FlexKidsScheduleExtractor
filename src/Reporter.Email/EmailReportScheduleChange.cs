@@ -13,10 +13,10 @@ namespace Reporter.Email
     public class EmailReportScheduleChange : IReportScheduleChange
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly IFlexKidsConfig _flexKidsConfig;
+        private readonly EmailConfig _flexKidsConfig;
         private readonly IEmailService _emailService;
 
-        public EmailReportScheduleChange(IFlexKidsConfig flexKidsConfig, IEmailService emailService)
+        public EmailReportScheduleChange(EmailConfig flexKidsConfig, IEmailService emailService)
         {
             _flexKidsConfig = flexKidsConfig ?? throw new ArgumentNullException(nameof(flexKidsConfig));
             _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));

@@ -13,33 +13,34 @@ namespace FlexKidsScheduler
 
     public class Scheduler : IDisposable
     {
-        private readonly IFlexKidsConnection _flexKidsConnection;
+        private readonly IFlexKidsClient _flexKidsClient;
         private readonly IHash _hash;
         private readonly IKseParser _parser;
         private readonly IScheduleRepository _repo;
 
-        public Scheduler(IFlexKidsConnection flexKidsConnection, IKseParser parser, IScheduleRepository scheduleRepository, IHash hash)
+        public Scheduler(IFlexKidsClient flexKidsClient, IKseParser parser, IScheduleRepository scheduleRepository, IHash hash)
         {
-            _flexKidsConnection = flexKidsConnection ?? throw new ArgumentNullException(nameof(flexKidsConnection));
+            _flexKidsClient = flexKidsClient ?? throw new ArgumentNullException(nameof(flexKidsClient));
             _hash = hash ?? throw new ArgumentNullException(nameof(hash));
             _parser = parser ?? throw new ArgumentNullException(nameof(parser));
             _repo = scheduleRepository ?? throw new ArgumentNullException(nameof(scheduleRepository));
         }
 
-        // An event that clients can use to be notified whenever the
-        // elements of the list change.
+        /// <summary>
+        /// An event that clients can use to be notified whenever the elements of the list change.
+        /// </summary>
         public event ChangedEventHandler ScheduleChanged;
 
         public async Task<IEnumerable<ScheduleDiff>> GetChanges()
         {
-            var indexPage = await _flexKidsConnection.GetAvailableSchedulesPage();
+            var indexPage = await _flexKidsClient.GetAvailableSchedulesPage();
             var indexContent = _parser.GetIndexContent(indexPage);
             var somethingChanged = false;
             var weekAndHtml = new Dictionary<int, WeekAndHtml>(indexContent.Weeks.Count);
 
-            foreach (var i in indexContent.Weeks)
+            foreach (KeyValuePair<int, WeekItem> i in indexContent.Weeks)
             {
-                var htmlSchedule = await _flexKidsConnection.GetSchedulePage(i.Key);
+                var htmlSchedule = await _flexKidsClient.GetSchedulePage(i.Key);
                 var htmlHash = _hash.Hash(htmlSchedule);
                 var week = await _repo.GetWeek(i.Value.Year, i.Value.WeekNr);
 
@@ -49,12 +50,12 @@ namespace FlexKidsScheduler
                 }
 
                 weekAndHtml.Add(i.Key, new WeekAndHtml
-                {
-                    Week = await GetCreateOrUpdateWeek(week, i.Value.Year, i.Value.WeekNr, htmlHash),
-                    Hash = htmlHash,
-                    Html = htmlSchedule,
-                    ScheduleChanged = week == null || htmlHash != week.Hash,
-                });
+                    {
+                        Week = await GetCreateOrUpdateWeek(week, i.Value.Year, i.Value.WeekNr, htmlHash),
+                        Hash = htmlHash,
+                        Html = htmlSchedule,
+                        ScheduleChanged = week == null || htmlHash != week.Hash,
+                    });
             }
 
             if (!somethingChanged)
@@ -79,29 +80,29 @@ namespace FlexKidsScheduler
         {
             var diffsResult = new List<ScheduleDiff>();
 
-            foreach (var item in weekAndHtml.Select(a => a.Value))
+            foreach (WeekAndHtml item in weekAndHtml.Select(a => a.Value))
             {
-                var dbSchedules = await _repo.GetSchedules(item.Week.Year, item.Week.WeekNr);
+                IList<Schedule> dbSchedules = await _repo.GetSchedules(item.Week.Year, item.Week.WeekNr);
                 IList<ScheduleDiff> diffResult;
                 if (item.ScheduleChanged)
                 {
-                    var parsedSchedules = _parser.GetScheduleFromContent(item.Html, item.Week.Year);
+                    List<ScheduleItem> parsedSchedules = _parser.GetScheduleFromContent(item.Html, item.Week.Year);
                     diffResult = GetDiffs(dbSchedules, parsedSchedules, item.Week);
 
-                    var schedulesToDelete = diffResult
-                                            .Where(x => x.Status == ScheduleStatus.Removed)
-                                            .Select(x => x.Schedule)
-                                            .ToArray();
+                    Schedule[] schedulesToDelete = diffResult
+                                                   .Where(x => x.Status == ScheduleStatus.Removed)
+                                                   .Select(x => x.Schedule)
+                                                   .ToArray();
 
                     if (schedulesToDelete.Any())
                     {
                         _ = await _repo.Delete(schedulesToDelete);
                     }
 
-                    var schedulesToInsert = diffResult
-                                            .Where(x => x.Status == ScheduleStatus.Added)
-                                            .Select(x => x.Schedule);
-                    foreach (var schedule in schedulesToInsert)
+                    IEnumerable<Schedule> schedulesToInsert = diffResult
+                                                              .Where(x => x.Status == ScheduleStatus.Added)
+                                                              .Select(x => x.Schedule);
+                    foreach (Schedule schedule in schedulesToInsert)
                     {
                         _ = await _repo.Insert(schedule);
                     }
@@ -111,7 +112,7 @@ namespace FlexKidsScheduler
                 else
                 {
                     diffResult = new List<ScheduleDiff>(dbSchedules.Count);
-                    foreach (var dbSchedule in dbSchedules)
+                    foreach (Schedule dbSchedule in dbSchedules)
                     {
                         diffResult.Add(new ScheduleDiff
                             {

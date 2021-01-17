@@ -60,7 +60,7 @@ namespace Reporter.Email.Test
         {
             // arrange
             var emailService = A.Fake<IEmailService>();
-            var flexKidsConfig = A.Fake<IFlexKidsConfig>();
+            var flexKidsConfig = A.Fake<EmailConfig>();
             var sut = new EmailReportScheduleChange(flexKidsConfig, emailService);
 
             // act
@@ -74,13 +74,8 @@ namespace Reporter.Email.Test
         public void HandleChangeWithThreeItemsInListTest()
         {
             // arrange
-            var emailService = A.Fake<IEmailService>();
-            var flexKidsConfig = A.Fake<IFlexKidsConfig>();
-
-            _ = A.CallTo(() => flexKidsConfig.EmailTo2).Returns("een@hotmail.com");
-            _ = A.CallTo(() => flexKidsConfig.EmailTo1).Returns("twee@gmail.com");
-            _ = A.CallTo(() => flexKidsConfig.EmailFrom).Returns("from@gmail.com");
-
+            IEmailService emailService = A.Fake<IEmailService>();
+            var flexKidsConfig = new EmailConfig("a@b.com", "a@b.com", string.Empty, "a@b.com", string.Empty);
             var sut = new EmailReportScheduleChange(flexKidsConfig, emailService);
 
             var scheduleDiff = new List<ScheduleDiff>()
