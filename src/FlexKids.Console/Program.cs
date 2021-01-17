@@ -3,6 +3,7 @@ namespace FlexKids.Console
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Net.Http;
     using System.Threading.Tasks;
     using FlexKids.Console.Configuration;
     using FlexKidsConnection;
@@ -106,7 +107,7 @@ namespace FlexKids.Console
                 () =>
                     {
                         var connectionString = _config.GetConnectionString("FlexKidsContext");
-                        var result = new DbContextOptionsBuilder<FlexKidsContext>()
+                        DbContextOptionsBuilder<FlexKidsContext> result = new DbContextOptionsBuilder<FlexKidsContext>()
                             .UseSqlServer(connectionString);
 
                         return result.Options;
@@ -151,10 +152,14 @@ namespace FlexKids.Console
 
         private static void RegisterFlexKidsConnection(Container container)
         {
-            container.Register<IWeb, WebClientAdapter>(Lifestyle.Scoped);
-            container.Register<IFlexKidsConnection, FlexKidsCookieWebClient>(Lifestyle.Scoped);
+            // todo, fix this
+            // https://github.com/simpleinjector/SimpleInjector/issues/668
+            // https://github.com/simpleinjector/SimpleInjector/issues/654
+            container.Register<HttpClient>(() => new HttpClient(), Lifestyle.Scoped);
+
+            container.Register<IFlexKidsClient, HttpFlexKidsClient>(Lifestyle.Scoped);
             container.Register<WriteToDiskOptions>(() => new WriteToDiskOptions { Directory = $"C:\\temp\\{DateTime.Now:yyyyMMddHHmmss}", });
-            container.RegisterDecorator(typeof(IFlexKidsConnection), typeof(WriteToDiskDecorator), Lifestyle.Scoped);
+            container.RegisterDecorator(typeof(IFlexKidsClient), typeof(WriteToDiskFlexKidsClientDecorator), Lifestyle.Scoped);
         }
     }
 }
