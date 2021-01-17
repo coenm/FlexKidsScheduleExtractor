@@ -25,6 +25,10 @@ namespace FlexKids.Console
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private static IConfigurationRoot _config;
 
+        protected Program()
+        {
+        }
+
         public static async Task Main()
         {
             _logger.Info("Starting.. ");
@@ -125,29 +129,33 @@ namespace FlexKids.Console
             Smtp smtpConfig = _config.GetSection("Smtp").Get<Smtp>();
             NotificationSubscriptions notificationSubscriptions = _config.GetSection("NotificationSubscriptions").Get<NotificationSubscriptions>();
 
-            var staticFlexKidsConfig = new StaticFlexKidsConfig(
-                notificationSubscriptions.From.Email,
-                notificationSubscriptions.To[1].Email,
-                notificationSubscriptions.To[1].Name,
-                notificationSubscriptions.To[0].Email,
-                notificationSubscriptions.To[0].Name,
+            var staticEmailServerConfig = new EmailServerConfig(
                 smtpConfig.Host,
                 smtpConfig.Port,
                 smtpConfig.Username,
                 smtpConfig.Password,
+                smtpConfig.Secure);
+            container.RegisterInstance(staticEmailServerConfig);
+
+            var staticGoogleCalendarConfig = new GoogleCalendarConfig(
                 googleCalendarConfig.Account,
                 googleCalendarConfig.CalendarId,
-                System.Convert.FromBase64String(googleCalendarConfig.KeyFileContent),
-                smtpConfig.Secure);
+                System.Convert.FromBase64String(googleCalendarConfig.KeyFileContent));
+            container.RegisterInstance(staticGoogleCalendarConfig);
 
-            _container.RegisterInstance<IFlexKidsConfig>(staticFlexKidsConfig);
+            var staticEmailConfig = new EmailConfig(
+                notificationSubscriptions.From.Email,
+                notificationSubscriptions.To[1].Email,
+                notificationSubscriptions.To[1].Name,
+                notificationSubscriptions.To[0].Email,
+                notificationSubscriptions.To[0].Name);
+            container.RegisterInstance(staticEmailConfig);
 
-            var flexKidsCookieConfig = new FlexKidsCookieConfig(
+            var staticFlexKidsHttpClientConfig = new FlexKidsHttpClientConfig(
                 flexKidsConfig.Host,
                 flexKidsConfig.Username,
                 flexKidsConfig.Password);
-
-            container.RegisterInstance(flexKidsCookieConfig);
+            container.RegisterInstance(staticFlexKidsHttpClientConfig);
         }
 
         private static void RegisterFlexKidsConnection(Container container)

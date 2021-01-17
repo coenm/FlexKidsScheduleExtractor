@@ -17,15 +17,15 @@ namespace Reporter.GoogleCalendar
         private readonly IGoogleCalendarService _calendarService;
         private readonly string _googleCalendarId;
 
-        public GoogleCalendarScheduler(IFlexKidsConfig flexKidsConfig)
+        public GoogleCalendarScheduler(GoogleCalendarConfig config)
         {
-            _ = flexKidsConfig ?? throw new ArgumentNullException(nameof(flexKidsConfig));
-            _googleCalendarId = flexKidsConfig.GoogleCalendarId;
+            _ = config ?? throw new ArgumentNullException(nameof(config));
+            _googleCalendarId = config.GoogleCalendarId;
 
-            var certificate = new X509Certificate2(flexKidsConfig.GoogleCalendarKey);
+            var certificate = new X509Certificate2(config.GoogleCalendarKey);
 
             var credential = new ServiceAccountCredential(
-                new ServiceAccountCredential.Initializer(flexKidsConfig.GoogleCalendarAccount)
+                new ServiceAccountCredential.Initializer(config.GoogleCalendarAccount)
                     {
                         Scopes = new[] { CalendarService.Scope.Calendar, },
                     }.FromCertificate(certificate));

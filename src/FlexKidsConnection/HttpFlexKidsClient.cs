@@ -14,10 +14,10 @@ namespace FlexKidsConnection
     public class HttpFlexKidsClient : IFlexKidsClient
     {
         private readonly HttpClient _httpClient;
-        private readonly FlexKidsCookieConfig _config;
+        private readonly FlexKidsHttpClientConfig _config;
         private bool _isLoggedIn;
 
-        public HttpFlexKidsClient(HttpClient httpClient, FlexKidsCookieConfig config)
+        public HttpFlexKidsClient(HttpClient httpClient, FlexKidsHttpClientConfig config)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _config = config ?? throw new ArgumentNullException(nameof(config));
