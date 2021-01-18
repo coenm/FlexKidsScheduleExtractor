@@ -8,9 +8,6 @@ namespace FlexKidsScheduler
     using Repository;
     using Repository.Model;
 
-    // A delegate type for hooking up change notifications.
-    public delegate void ChangedEventHandler(object sender, ScheduleChangedEventArgs e);
-
     public class Scheduler : IDisposable
     {
         private readonly IFlexKidsClient _flexKidsClient;
@@ -29,7 +26,7 @@ namespace FlexKidsScheduler
         /// <summary>
         /// An event that clients can use to be notified whenever the elements of the list change.
         /// </summary>
-        public event ChangedEventHandler ScheduleChanged;
+        public event Func<object, ScheduleChangedEventArgs, Task> ScheduleChanged;
 
         public async Task<IEnumerable<ScheduleDiff>> GetChanges()
         {
@@ -71,9 +68,26 @@ namespace FlexKidsScheduler
             // should we dispose injected instances?
         }
 
-        private void OnScheduleChanged(IOrderedEnumerable<ScheduleDiff> diffs)
+        private async Task OnScheduleChanged(IOrderedEnumerable<ScheduleDiff> diffs)
         {
-            ScheduleChanged?.Invoke(this, new ScheduleChangedEventArgs(diffs));
+            Func<object, ScheduleChangedEventArgs, Task> handler = ScheduleChanged;
+
+            if (handler == null)
+            {
+                return;
+            }
+
+            var evt = new ScheduleChangedEventArgs(diffs);
+
+            Delegate[] invocationList = handler.GetInvocationList();
+            var handlerTasks = new Task[invocationList.Length];
+
+            for (var i = 0; i < invocationList.Length; i++)
+            {
+                handlerTasks[i] = ((Func<object, ScheduleChangedEventArgs, Task>)invocationList[i])(this, evt);
+            }
+
+            await Task.WhenAll(handlerTasks);
         }
 
         private async Task<IEnumerable<ScheduleDiff>> ProcessRawData(Dictionary<int, WeekAndHtml> weekAndHtml)
@@ -107,7 +121,7 @@ namespace FlexKidsScheduler
                         _ = await _repo.Insert(schedule);
                     }
 
-                    OnScheduleChanged(diffResult.OrderBy(x => x.Start).ThenBy(x => x.Status));
+                    await OnScheduleChanged(diffResult.OrderBy(x => x.Start).ThenBy(x => x.Status));
                 }
                 else
                 {
@@ -203,21 +217,9 @@ namespace FlexKidsScheduler
                     return week;
                 }
 
-                var newWeek = new Week
-                    {
-                        Hash = htmlHash,
-                        WeekNr = week.WeekNr,
-                        Year = week.Year,
-                        Id = week.Id,
-                    };
+                week.Hash = htmlHash;
 
-                Week w = await _repo.Update(week, newWeek);
-                if (w == null)
-                {
-                    throw new Exception();
-                }
-
-                return w;
+                return await _repo.Update(week);
             }
 
             return week;

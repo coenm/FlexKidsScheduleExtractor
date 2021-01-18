@@ -3,7 +3,9 @@ namespace Reporter.GoogleCalendar
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using FlexKidsScheduler;
+    using FlexKidsScheduler.Model;
     using NLog;
 
     public class CalendarReportScheduleChange : IReportScheduleChange
@@ -16,7 +18,7 @@ namespace Reporter.GoogleCalendar
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
-        public bool HandleChange(IReadOnlyList<FlexKidsScheduler.Model.ScheduleDiff> schedule)
+        public async Task<bool> HandleChange(IReadOnlyList<ScheduleDiff> schedule)
         {
             if (schedule == null || !schedule.Any())
             {
@@ -29,7 +31,7 @@ namespace Reporter.GoogleCalendar
                 _logger.Trace("Create Google Calendar");
                 var google = new GoogleCalendarScheduler(_config);
                 _logger.Trace("Make events");
-                google.MakeEvents(schedule);
+                await google.MakeEvents(schedule);
             }
             catch (Exception ex)
             {

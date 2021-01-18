@@ -1,21 +1,22 @@
 namespace Reporter.GoogleCalendar
 {
     using System;
+    using System.Threading.Tasks;
     using Google.Apis.Calendar.v3;
     using Google.Apis.Calendar.v3.Data;
 
     public class GoogleCalendarService : IGoogleCalendarService
     {
-        private CalendarService _service;
+        private readonly CalendarService _service;
 
         public GoogleCalendarService(CalendarService service)
         {
             _service = service;
         }
 
-        public Calendar GetCalendarById(string id)
+        public Task<Calendar> GetCalendarById(string id)
         {
-            return _service.Calendars.Get(id).Execute();
+            return _service.Calendars.Get(id).ExecuteAsync();
         }
 
         public EventsResource.ListRequest CreateListRequest(string calendarId)
@@ -25,7 +26,7 @@ namespace Reporter.GoogleCalendar
 
         public EventsResource.ListRequest CreateListRequestForWeek(string calendarId, Repository.Model.Week week)
         {
-            var mondayOfRequestedWeek = DateTimeHelper.GetMondayForGivenWeek(week.Year, week.WeekNr);
+            DateTime mondayOfRequestedWeek = DateTimeHelper.GetMondayForGivenWeek(week.Year, week.WeekNr);
 
             var request = _service.Events.List(calendarId);
             request.ShowDeleted = true;
@@ -33,35 +34,34 @@ namespace Reporter.GoogleCalendar
             request.MaxResults = 100;
             request.SharedExtendedProperty = "Week=" + week.Year + "-" + week.WeekNr;
 
-            var start = mondayOfRequestedWeek.AddDays(-7); // one week before
+            DateTime start = mondayOfRequestedWeek.AddDays(-7); // one week before
             request.TimeMin = new DateTime(start.Year, start.Month, start.Day, 0, 0, 0);
 
-            var end = mondayOfRequestedWeek.AddDays(4).AddDays(7); // fridays one week after
+            DateTime end = mondayOfRequestedWeek.AddDays(4).AddDays(7); // fridays one week after
             request.TimeMax = new DateTime(end.Year, end.Month, end.Day, 0, 0, 0);
 
             return request;
         }
 
-        public Events GetEvents(EventsResource.ListRequest listRequest)
+        public Task<Events> GetEvents(EventsResource.ListRequest listRequest)
         {
-            return listRequest.Execute();
+            return listRequest.ExecuteAsync();
         }
 
-        public string DeleteEvent(string calendarId, Event calendarEvent)
+        public Task<string> DeleteEvent(string calendarId, Event calendarEvent)
         {
             var deleteRequest = _service.Events.Delete(calendarId, calendarEvent.Id);
-            return deleteRequest.Execute();
+            return deleteRequest.ExecuteAsync();
         }
 
-        public Event InsertEvent(string calendarId, Event calendarEvent)
+        public Task<Event> InsertEvent(string calendarId, Event calendarEvent)
         {
-            return _service.Events.Insert(calendarEvent, calendarId).Execute();
+            return _service.Events.Insert(calendarEvent, calendarId).ExecuteAsync();
         }
 
         public void Dispose()
         {
-            _service?.Dispose();
-            _service = null;
+            // ignore
         }
     }
 }

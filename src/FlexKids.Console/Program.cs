@@ -3,6 +3,7 @@ namespace FlexKids.Console
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Net.Http;
     using System.Threading.Tasks;
     using FlexKids.Console.Configuration;
@@ -64,18 +65,32 @@ namespace FlexKids.Console
             await using Scope scope = AsyncScopedLifestyle.BeginScope(_container);
 
             Scheduler scheduler = _container.GetInstance<Scheduler>();
-            IEnumerable<IReportScheduleChange> allHandlers = _container.GetAllInstances<IReportScheduleChange>();
-            scheduler.ScheduleChanged += (sender, changedArgs) =>
-                {
-                    foreach (IReportScheduleChange handler in allHandlers)
-                    {
-                        _ = handler.HandleChange(changedArgs.Diff);
-                    }
-                };
 
+            IReportScheduleChange[] allHandlers = _container.GetAllInstances<IReportScheduleChange>().ToArray();
+
+            async Task DelegateScheduleChangedToReporters(object sender, ScheduleChangedEventArgs changedArgs)
+            {
+                foreach (IReportScheduleChange handler in allHandlers)
+                {
+                    var handlerType = handler.GetType().Name;
+                    try
+                    {
+                        _logger.Info($"Start handling using {handlerType}");
+                        _ = await handler.HandleChange(changedArgs.Diff);
+                        _logger.Info($"Done handling using {handlerType}");
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Error(e, $"Handling using {handlerType} failed.");
+                    }
+                }
+            }
+
+            scheduler.ScheduleChanged += DelegateScheduleChangedToReporters;
             _logger.Info("Start scheduler");
             _ = await scheduler.GetChanges();
             _logger.Info("Finished scheduler");
+            scheduler.ScheduleChanged -= DelegateScheduleChangedToReporters;
 
             scheduler.Dispose();
 
@@ -126,7 +141,7 @@ namespace FlexKids.Console
         {
             FlexKids flexKidsConfig = _config.GetSection("FlexKids").Get<FlexKids>();
             GoogleCalendar googleCalendarConfig = _config.GetSection("GoogleCalendar").Get<GoogleCalendar>();
-            Smtp smtpConfig = _config.GetSection("Smtp").Get<Smtp>();
+            Smtp smtpConfig = _config.GetSection("SMTP").Get<Smtp>();
             NotificationSubscriptions notificationSubscriptions = _config.GetSection("NotificationSubscriptions").Get<NotificationSubscriptions>();
 
             var staticEmailServerConfig = new EmailServerConfig(

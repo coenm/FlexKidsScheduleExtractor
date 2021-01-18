@@ -14,7 +14,7 @@ namespace Repository
 
         Task<Week> Insert(Week week);
 
-        Task<Week> Update(Week originalWeek, Week updatedWeek);
+        Task<Week> Update(Week week);
 
         Task<Week> GetWeek(int year, int weekNr);
     }

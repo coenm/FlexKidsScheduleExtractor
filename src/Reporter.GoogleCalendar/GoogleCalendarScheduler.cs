@@ -4,7 +4,7 @@ namespace Reporter.GoogleCalendar
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Cryptography.X509Certificates;
-    using FlexKidsScheduler;
+    using System.Threading.Tasks;
     using FlexKidsScheduler.Model;
     using Google.Apis.Auth.OAuth2;
     using Google.Apis.Calendar.v3;
@@ -39,23 +39,23 @@ namespace Reporter.GoogleCalendar
                 });
 
             _calendarService = new GoogleCalendarService(service);
+        }
 
-            Calendar calendar = _calendarService.GetCalendarById(_googleCalendarId);
+        public async Task MakeEvents(IReadOnlyList<ScheduleDiff> schedule)
+        {
+            Calendar calendar = await _calendarService.GetCalendarById(_googleCalendarId);
             if (calendar == null)
             {
                 throw new CalendarNotFoundException(_googleCalendarId);
             }
-        }
 
-        public void MakeEvents(IReadOnlyList<ScheduleDiff> schedule)
-        {
-            var weeks = schedule.Select(x => x.Schedule.Week).Distinct();
+            IEnumerable<Week> weeks = schedule.Select(x => x.Schedule.Week).Distinct();
 
             foreach (Week week in weeks)
             {
-                var request = _calendarService.CreateListRequestForWeek(_googleCalendarId, week);
+                EventsResource.ListRequest request = _calendarService.CreateListRequestForWeek(_googleCalendarId, week);
 
-                var result = _calendarService.GetEvents(request);
+                Events result = await _calendarService.GetEvents(request);
                 var allRows = new List<Event>();
                 while (result.Items != null)
                 {
@@ -74,17 +74,22 @@ namespace Reporter.GoogleCalendar
                     request.PageToken = result.NextPageToken;
 
                     // Execute and process the next page request
-                    result = _calendarService.GetEvents(request);
+                    result = await _calendarService.GetEvents(request);
                 }
 
                 foreach (Event ev in allRows)
                 {
-                    _ = _calendarService.DeleteEvent(_googleCalendarId, ev);
+                    _ = await _calendarService.DeleteEvent(_googleCalendarId, ev);
                 }
             }
 
             // add items to calendar.
-            foreach (var item in schedule.Where(x => x.Status == ScheduleStatus.Added).OrderBy(x => x.Start).ThenBy(x => x.Status))
+            IOrderedEnumerable<ScheduleDiff> addedSchedules = schedule
+                                                              .Where(x => x.Status == ScheduleStatus.Added)
+                                                              .OrderBy(x => x.Start)
+                                                              .ThenBy(x => x.Status);
+
+            foreach (ScheduleDiff item in addedSchedules)
             {
                 var extendedProperty = new Event.ExtendedPropertiesData
                     {
@@ -111,7 +116,7 @@ namespace Reporter.GoogleCalendar
                         ExtendedProperties = extendedProperty,
                     };
 
-                _ = _calendarService.InsertEvent(_googleCalendarId, newEvent);
+                _ = await _calendarService.InsertEvent(_googleCalendarId, newEvent);
             }
         }
 

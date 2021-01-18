@@ -6,6 +6,7 @@ namespace Reporter.Email
     using System.Net.Mail;
     using System.Net.Mime;
     using System.Text;
+    using System.Threading.Tasks;
     using FlexKidsScheduler;
     using FlexKidsScheduler.Model;
     using NLog;
@@ -22,7 +23,7 @@ namespace Reporter.Email
             _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         }
 
-        public bool HandleChange(IReadOnlyList<ScheduleDiff> schedule)
+        public async Task<bool> HandleChange(IReadOnlyList<ScheduleDiff> schedule)
         {
             if (schedule == null || !schedule.Any())
             {
@@ -37,7 +38,7 @@ namespace Reporter.Email
                 var scheduleHtml = EmailContentBuilder.ScheduleToHtmlString(orderedSchedule);
 
                 var mm = CreateMailMessage(subject, schedulePlain, scheduleHtml);
-                _emailService.Send(mm);
+                await _emailService.Send(mm);
             }
             catch (Exception ex)
             {

@@ -2,6 +2,7 @@ namespace Reporter.Email.Test
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using FakeItEasy;
     using FlexKidsScheduler;
     using FlexKidsScheduler.Model;
@@ -56,7 +57,7 @@ namespace Reporter.Email.Test
         }
 
         [Fact]
-        public void HandleChangeWithEmptyListTest()
+        public async Task HandleChangeWithEmptyListTest()
         {
             // arrange
             var emailService = A.Fake<IEmailService>();
@@ -64,14 +65,14 @@ namespace Reporter.Email.Test
             var sut = new EmailReportScheduleChange(flexKidsConfig, emailService);
 
             // act
-            var result = sut.HandleChange(null);
+            var result = await sut.HandleChange(null);
 
             // assert
             Assert.True(result);
         }
 
         [Fact]
-        public void HandleChangeWithThreeItemsInListTest()
+        public async Task HandleChangeWithThreeItemsInListTest()
         {
             // arrange
             IEmailService emailService = A.Fake<IEmailService>();
@@ -98,7 +99,7 @@ namespace Reporter.Email.Test
             };
 
             // act
-            var result = sut.HandleChange(scheduleDiff);
+            var result = await sut.HandleChange(scheduleDiff);
 
             // assert
             Assert.True(result);

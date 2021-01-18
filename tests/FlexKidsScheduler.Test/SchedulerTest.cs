@@ -46,7 +46,7 @@ namespace FlexKidsScheduler.Test
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task GetChangesWithOneScheduleWichAlreadyExistsAndDidNotChangeReturnsEmptyListTest(bool isLoggedIn)
+        public async Task GetChangesWithOneScheduleWhichAlreadyExistsAndDidNotChangeReturnsEmptyListTest(bool isLoggedIn)
         {
             // arrange
             var weeks = new Dictionary<int, WeekItem>
@@ -90,7 +90,7 @@ namespace FlexKidsScheduler.Test
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task GetaChangesWithOneScheduleWichAlreadyExistsAndDidNotChangeReturnsEmptyListTest(bool isLoggedIn)
+        public async Task GetaChangesWithOneScheduleWhichAlreadyExistsAndDidNotChangeReturnsEmptyListTest(bool isLoggedIn)
         {
             // arrange
             var weeks = new Dictionary<int, WeekItem>
@@ -128,7 +128,7 @@ namespace FlexKidsScheduler.Test
             _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).Returns("GetSchedulePage0");
             _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).Returns(weekNew.Hash);
             _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6)).Returns(weekOld);
-            _ = A.CallTo(() => scheduleRepository.Update(A<Week>._, A<Week>._)).Returns(weekNew);
+            _ = A.CallTo(() => scheduleRepository.Update(A<Week>._)).Returns(weekNew);
 
             // act
             IEnumerable<ScheduleDiff> result = await sut.GetChanges();

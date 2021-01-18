@@ -44,9 +44,9 @@ namespace Repository.EntityFramework
             return result.Entity;
         }
 
-        public async Task<Week> Update(Week originalWeek, Week updatedWeek)
+        public async Task<Week> Update(Week week)
         {
-            EntityEntry<Week> result = _context.WeekSchedules.Update(updatedWeek);
+            EntityEntry<Week> result = _context.WeekSchedules.Update(week);
             _ = await _context.SaveChangesAsync();
             return result.Entity;
         }
