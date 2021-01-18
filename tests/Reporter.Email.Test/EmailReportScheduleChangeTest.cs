@@ -63,7 +63,7 @@ namespace Reporter.Email.Test
         {
             // arrange
             IEmailService emailService = A.Fake<IEmailService>();
-            EmailConfig flexKidsConfig = A.Fake<EmailConfig>();
+            var flexKidsConfig = new EmailConfig(new MailAddress("a@b.c", "x"), new MailAddress("a@b.c", "x"));
             var sut = new EmailReportScheduleChange(flexKidsConfig, emailService, NullLogger.Instance);
 
             // act
