@@ -7,18 +7,21 @@ namespace FlexKidsConnection
     using System.Net.Http;
     using System.Threading.Tasks;
     using FlexKidsScheduler;
+    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// FlexKids client using HttpClient.
     /// </summary>
     public class HttpFlexKidsClient : IFlexKidsClient
     {
+        private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
         private readonly FlexKidsHttpClientConfig _config;
         private bool _isLoggedIn;
 
-        public HttpFlexKidsClient(HttpClient httpClient, FlexKidsHttpClientConfig config)
+        public HttpFlexKidsClient(ILogger logger, HttpClient httpClient, FlexKidsHttpClientConfig config)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }

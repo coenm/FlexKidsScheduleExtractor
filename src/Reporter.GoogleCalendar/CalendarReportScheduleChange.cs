@@ -6,15 +6,16 @@ namespace Reporter.GoogleCalendar
     using System.Threading.Tasks;
     using FlexKidsScheduler;
     using FlexKidsScheduler.Model;
-    using NLog;
+    using Microsoft.Extensions.Logging;
 
     public class CalendarReportScheduleChange : IReportScheduleChange
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
         private readonly GoogleCalendarConfig _config;
 
-        public CalendarReportScheduleChange(GoogleCalendarConfig config)
+        public CalendarReportScheduleChange(ILogger logger, GoogleCalendarConfig config)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
@@ -22,24 +23,24 @@ namespace Reporter.GoogleCalendar
         {
             if (schedule == null || !schedule.Any())
             {
-                _logger.Trace("HandleChange Google calender, schedule == null | count = 0");
+                _logger.LogTrace("HandleChange Google calender, schedule == null | count = 0");
                 return true;
             }
 
             try
             {
-                _logger.Trace("Create Google Calendar");
+                _logger.LogTrace("Create Google Calendar");
                 var google = new GoogleCalendarScheduler(_config);
-                _logger.Trace("Make events");
+                _logger.LogTrace("Make events");
                 await google.MakeEvents(schedule);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Something went wrong using Google Calendar.");
+                _logger.LogError(ex, "Something went wrong using Google Calendar.");
                 return false;
             }
 
-            _logger.Trace("Done Google calendar");
+            _logger.LogTrace("Done Google calendar");
             return true;
         }
     }

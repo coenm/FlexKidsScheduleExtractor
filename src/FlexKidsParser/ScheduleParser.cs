@@ -6,11 +6,9 @@ namespace FlexKidsParser
     using FlexKidsParser.Helper;
     using FlexKidsScheduler.Model;
     using HtmlAgilityPack;
-    using NLog;
 
     internal class ScheduleParser
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly string _content;
         private readonly int _year;
         private HtmlDocument _document;
@@ -47,7 +45,7 @@ namespace FlexKidsParser
 
             if (divsIdUrenregistratie.Count != 1)
             {
-                _logger.Error("urenregistratieDiv");
+                // _logger.Error("urenregistratieDiv");
                 return null;
             }
 
@@ -58,7 +56,7 @@ namespace FlexKidsParser
                                                                    .ToList();
             if (tablesIdLocatieWeekoverzicht.Count != 1)
             {
-                _logger.Error("tableLocaties");
+                // _logger.Error("tableLocaties");
                 return null;
             }
 
@@ -68,7 +66,7 @@ namespace FlexKidsParser
             var theads = tableIdLocatieWeekOverzicht.Descendants().Where(x => x.IsThead()).ToList();
             if (theads.Count != 1)
             {
-                _logger.Error("theads");
+                // _logger.Error("theads");
                 return null;
             }
 
@@ -78,7 +76,7 @@ namespace FlexKidsParser
             var rows = thead.Descendants().Where(x => x.IsTr()).ToList();
             if (rows.Count != 1)
             {
-                _logger.Error("rows");
+                // _logger.Error("rows");
                 return null;
             }
 
@@ -90,7 +88,7 @@ namespace FlexKidsParser
             // Additional column contains info.
             if (cols.Count != NUMBER_OF_WORKDAYS + 1)
             {
-                _logger.Error("cols");
+                // _logger.Error("cols");
                 return null;
             }
 

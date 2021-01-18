@@ -7,6 +7,7 @@ namespace Reporter.Email.Test
     using FakeItEasy;
     using FlexKidsScheduler;
     using FlexKidsScheduler.Model;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Reporter.Email;
     using Repository.Model;
     using Xunit;
@@ -63,7 +64,7 @@ namespace Reporter.Email.Test
             // arrange
             IEmailService emailService = A.Fake<IEmailService>();
             EmailConfig flexKidsConfig = A.Fake<EmailConfig>();
-            var sut = new EmailReportScheduleChange(flexKidsConfig, emailService);
+            var sut = new EmailReportScheduleChange(flexKidsConfig, emailService, NullLogger.Instance);
 
             // act
             var result = await sut.HandleChange(null);
@@ -81,7 +82,7 @@ namespace Reporter.Email.Test
                 new MailAddress("from@me.com", "FlexKidsService"),
                 new MailAddress("you@you.com", "you"),
                 new MailAddress("and.you@you.com", "and you"));
-            var sut = new EmailReportScheduleChange(flexKidsConfig, emailService);
+            var sut = new EmailReportScheduleChange(flexKidsConfig, emailService, NullLogger.Instance);
 
             var scheduleDiff = new List<ScheduleDiff>()
             {
