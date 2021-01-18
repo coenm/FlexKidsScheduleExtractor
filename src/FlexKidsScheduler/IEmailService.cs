@@ -1,9 +1,10 @@
 namespace FlexKidsScheduler
 {
     using System.Net.Mail;
+    using System.Threading.Tasks;
 
     public interface IEmailService
     {
-        void Send(MailMessage message);
+        Task Send(MailMessage message);
     }
 }

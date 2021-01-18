@@ -2,12 +2,9 @@ namespace FlexKidsParser.Helper
 {
     using System;
     using System.IO;
-    using NLog;
 
     public static class ParseDate
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-
         // time = 09:00
         public static DateTime AddStringTimeToDate(DateTime date, string time)
         {
@@ -99,64 +96,24 @@ namespace FlexKidsParser.Helper
                 throw new InvalidDataException($"Found day ({day}) not in range");
             }
 
-            int month;
             var monthTxt = RemoveLastCharIfDot(spitDate[1].Trim());
 
-            switch (monthTxt)
+            var month = monthTxt switch
             {
-                case "jan": // unchecked
-                    month = 1;
-                    break;
-
-                case "feb":
-                    month = 2;
-                    break;
-
-                case "mrt":
-                    month = 3;
-                    break;
-
-                case "apr":
-                    month = 4;
-                    break;
-
-                case "mei":
-                    month = 5;
-                    break;
-
-                case "jun":
-                    month = 6; // unchecked
-                    break;
-
-                case "jul":
-                    month = 7; // unchecked
-                    break;
-
-                case "aug":
-                    month = 8; // unchecked
-                    break;
-
-                case "sep":
-                case "sept":
-                    month = 9; // unchecked
-                    break;
-
-                case "okt":
-                    month = 10; // unchecked
-                    break;
-
-                case "nov":
-                    month = 11; // unchecked
-                    break;
-
-                case "dec":
-                    month = 12;
-                    break;
-
-                default:
-                    _logger.Error(monthTxt + "  is not catched");
-                    throw new InvalidDataException(monthTxt + " is not catched");
-            }
+                "jan" => 1,
+                "feb" => 2,
+                "mrt" => 3,
+                "apr" => 4,
+                "mei" => 5,
+                "jun" => 6, // unchecked
+                "jul" => 7, // unchecked
+                "aug" => 8, // unchecked
+                "sep" or "sept" => 9, // unchecked
+                "okt" => 10, // unchecked
+                "nov" => 11, // unchecked
+                "dec" => 12,
+                _ => throw new InvalidDataException(monthTxt + " is not catched"),
+            };
 
             var result = new DateTime(year, month, day, 0, 0, 0);
             return result;

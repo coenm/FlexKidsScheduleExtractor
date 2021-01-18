@@ -2,9 +2,12 @@ namespace Reporter.Email.Test
 {
     using System;
     using System.Collections.Generic;
+    using System.Net.Mail;
+    using System.Threading.Tasks;
     using FakeItEasy;
     using FlexKidsScheduler;
     using FlexKidsScheduler.Model;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Reporter.Email;
     using Repository.Model;
     using Xunit;
@@ -14,7 +17,7 @@ namespace Reporter.Email.Test
         private readonly Week _week = new Week()
             {
                 Id = 2,
-                Hash = "sdfskdf83",
+                Hash = "abc123",
                 Year = 2012,
                 WeekNr = 23,
             };
@@ -56,27 +59,30 @@ namespace Reporter.Email.Test
         }
 
         [Fact]
-        public void HandleChangeWithEmptyListTest()
+        public async Task HandleChangeWithEmptyListTest()
         {
             // arrange
-            var emailService = A.Fake<IEmailService>();
-            var flexKidsConfig = A.Fake<EmailConfig>();
-            var sut = new EmailReportScheduleChange(flexKidsConfig, emailService);
+            IEmailService emailService = A.Fake<IEmailService>();
+            var flexKidsConfig = new EmailConfig(new MailAddress("a@b.c", "x"), new MailAddress("a@b.c", "x"));
+            var sut = new EmailReportScheduleChange(flexKidsConfig, emailService, NullLogger.Instance);
 
             // act
-            var result = sut.HandleChange(null);
+            var result = await sut.HandleChange(null);
 
             // assert
             Assert.True(result);
         }
 
         [Fact]
-        public void HandleChangeWithThreeItemsInListTest()
+        public async Task HandleChangeWithThreeItemsInListTest()
         {
             // arrange
             IEmailService emailService = A.Fake<IEmailService>();
-            var flexKidsConfig = new EmailConfig("a@b.com", "a@b.com", string.Empty, "a@b.com", string.Empty);
-            var sut = new EmailReportScheduleChange(flexKidsConfig, emailService);
+            var flexKidsConfig = new EmailConfig(
+                new MailAddress("from@me.com", "FlexKidsService"),
+                new MailAddress("you@you.com", "you"),
+                new MailAddress("and.you@you.com", "and you"));
+            var sut = new EmailReportScheduleChange(flexKidsConfig, emailService, NullLogger.Instance);
 
             var scheduleDiff = new List<ScheduleDiff>()
             {
@@ -98,7 +104,7 @@ namespace Reporter.Email.Test
             };
 
             // act
-            var result = sut.HandleChange(scheduleDiff);
+            var result = await sut.HandleChange(scheduleDiff);
 
             // assert
             Assert.True(result);

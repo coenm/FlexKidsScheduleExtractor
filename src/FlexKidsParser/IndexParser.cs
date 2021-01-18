@@ -7,11 +7,9 @@ namespace FlexKidsParser
     using FlexKidsParser.Helper;
     using FlexKidsScheduler.Model;
     using HtmlAgilityPack;
-    using NLog;
 
     internal class IndexParser
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly HtmlDocument _document;
 
         public IndexParser(string content)
@@ -27,7 +25,7 @@ namespace FlexKidsParser
                     Email = ExtractEmailFromContent(),
                 };
 
-            result.IsLoggedin = !string.IsNullOrWhiteSpace(result.Email);
+            result.IsLoggedIn = !string.IsNullOrWhiteSpace(result.Email);
             result.Weeks = ExtractWeeksFromContent();
             return result;
         }
@@ -40,7 +38,6 @@ namespace FlexKidsParser
             if (weekSelections.Count != 1)
             {
                 var s = $"Nr of weekselections is {weekSelections.Count} but should be equal to 1.";
-                _logger.Error(s);
                 throw new InvalidDataException(s);
             }
 

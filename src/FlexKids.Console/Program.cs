@@ -1,9 +1,10 @@
 namespace FlexKids.Console
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Net.Http;
+    using System.Net.Mail;
     using System.Threading.Tasks;
     using FlexKids.Console.Configuration;
     using FlexKidsConnection;
@@ -11,18 +12,20 @@ namespace FlexKids.Console
     using FlexKidsScheduler;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
-    using NLog;
+    using Microsoft.Extensions.Logging;
     using Reporter.Email;
     using Reporter.GoogleCalendar;
     using Repository;
     using Repository.EntityFramework;
+    using Serilog;
+    using Serilog.Events;
     using SimpleInjector;
     using SimpleInjector.Lifestyles;
+    using ILogger = Microsoft.Extensions.Logging.ILogger;
 
     public class Program
     {
         private static readonly Container _container = new Container();
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private static IConfigurationRoot _config;
 
         protected Program()
@@ -31,13 +34,14 @@ namespace FlexKids.Console
 
         public static async Task Main()
         {
-            _logger.Info("Starting.. ");
+            // _logger.Info("Starting.. ");
 
             _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
 
             IConfigurationBuilder builder = new ConfigurationBuilder()
                                             .SetBasePath(Directory.GetCurrentDirectory())
                                             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+                                            .AddJsonFile("logging.json", optional: true, reloadOnChange: false)
                                             .AddEnvironmentVariables();
 
             if (IsDevelopment())
@@ -55,27 +59,41 @@ namespace FlexKids.Console
             }
             catch (Exception e)
             {
-                _logger.Error(e, "Cannot verify the dependency injection container");
+                // _logger.Error(e, "Cannot verify the dependency injection container");
                 return;
             }
 
-            _logger.Info("Dependencies registered");
+            // _logger.Info("Dependencies registered");
 
             await using Scope scope = AsyncScopedLifestyle.BeginScope(_container);
 
             Scheduler scheduler = _container.GetInstance<Scheduler>();
-            IEnumerable<IReportScheduleChange> allHandlers = _container.GetAllInstances<IReportScheduleChange>();
-            scheduler.ScheduleChanged += (sender, changedArgs) =>
-                {
-                    foreach (IReportScheduleChange handler in allHandlers)
-                    {
-                        _ = handler.HandleChange(changedArgs.Diff);
-                    }
-                };
 
-            _logger.Info("Start scheduler");
+            IReportScheduleChange[] allHandlers = _container.GetAllInstances<IReportScheduleChange>().ToArray();
+
+            async Task DelegateScheduleChangedToReporters(object sender, ScheduleChangedEventArgs changedArgs)
+            {
+                foreach (IReportScheduleChange handler in allHandlers)
+                {
+                    var handlerType = handler.GetType().Name;
+                    try
+                    {
+                        // _logger.Info($"Start handling using {handlerType}");
+                        _ = await handler.HandleChange(changedArgs.Diff);
+                        // _logger.Info($"Done handling using {handlerType}");
+                    }
+                    catch (Exception e)
+                    {
+                        // _logger.Error(e, $"Handling using {handlerType} failed.");
+                    }
+                }
+            }
+
+            scheduler.ScheduleChanged += DelegateScheduleChangedToReporters;
+            // _logger.Info("Start scheduler");
             _ = await scheduler.GetChanges();
-            _logger.Info("Finished scheduler");
+            // _logger.Info("Finished scheduler");
+            scheduler.ScheduleChanged -= DelegateScheduleChangedToReporters;
 
             scheduler.Dispose();
 
@@ -95,7 +113,8 @@ namespace FlexKids.Console
 
         private static void SetupDependencyContainer()
         {
-            RegisterSettings(_container);
+            RegisterSettings();
+            RegisterLogging();
 
             _container.Register<Scheduler>(Lifestyle.Scoped);
 
@@ -122,11 +141,33 @@ namespace FlexKids.Console
                 typeof(CalendarReportScheduleChange));
         }
 
-        private static void RegisterSettings(Container container)
+        private static void RegisterLogging()
+        {
+            // https://stackoverflow.com/questions/41243485/simple-injector-register-iloggert-by-using-iloggerfactory-createloggert
+            var loggerFactory = new LoggerFactory();
+            Serilog.Core.Logger loggerConfiguration = new LoggerConfiguration()
+                                                      .ReadFrom.Configuration(_config)
+                                                      .WriteTo.Console(LogEventLevel.Verbose)
+                                                      //.WriteTo.RollingFile()
+                                                      .CreateLogger();
+            _ = loggerFactory.AddSerilog(loggerConfiguration);
+
+            _container.RegisterInstance<ILoggerFactory>(loggerFactory);
+
+            _container.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
+
+            _container.RegisterConditional(
+                typeof(ILogger),
+                c => typeof(Logger<>).MakeGenericType(c.Consumer.ImplementationType),
+                Lifestyle.Singleton,
+                _ => true);
+        }
+
+        private static void RegisterSettings()
         {
             FlexKids flexKidsConfig = _config.GetSection("FlexKids").Get<FlexKids>();
             GoogleCalendar googleCalendarConfig = _config.GetSection("GoogleCalendar").Get<GoogleCalendar>();
-            Smtp smtpConfig = _config.GetSection("Smtp").Get<Smtp>();
+            Smtp smtpConfig = _config.GetSection("SMTP").Get<Smtp>();
             NotificationSubscriptions notificationSubscriptions = _config.GetSection("NotificationSubscriptions").Get<NotificationSubscriptions>();
 
             var staticEmailServerConfig = new EmailServerConfig(
@@ -135,27 +176,24 @@ namespace FlexKids.Console
                 smtpConfig.Username,
                 smtpConfig.Password,
                 smtpConfig.Secure);
-            container.RegisterInstance(staticEmailServerConfig);
+            _container.RegisterInstance(staticEmailServerConfig);
 
             var staticGoogleCalendarConfig = new GoogleCalendarConfig(
                 googleCalendarConfig.Account,
                 googleCalendarConfig.CalendarId,
                 System.Convert.FromBase64String(googleCalendarConfig.KeyFileContent));
-            container.RegisterInstance(staticGoogleCalendarConfig);
+            _container.RegisterInstance(staticGoogleCalendarConfig);
 
             var staticEmailConfig = new EmailConfig(
-                notificationSubscriptions.From.Email,
-                notificationSubscriptions.To[1].Email,
-                notificationSubscriptions.To[1].Name,
-                notificationSubscriptions.To[0].Email,
-                notificationSubscriptions.To[0].Name);
-            container.RegisterInstance(staticEmailConfig);
+                new MailAddress(notificationSubscriptions.From.Email, "FlexKids rooster"),
+                notificationSubscriptions.To.Select(x => new MailAddress(x.Email, x.Name)).ToArray());
+            _container.RegisterInstance(staticEmailConfig);
 
             var staticFlexKidsHttpClientConfig = new FlexKidsHttpClientConfig(
                 flexKidsConfig.Host,
                 flexKidsConfig.Username,
                 flexKidsConfig.Password);
-            container.RegisterInstance(staticFlexKidsHttpClientConfig);
+            _container.RegisterInstance(staticFlexKidsHttpClientConfig);
         }
 
         private static void RegisterFlexKidsConnection(Container container)

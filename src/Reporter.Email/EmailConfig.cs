@@ -1,24 +1,25 @@
 namespace Reporter.Email
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net.Mail;
+
     public class EmailConfig
     {
-        public EmailConfig(string emailFrom, string emailTo2, string emailToName2, string emailTo1, string emailToName1)
+        public EmailConfig(MailAddress emailFrom, params MailAddress[] to)
         {
-            EmailFrom = emailFrom;
-            EmailTo2 = emailTo2;
-            EmailToName2 = emailToName2;
-            EmailTo1 = emailTo1;
-            EmailToName1 = emailToName1;
+            EmailFrom = emailFrom ?? throw new ArgumentNullException(nameof(emailFrom));
+            To = to?.ToList() ?? new List<MailAddress>(0);
+
+            if (To.Count == 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(to));
+            }
         }
 
-        public string EmailFrom { get; }
+        public MailAddress EmailFrom { get; }
 
-        public string EmailTo2 { get; }
-
-        public string EmailToName2 { get; }
-
-        public string EmailTo1 { get; }
-
-        public string EmailToName1 { get; }
+        public IReadOnlyList<MailAddress> To { get; }
     }
 }

@@ -3,6 +3,7 @@ namespace FlexKidsScheduler
     using System;
     using System.Net;
     using System.Net.Mail;
+    using System.Threading.Tasks;
 
     public class EmailService : IEmailService
     {
@@ -27,15 +28,14 @@ namespace FlexKidsScheduler
                 };
         }
 
-        public void Send(MailMessage message)
+        public async Task Send(MailMessage message)
         {
             if (message == null)
             {
                 throw new ArgumentNullException(nameof(message));
             }
 
-            // todo async await
-            _client.Send(message); // TODO exception handling
+            await _client.SendMailAsync(message);
         }
     }
 }

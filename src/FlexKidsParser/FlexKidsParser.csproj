@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" />
-    <PackageReference Include="NLog" />
   </ItemGroup>
 
   <ItemGroup>
