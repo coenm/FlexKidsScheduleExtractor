@@ -4,7 +4,7 @@ namespace FlexKidsScheduler.Model
 
     public class IndexContent
     {
-        public bool IsLoggedin { get; set; }
+        public bool IsLoggedIn { get; set; }
 
         public string Email { get; set; }
 

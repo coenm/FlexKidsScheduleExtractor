@@ -31,7 +31,7 @@ namespace FlexKidsScheduler
         public async Task<IEnumerable<ScheduleDiff>> GetChanges()
         {
             var indexPage = await _flexKidsClient.GetAvailableSchedulesPage();
-            var indexContent = _parser.GetIndexContent(indexPage);
+            IndexContent indexContent = _parser.GetIndexContent(indexPage);
             var somethingChanged = false;
             var weekAndHtml = new Dictionary<int, WeekAndHtml>(indexContent.Weeks.Count);
 

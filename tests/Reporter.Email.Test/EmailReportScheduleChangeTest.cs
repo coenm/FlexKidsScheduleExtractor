@@ -2,6 +2,7 @@ namespace Reporter.Email.Test
 {
     using System;
     using System.Collections.Generic;
+    using System.Net.Mail;
     using System.Threading.Tasks;
     using FakeItEasy;
     using FlexKidsScheduler;
@@ -15,7 +16,7 @@ namespace Reporter.Email.Test
         private readonly Week _week = new Week()
             {
                 Id = 2,
-                Hash = "sdfskdf83",
+                Hash = "abc123",
                 Year = 2012,
                 WeekNr = 23,
             };
@@ -60,8 +61,8 @@ namespace Reporter.Email.Test
         public async Task HandleChangeWithEmptyListTest()
         {
             // arrange
-            var emailService = A.Fake<IEmailService>();
-            var flexKidsConfig = A.Fake<EmailConfig>();
+            IEmailService emailService = A.Fake<IEmailService>();
+            EmailConfig flexKidsConfig = A.Fake<EmailConfig>();
             var sut = new EmailReportScheduleChange(flexKidsConfig, emailService);
 
             // act
@@ -76,7 +77,10 @@ namespace Reporter.Email.Test
         {
             // arrange
             IEmailService emailService = A.Fake<IEmailService>();
-            var flexKidsConfig = new EmailConfig("a@b.com", "a@b.com", string.Empty, "a@b.com", string.Empty);
+            var flexKidsConfig = new EmailConfig(
+                new MailAddress("from@me.com", "FlexKidsService"),
+                new MailAddress("you@you.com", "you"),
+                new MailAddress("and.you@you.com", "and you"));
             var sut = new EmailReportScheduleChange(flexKidsConfig, emailService);
 
             var scheduleDiff = new List<ScheduleDiff>()

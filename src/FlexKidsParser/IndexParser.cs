@@ -27,7 +27,7 @@ namespace FlexKidsParser
                     Email = ExtractEmailFromContent(),
                 };
 
-            result.IsLoggedin = !string.IsNullOrWhiteSpace(result.Email);
+            result.IsLoggedIn = !string.IsNullOrWhiteSpace(result.Email);
             result.Weeks = ExtractWeeksFromContent();
             return result;
         }

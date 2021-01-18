@@ -22,7 +22,7 @@ namespace FlexKidsScheduler.Test
              .Returns(new IndexContent
              {
                  Email = "a@b.nl",
-                 IsLoggedin = isLoggedIn,
+                 IsLoggedIn = isLoggedIn,
                  Weeks = new Dictionary<int, WeekItem>(),
              });
             IScheduleRepository scheduleRepository = A.Dummy<IScheduleRepository>();
@@ -64,7 +64,7 @@ namespace FlexKidsScheduler.Test
              .Returns(new IndexContent
              {
                  Email = "a@b.nl",
-                 IsLoggedin = isLoggedIn,
+                 IsLoggedIn = isLoggedIn,
                  Weeks = weeks,
              });
             _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).Returns("GetSchedulePage0");
@@ -122,7 +122,7 @@ namespace FlexKidsScheduler.Test
                  .Returns(new IndexContent
                      {
                          Email = "a@b.nl",
-                         IsLoggedin = isLoggedIn,
+                         IsLoggedIn = isLoggedIn,
                          Weeks = weeks,
                      });
             _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).Returns("GetSchedulePage0");

@@ -14,12 +14,12 @@ namespace Reporter.Email
     public class EmailReportScheduleChange : IReportScheduleChange
     {
         private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly EmailConfig _flexKidsConfig;
+        private readonly EmailConfig _emailConfig;
         private readonly IEmailService _emailService;
 
         public EmailReportScheduleChange(EmailConfig flexKidsConfig, IEmailService emailService)
         {
-            _flexKidsConfig = flexKidsConfig ?? throw new ArgumentNullException(nameof(flexKidsConfig));
+            _emailConfig = flexKidsConfig ?? throw new ArgumentNullException(nameof(flexKidsConfig));
             _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         }
 
@@ -32,13 +32,13 @@ namespace Reporter.Email
 
             try
             {
-                var orderedSchedule = schedule.OrderBy(x => x.Start).ThenBy(x => x.Status).ToArray();
+                ScheduleDiff[] orderedSchedule = schedule.OrderBy(x => x.Start).ThenBy(x => x.Status).ToArray();
                 var subject = "Werkrooster voor week " + orderedSchedule[0].Schedule.Week.WeekNr;
                 var schedulePlain = EmailContentBuilder.ScheduleToPlainTextString(orderedSchedule);
                 var scheduleHtml = EmailContentBuilder.ScheduleToHtmlString(orderedSchedule);
 
-                var mm = CreateMailMessage(subject, schedulePlain, scheduleHtml);
-                await _emailService.Send(mm);
+                MailMessage mailMessage = CreateMailMessage(subject, schedulePlain, scheduleHtml);
+                await _emailService.Send(mailMessage);
             }
             catch (Exception ex)
             {
@@ -51,23 +51,24 @@ namespace Reporter.Email
 
         private MailMessage CreateMailMessage(string subject, string schedulePlain, string scheduleHtml)
         {
-            var from = new MailAddress(_flexKidsConfig.EmailFrom, "FlexKids rooster");
-            var toEmail1 = new MailAddress(_flexKidsConfig.EmailTo1, _flexKidsConfig.EmailToName1);
-            var toEmail2 = new MailAddress(_flexKidsConfig.EmailTo2, _flexKidsConfig.EmailToName2);
-            var mm = new MailMessage(from, toEmail1)
+            var mailMessage = new MailMessage(_emailConfig.EmailFrom, _emailConfig.To.First())
                 {
                     Subject = subject,
                     Body = schedulePlain,
                     BodyEncoding = Encoding.UTF8,
                     DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure,
                 };
-            mm.To.Add(toEmail2);
+
+            foreach (MailAddress address in _emailConfig.To.Skip(1))
+            {
+                mailMessage.To.Add(address);
+            }
 
             var mimeType = new ContentType("text/html");
             var alternate = AlternateView.CreateAlternateViewFromString(scheduleHtml, mimeType);
-            mm.AlternateViews.Add(alternate);
+            mailMessage.AlternateViews.Add(alternate);
 
-            return mm;
+            return mailMessage;
         }
     }
 }

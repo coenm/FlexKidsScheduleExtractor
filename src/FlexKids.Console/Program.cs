@@ -1,10 +1,10 @@
 namespace FlexKids.Console
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Net.Http;
+    using System.Net.Mail;
     using System.Threading.Tasks;
     using FlexKids.Console.Configuration;
     using FlexKidsConnection;
@@ -159,11 +159,8 @@ namespace FlexKids.Console
             container.RegisterInstance(staticGoogleCalendarConfig);
 
             var staticEmailConfig = new EmailConfig(
-                notificationSubscriptions.From.Email,
-                notificationSubscriptions.To[1].Email,
-                notificationSubscriptions.To[1].Name,
-                notificationSubscriptions.To[0].Email,
-                notificationSubscriptions.To[0].Name);
+                new MailAddress(notificationSubscriptions.From.Email, "FlexKids rooster"),
+                notificationSubscriptions.To.Select(x => new MailAddress(x.Email, x.Name)).ToArray());
             container.RegisterInstance(staticEmailConfig);
 
             var staticFlexKidsHttpClientConfig = new FlexKidsHttpClientConfig(

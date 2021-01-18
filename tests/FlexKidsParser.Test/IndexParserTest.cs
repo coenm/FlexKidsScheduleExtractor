@@ -30,7 +30,7 @@ namespace FlexKidsParser.Test
             // assert
             Assert.NotNull(indexContent);
             Assert.Equal(indexContent.Email, EXPECTED_EMAIL);
-            Assert.Equal(indexContent.IsLoggedin, EXPECTED_IS_LOGGEDIN);
+            Assert.Equal(indexContent.IsLoggedIn, EXPECTED_IS_LOGGEDIN);
             Assert.Equal(indexContent.Weeks.Count, expectedWeeks.Count);
 
             foreach (KeyValuePair<int, WeekItem> item in indexContent.Weeks)
