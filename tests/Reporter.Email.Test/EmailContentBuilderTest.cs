@@ -1,9 +1,9 @@
 namespace Reporter.Email.Test
 {
     using System;
-    using FlexKidsScheduler.Model;
+    using FlexKids.Core.Repository.Model;
+    using FlexKids.Core.Scheduler.Model;
     using FluentAssertions;
-    using Repository.Model;
     using Xunit;
     using Sut = Reporter.Email.EmailContentBuilder;
 

@@ -1,7 +1,7 @@
 namespace Repository.EntityFramework
 {
+    using FlexKids.Core.Repository.Model;
     using Microsoft.EntityFrameworkCore;
-    using Repository.Model;
 
     public class FlexKidsContext : DbContext
     {

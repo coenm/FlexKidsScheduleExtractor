@@ -5,11 +5,11 @@ namespace Reporter.Email.Test
     using System.Net.Mail;
     using System.Threading.Tasks;
     using FakeItEasy;
-    using FlexKidsScheduler;
-    using FlexKidsScheduler.Model;
+    using FlexKids.Core.Repository.Model;
+    using FlexKids.Core.Scheduler;
+    using FlexKids.Core.Scheduler.Model;
     using Microsoft.Extensions.Logging.Abstractions;
     using Reporter.Email;
-    using Repository.Model;
     using Xunit;
 
     public class EmailReportScheduleChangeTest

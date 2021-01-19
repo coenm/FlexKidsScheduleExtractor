@@ -2,6 +2,7 @@ namespace Reporter.GoogleCalendar
 {
     using System;
     using System.Threading.Tasks;
+    using FlexKids.Core.Repository.Model;
     using Google.Apis.Calendar.v3;
     using Google.Apis.Calendar.v3.Data;
 
@@ -11,7 +12,7 @@ namespace Reporter.GoogleCalendar
 
         public GoogleCalendarService(CalendarService service)
         {
-            _service = service;
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         public Task<Calendar> GetCalendarById(string id)
@@ -19,16 +20,11 @@ namespace Reporter.GoogleCalendar
             return _service.Calendars.Get(id).ExecuteAsync();
         }
 
-        public EventsResource.ListRequest CreateListRequest(string calendarId)
-        {
-            return _service.Events.List(calendarId);
-        }
-
-        public EventsResource.ListRequest CreateListRequestForWeek(string calendarId, Repository.Model.Week week)
+        public EventsResource.ListRequest CreateListRequestForWeek(string calendarId, Week week)
         {
             DateTime mondayOfRequestedWeek = DateTimeHelper.GetMondayForGivenWeek(week.Year, week.WeekNr);
 
-            var request = _service.Events.List(calendarId);
+            EventsResource.ListRequest request = _service.Events.List(calendarId);
             request.ShowDeleted = true;
             request.ShowDeleted = false;
             request.MaxResults = 100;
@@ -37,7 +33,7 @@ namespace Reporter.GoogleCalendar
             DateTime start = mondayOfRequestedWeek.AddDays(-7); // one week before
             request.TimeMin = new DateTime(start.Year, start.Month, start.Day, 0, 0, 0);
 
-            DateTime end = mondayOfRequestedWeek.AddDays(4).AddDays(7); // fridays one week after
+            DateTime end = mondayOfRequestedWeek.AddDays(4).AddDays(7); // Fridays one week after
             request.TimeMax = new DateTime(end.Year, end.Month, end.Day, 0, 0, 0);
 
             return request;
@@ -50,8 +46,7 @@ namespace Reporter.GoogleCalendar
 
         public Task<string> DeleteEvent(string calendarId, Event calendarEvent)
         {
-            var deleteRequest = _service.Events.Delete(calendarId, calendarEvent.Id);
-            return deleteRequest.ExecuteAsync();
+            return _service.Events.Delete(calendarId, calendarEvent.Id).ExecuteAsync();
         }
 
         public Task<Event> InsertEvent(string calendarId, Event calendarEvent)
@@ -61,7 +56,7 @@ namespace Reporter.GoogleCalendar
 
         public void Dispose()
         {
-            // ignore
+            // Intentionally do nothing.
         }
     }
 }

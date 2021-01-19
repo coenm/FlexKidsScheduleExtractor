@@ -9,18 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		build\Packages.targets = build\Packages.targets
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKidsParser", "src\FlexKidsParser\FlexKidsParser.csproj", "{5C286DEA-DDC0-45E7-AD31-2B2E45A8656A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKidsParser.Test", "tests\FlexKidsParser.Test\FlexKidsParser.Test.csproj", "{3E9C8B1A-E8CE-44B8-A190-BA0173D01CDB}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKidsScheduler", "src\FlexKidsScheduler\FlexKidsScheduler.csproj", "{ECBD8F39-AE8B-4F48-ACD5-FDE632DCB7E5}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "src\Repository\Repository.csproj", "{6E1181E6-6E8C-4534-AA95-A35EF6913550}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKidsScheduler.Test", "tests\FlexKidsScheduler.Test\FlexKidsScheduler.Test.csproj", "{72BD9759-F7F4-4622-B3C2-B9D34B13F54E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKidsConnection", "src\FlexKidsConnection\FlexKidsConnection.csproj", "{9EBF3F5F-BCAE-48B5-8637-CA0DA3F39FB0}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKids.Console", "src\FlexKids.Console\FlexKids.Console.csproj", "{7951AA4A-E83E-417A-B73C-CAD72B2D81A3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reporter.GoogleCalendar", "src\Reporter.GoogleCalendar\Reporter.GoogleCalendar.csproj", "{47D53EE4-3F77-483F-9EAA-71E705C87E6C}"
@@ -33,36 +21,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reporter.Email", "src\Repor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reporter.Email.Test", "tests\Reporter.Email.Test\Reporter.Email.Test.csproj", "{5A1F2B3C-DDC5-4DDD-919E-0CDE7C80DFDE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKids.Core", "src\FlexKids.Core\FlexKids.Core.csproj", "{80A0DE45-971A-417F-BC49-C050D1D8F6EC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKids.Core.Test", "tests\FlexKids.Core.Test\FlexKids.Core.Test.csproj", "{8129E8CC-E86D-4F59-8A6F-3FE95AD76462}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5C286DEA-DDC0-45E7-AD31-2B2E45A8656A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5C286DEA-DDC0-45E7-AD31-2B2E45A8656A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5C286DEA-DDC0-45E7-AD31-2B2E45A8656A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5C286DEA-DDC0-45E7-AD31-2B2E45A8656A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3E9C8B1A-E8CE-44B8-A190-BA0173D01CDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3E9C8B1A-E8CE-44B8-A190-BA0173D01CDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3E9C8B1A-E8CE-44B8-A190-BA0173D01CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3E9C8B1A-E8CE-44B8-A190-BA0173D01CDB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ECBD8F39-AE8B-4F48-ACD5-FDE632DCB7E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ECBD8F39-AE8B-4F48-ACD5-FDE632DCB7E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ECBD8F39-AE8B-4F48-ACD5-FDE632DCB7E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ECBD8F39-AE8B-4F48-ACD5-FDE632DCB7E5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6E1181E6-6E8C-4534-AA95-A35EF6913550}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E1181E6-6E8C-4534-AA95-A35EF6913550}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6E1181E6-6E8C-4534-AA95-A35EF6913550}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6E1181E6-6E8C-4534-AA95-A35EF6913550}.Release|Any CPU.Build.0 = Release|Any CPU
-		{72BD9759-F7F4-4622-B3C2-B9D34B13F54E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{72BD9759-F7F4-4622-B3C2-B9D34B13F54E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{72BD9759-F7F4-4622-B3C2-B9D34B13F54E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{72BD9759-F7F4-4622-B3C2-B9D34B13F54E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9EBF3F5F-BCAE-48B5-8637-CA0DA3F39FB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9EBF3F5F-BCAE-48B5-8637-CA0DA3F39FB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9EBF3F5F-BCAE-48B5-8637-CA0DA3F39FB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9EBF3F5F-BCAE-48B5-8637-CA0DA3F39FB0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7951AA4A-E83E-417A-B73C-CAD72B2D81A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7951AA4A-E83E-417A-B73C-CAD72B2D81A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7951AA4A-E83E-417A-B73C-CAD72B2D81A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -87,6 +55,14 @@ Global
 		{5A1F2B3C-DDC5-4DDD-919E-0CDE7C80DFDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A1F2B3C-DDC5-4DDD-919E-0CDE7C80DFDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A1F2B3C-DDC5-4DDD-919E-0CDE7C80DFDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80A0DE45-971A-417F-BC49-C050D1D8F6EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80A0DE45-971A-417F-BC49-C050D1D8F6EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80A0DE45-971A-417F-BC49-C050D1D8F6EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80A0DE45-971A-417F-BC49-C050D1D8F6EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8129E8CC-E86D-4F59-8A6F-3FE95AD76462}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8129E8CC-E86D-4F59-8A6F-3FE95AD76462}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8129E8CC-E86D-4F59-8A6F-3FE95AD76462}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8129E8CC-E86D-4F59-8A6F-3FE95AD76462}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

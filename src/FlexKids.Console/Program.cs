@@ -7,9 +7,10 @@ namespace FlexKids.Console
     using System.Net.Mail;
     using System.Threading.Tasks;
     using FlexKids.Console.Configuration;
-    using FlexKidsConnection;
-    using FlexKidsParser;
-    using FlexKidsScheduler;
+    using FlexKids.Core.FlexKidsClient;
+    using FlexKids.Core.Parser;
+    using FlexKids.Core.Repository;
+    using FlexKids.Core.Scheduler;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;

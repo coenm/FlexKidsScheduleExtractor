@@ -2,7 +2,7 @@ namespace FlexKids.Console
 {
     using System.Security.Cryptography;
     using System.Text;
-    using FlexKidsScheduler;
+    using FlexKids.Core.Scheduler;
 
     public class Sha1Hash : IHash
     {

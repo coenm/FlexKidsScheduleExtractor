@@ -5,12 +5,12 @@ namespace Reporter.GoogleCalendar
     using System.Linq;
     using System.Security.Cryptography.X509Certificates;
     using System.Threading.Tasks;
-    using FlexKidsScheduler.Model;
+    using FlexKids.Core.Repository.Model;
+    using FlexKids.Core.Scheduler.Model;
     using Google.Apis.Auth.OAuth2;
     using Google.Apis.Calendar.v3;
     using Google.Apis.Calendar.v3.Data;
     using Google.Apis.Services;
-    using Repository.Model;
 
     internal class GoogleCalendarScheduler : IDisposable
     {

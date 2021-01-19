@@ -4,8 +4,8 @@ namespace Reporter.GoogleCalendar
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using FlexKidsScheduler;
-    using FlexKidsScheduler.Model;
+    using FlexKids.Core.Scheduler;
+    using FlexKids.Core.Scheduler.Model;
     using Microsoft.Extensions.Logging;
 
     public class CalendarReportScheduleChange : IReportScheduleChange

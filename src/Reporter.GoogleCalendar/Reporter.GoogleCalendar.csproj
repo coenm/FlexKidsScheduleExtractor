@@ -10,8 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FlexKidsScheduler\FlexKidsScheduler.csproj" />
-    <ProjectReference Include="..\Repository\Repository.csproj" />
+    <ProjectReference Include="..\FlexKids.Core\FlexKids.Core.csproj" />
   </ItemGroup>
 
 </Project>
