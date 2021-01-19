@@ -4,9 +4,10 @@ namespace Repository.EntityFramework
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using FlexKids.Core.Repository;
+    using FlexKids.Core.Repository.Model;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.ChangeTracking;
-    using Repository.Model;
 
     public class EntityFrameworkScheduleRepository : IScheduleRepository
     {
@@ -24,27 +25,27 @@ namespace Repository.EntityFramework
                            .ToListAsync();
         }
 
-        public async Task<Schedule> Insert(Schedule schedule)
+        public async Task<Schedule> InsertSchedule(Schedule schedule)
         {
             EntityEntry<Schedule> result = await _context.SingleShifts.AddAsync(schedule);
             _ = await _context.SaveChangesAsync();
             return result.Entity;
         }
 
-        public async Task<int> Delete(IEnumerable<Schedule> schedules)
+        public async Task<int> DeleteSchedules(IEnumerable<Schedule> schedules)
         {
             _context.SingleShifts.RemoveRange(schedules);
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<Week> Insert(Week week)
+        public async Task<Week> InsertWeek(Week week)
         {
             EntityEntry<Week> result = await _context.WeekSchedules.AddAsync(week);
             _ = await _context.SaveChangesAsync();
             return result.Entity;
         }
 
-        public async Task<Week> Update(Week week)
+        public async Task<Week> UpdateWeek(Week week)
         {
             EntityEntry<Week> result = _context.WeekSchedules.Update(week);
             _ = await _context.SaveChangesAsync();

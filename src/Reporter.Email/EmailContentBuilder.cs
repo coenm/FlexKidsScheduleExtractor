@@ -4,7 +4,7 @@ namespace Reporter.Email
     using System.Globalization;
     using System.Linq;
     using System.Text;
-    using FlexKidsScheduler.Model;
+    using FlexKids.Core.Scheduler.Model;
 
     internal static class EmailContentBuilder
     {

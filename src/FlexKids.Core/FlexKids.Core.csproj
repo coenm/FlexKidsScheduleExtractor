@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <ProjectGuid>{9E061DD0-30B7-4C3B-A2F3-E40FDBF61AFA}</ProjectGuid>
+    <ProjectGuid>{80B0DE55-971A-437F-BC49-D050D1D8F6EC}</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FlexKids.Core\FlexKids.Core.csproj" />
+    <PackageReference Include="HtmlAgilityPack" />
   </ItemGroup>
 
 </Project>
