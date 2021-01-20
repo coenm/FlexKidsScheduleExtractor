@@ -1,6 +1,6 @@
 namespace FlexKids.Core.Scheduler.Model
 {
-    public class WeekItem
+    public readonly struct WeekItem
     {
         public WeekItem(int weekNr, int year)
         {
@@ -8,8 +8,8 @@ namespace FlexKids.Core.Scheduler.Model
             WeekNr = weekNr;
         }
 
-        public int Year { get; set; }
+        public int Year { get; }
 
-        public int WeekNr { get; set; }
+        public int WeekNr { get; }
     }
 }

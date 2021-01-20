@@ -18,7 +18,7 @@ namespace Repository.EntityFramework
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        async Task<IList<Schedule>> IScheduleRepository.GetSchedules(int year, int week)
+        public async Task<IList<Schedule>> GetSchedules(int year, int week)
         {
             return await _context.SingleShifts
                            .Where(x => x.Week.Year == year && x.Week.WeekNr == week)

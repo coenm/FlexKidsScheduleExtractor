@@ -92,7 +92,7 @@ namespace FlexKids.Console
 
             scheduler.ScheduleChanged += DelegateScheduleChangedToReporters;
             // _logger.Info("Start scheduler");
-            _ = await scheduler.GetChanges();
+            _ = await scheduler.ProcessAsync();
             // _logger.Info("Finished scheduler");
             scheduler.ScheduleChanged -= DelegateScheduleChangedToReporters;
 

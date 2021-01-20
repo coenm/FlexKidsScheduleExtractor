@@ -28,27 +28,27 @@ namespace FlexKids.Core.Scheduler
         /// </summary>
         public event Func<object, ScheduleChangedEventArgs, Task> ScheduleChanged;
 
-        public async Task<IEnumerable<ScheduleDiff>> GetChanges()
+        public async Task<IEnumerable<ScheduleDiff>> ProcessAsync()
         {
             var indexPage = await _flexKidsClient.GetAvailableSchedulesPage();
             IndexContent indexContent = _parser.GetIndexContent(indexPage);
             var somethingChanged = false;
             var weekAndHtml = new Dictionary<int, WeekAndHtml>(indexContent.Weeks.Count);
 
-            foreach (KeyValuePair<int, WeekItem> i in indexContent.Weeks)
+            foreach (KeyValuePair<int, WeekItem> item in indexContent.Weeks)
             {
-                var htmlSchedule = await _flexKidsClient.GetSchedulePage(i.Key);
+                var htmlSchedule = await _flexKidsClient.GetSchedulePage(item.Key);
                 var htmlHash = _hash.Hash(htmlSchedule);
-                var week = await _repo.GetWeek(i.Value.Year, i.Value.WeekNr);
+                var week = await _repo.GetWeek(item.Value.Year, item.Value.WeekNr);
 
                 if (week == null || htmlHash != week.Hash)
                 {
                     somethingChanged = true;
                 }
 
-                weekAndHtml.Add(i.Key, new WeekAndHtml
+                weekAndHtml.Add(item.Key, new WeekAndHtml
                     {
-                        Week = await GetCreateOrUpdateWeek(week, i.Value.Year, i.Value.WeekNr, htmlHash),
+                        Week = await GetCreateOrUpdateWeek(week, item.Value.Year, item.Value.WeekNr, htmlHash),
                         Hash = htmlHash,
                         Html = htmlSchedule,
                         ScheduleChanged = week == null || htmlHash != week.Hash,

@@ -11,7 +11,6 @@ namespace FlexKids.Core.Parser
     {
         private readonly string _content;
         private readonly int _year;
-        private HtmlDocument _document;
 
         public ScheduleParser(string content, int year)
         {
@@ -19,39 +18,27 @@ namespace FlexKids.Core.Parser
             _content = content;
         }
 
-        private HtmlDocument Document
-        {
-            get
-            {
-                if (_document == null)
-                {
-                    _document = new HtmlDocument();
-                    _document.LoadHtml(_content);
-                }
-
-                return _document;
-            }
-        }
-
         public List<ScheduleItem> GetScheduleFromContent()
         {
             const int NUMBER_OF_WORKDAYS = 5;
 
+            var document = new HtmlDocument();
+            document.LoadHtml(_content);
+
             var result = new List<ScheduleItem>();
 
-            var divsIdUrenregistratie = Document.DocumentNode.Descendants()
+            var divsHourRegistration = document.DocumentNode.Descendants()
                                                 .Where(x => x.IsDiv() && x.IdEquals("urenregistratie"))
                                                 .ToList();
 
-            if (divsIdUrenregistratie.Count != 1)
+            if (divsHourRegistration.Count != 1)
             {
                 // _logger.Error("urenregistratieDiv");
                 return null;
             }
 
-            HtmlNode divIdUrenregistratie = divsIdUrenregistratie.First();
-
-            var tablesIdLocatieWeekoverzicht = divIdUrenregistratie.Descendants()
+            var tablesIdLocatieWeekoverzicht = divsHourRegistration.First()
+                                                                   .Descendants()
                                                                    .Where(x => x.IdEquals("locatie_weekoverzicht"))
                                                                    .ToList();
             if (tablesIdLocatieWeekoverzicht.Count != 1)
@@ -70,20 +57,16 @@ namespace FlexKids.Core.Parser
                 return null;
             }
 
-            HtmlNode thead = theads.First();
-
             // get tr
-            var rows = thead.Descendants().Where(x => x.IsTr()).ToList();
+            var rows = theads.First().Descendants().Where(x => x.IsTr()).ToList();
             if (rows.Count != 1)
             {
                 // _logger.Error("rows");
                 return null;
             }
 
-            HtmlNode row = rows.First();
-
             // get columns
-            var cols = row.Descendants().Where(x => x.IsTh()).ToList();
+            var cols = rows.First().Descendants().Where(x => x.IsTh()).ToList();
 
             // Additional column contains info.
             if (cols.Count != NUMBER_OF_WORKDAYS + 1)
@@ -101,36 +84,46 @@ namespace FlexKids.Core.Parser
 
             foreach (HtmlNode tr in trs2)
             {
-                // get columns
-                var tds = tr.ChildNodes.Where(x => x.IsTd()).ToList();
+                IEnumerable<ScheduleItem> results = ProcessSingleRow(tr, cols);
+                result.AddRange(results);
+            }
 
-                // first column is info
-                HtmlNode infoTd = tds.First();
+            return result;
+        }
 
-                // deze heeft 4 divs
-                var infoTdDivs = infoTd.ChildNodes.Where(x => x.IsDiv()).ToList();
+        private IEnumerable<ScheduleItem> ProcessSingleRow(HtmlNode tr, IReadOnlyList<HtmlNode> cols)
+        {
+            // get columns
+            var rowColumns = tr.ChildNodes.Where(x => x.IsTd()).ToList();
 
-                // days
-                for (var i = 1; i < 6; i++)
+            // first column is info
+            HtmlNode infoColumn = rowColumns.First();
+
+            // deze heeft 4 divs
+            var infoTdDivs = infoColumn.ChildNodes.Where(x => x.IsDiv()).ToList();
+
+            // days
+            for (var i = 1; i < 6; i++)
+            {
+                if (!rowColumns[i].HasChildNodes)
                 {
-                    if (!tds[i].HasChildNodes)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    // at least one locatieplanning_2colommen en 1 div met totaal
-                    // kunnen meerdere locatieplanning_2collomen zijn
-                    if (tds[i].ChildNodes.Count(x => x.IsElement()) < 2)
-                    {
-                        continue;
-                    }
+                // at least one locatieplanning_2colommen en 1 div met totaal
+                // kunnen meerdere locatieplanning_2collomen zijn
+                if (rowColumns[i].ChildNodes.Count(x => x.IsElement()) < 2)
+                {
+                    continue;
+                }
 
-                    IEnumerable<HtmlNode> locatieplanningen = tds[i].ChildNodes.Where(x => x.IsTable() && x.ClassContains("locatieplanning_2colommen"));
-                    foreach (HtmlNode firstItem in locatieplanningen)
+                IEnumerable<HtmlNode> locatieplanningen =
+                    rowColumns[i].ChildNodes.Where(x => x.IsTable() && x.ClassContains("locatieplanning_2colommen"));
+                foreach (HtmlNode firstItem in locatieplanningen)
+                {
+                    if (firstItem.IsTable() && firstItem.ClassContains("locatieplanning_2colommen"))
                     {
-                        if (firstItem.IsTable() && firstItem.ClassContains("locatieplanning_2colommen"))
-                        {
-                            /*
+                        /*
                                 <table class="locatieplanning_2colommen dienst" width="100%">
                                     <tr>
                                         <td class="locatieplanning_naam bold" colspan=2>
@@ -143,40 +136,38 @@ namespace FlexKids.Core.Parser
                                     </tr>
                                 </table>
                                 */
-                            HtmlNode[] rowsx = firstItem.ChildNodes.Where(x => x.IsElement()).ToArray();
-                            if (rowsx.Length is >= 2 and <= 3)
+                        HtmlNode[] rowsx = firstItem.ChildNodes.Where(x => x.IsElement()).ToArray();
+                        if (rowsx.Length is >= 2 and <= 3)
+                        {
+                            HtmlNode lastRow = rowsx[1];
+
+                            if (lastRow.ChildNodes.Count(x => x.IsElement()) != 2)
                             {
-                                HtmlNode lastRow = rowsx[1];
-
-                                if (lastRow.ChildNodes.Count(x => x.IsElement()) != 2)
-                                {
-                                    continue;
-                                }
-
-                                HtmlNode tdStartEndTime = lastRow.ChildNodes.First(x => x.IsElement()); // <td class="left">09:00-18:30</td>
-
-                                var times = tdStartEndTime.InnerText.Trim(); // i.e. 09:00-18:00
-                                var divs = cols[i].Descendants().Where(x => x.IsDiv()).ToList();
-                                var dateString = divs[0].InnerText.Trim();
-
-                                var locationString = infoTdDivs[3].InnerText;
-
-                                DateTime dateWithoutTime = ParseDate.StringToDateTime(dateString, _year);
-                                (DateTime start, DateTime end) = ParseDate.CreateStartEndDateTimeTuple(dateWithoutTime, times);
-
-                                result.Add(new ScheduleItem
-                                    {
-                                        Start = start,
-                                        End = end,
-                                        Location = locationString,
-                                    });
+                                continue;
                             }
+
+                            HtmlNode tdStartEndTime =
+                                lastRow.ChildNodes.First(x => x.IsElement()); // <td class="left">09:00-18:30</td>
+
+                            var times = tdStartEndTime.InnerText.Trim(); // i.e. 09:00-18:00
+                            var divs = cols[i].Descendants().Where(x => x.IsDiv()).ToList();
+                            var dateString = divs[0].InnerText.Trim();
+
+                            var locationString = infoTdDivs[3].InnerText;
+
+                            DateTime dateWithoutTime = ParseDate.StringToDateTime(dateString, _year);
+                            (DateTime start, DateTime end) = ParseDate.CreateStartEndDateTimeTuple(dateWithoutTime, times);
+
+                            yield return new ScheduleItem
+                                {
+                                    Start = start,
+                                    End = end,
+                                    Location = locationString,
+                                };
                         }
                     }
                 }
             }
-
-            return result;
         }
     }
 }
