@@ -37,7 +37,7 @@ namespace Reporter.Email
             try
             {
                 ScheduleDiff[] orderedSchedule = schedule.OrderBy(x => x.Start).ThenBy(x => x.Status).ToArray();
-                var subject = "Werkrooster voor week " + orderedSchedule[0].Schedule.Week.WeekNr;
+                var subject = "Werkrooster voor week " + orderedSchedule[0].SingleShift.WeekSchedule.WeekNumber;
                 var schedulePlain = EmailContentBuilder.ScheduleToPlainTextString(orderedSchedule);
                 var scheduleHtml = EmailContentBuilder.ScheduleToHtmlString(orderedSchedule);
 

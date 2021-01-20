@@ -4,7 +4,7 @@ namespace FlexKids.Core.Scheduler.Model
 
     public class WeekAndHtml
     {
-        public Week Week { get; set; }
+        public WeekSchedule WeekSchedule { get; set; }
 
         public string Html { get; set; }
 

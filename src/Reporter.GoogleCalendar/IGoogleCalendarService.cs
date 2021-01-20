@@ -10,7 +10,7 @@ namespace Reporter.GoogleCalendar
     {
         Task<Calendar> GetCalendarById(string id);
 
-        EventsResource.ListRequest CreateListRequestForWeek(string calendarId, Week week);
+        EventsResource.ListRequest CreateListRequestForWeek(string calendarId, WeekSchedule weekSchedule);
 
         Task<Events> GetEvents(EventsResource.ListRequest listRequest);
 

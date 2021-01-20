@@ -6,16 +6,16 @@ namespace FlexKids.Core.Repository
 
     public interface IScheduleRepository
     {
-        Task<IList<Schedule>> GetSchedules(int year, int week);
+        Task<IList<SingleShift>> GetSchedules(int year, int week);
 
-        Task<Schedule> InsertSchedule(Schedule schedule);
+        Task<SingleShift> InsertSchedule(SingleShift singleShift);
 
-        Task<int> DeleteSchedules(IEnumerable<Schedule> schedules);
+        Task<int> DeleteSchedules(IEnumerable<SingleShift> schedules);
 
-        Task<Week> InsertWeek(Week week);
+        Task<WeekSchedule> InsertWeek(WeekSchedule weekSchedule);
 
-        Task<Week> UpdateWeek(Week week);
+        Task<WeekSchedule> UpdateWeek(WeekSchedule weekSchedule);
 
-        Task<Week> GetWeek(int year, int weekNr);
+        Task<WeekSchedule> GetWeek(int year, int weekNr);
     }
 }

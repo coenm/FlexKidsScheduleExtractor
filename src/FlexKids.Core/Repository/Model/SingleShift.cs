@@ -2,7 +2,7 @@ namespace FlexKids.Core.Repository.Model
 {
     using System;
 
-    public class Schedule
+    public class SingleShift
     {
         public int Id { get; set; }
 
