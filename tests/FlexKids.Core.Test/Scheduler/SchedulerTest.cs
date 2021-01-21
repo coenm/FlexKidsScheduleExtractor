@@ -71,7 +71,7 @@ namespace FlexKids.Core.Test.Scheduler
             _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).Returns("GetSchedulePage0");
             _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).Returns("hash0");
             _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6))
-                 .Returns(new Week { Hash = "hash0", });
+                 .Returns(new WeekSchedule { Hash = "hash0", });
 
             // act
             IEnumerable<ScheduleDiff> result = await sut.ProcessAsync();
@@ -95,18 +95,18 @@ namespace FlexKids.Core.Test.Scheduler
                 {
                     { 0, new WeekItem(6, 2015) },
                 };
-            var weekOld = new Week
+            var weekOld = new WeekSchedule
                 {
                     Hash = "hashOld",
                     Id = 1,
-                    WeekNr = 6,
+                    WeekNumber = 6,
                     Year = 2015,
                 };
-            var weekNew = new Week
+            var weekNew = new WeekSchedule
                 {
                     Hash = "hashNew",
                     Id = 1,
-                    WeekNr = 6,
+                    WeekNumber = 6,
                     Year = 2015,
                 };
 
@@ -126,7 +126,7 @@ namespace FlexKids.Core.Test.Scheduler
             _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).Returns("GetSchedulePage0");
             _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).Returns(weekNew.Hash);
             _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6)).Returns(weekOld);
-            _ = A.CallTo(() => scheduleRepository.UpdateWeek(A<Week>._)).Returns(weekNew);
+            _ = A.CallTo(() => scheduleRepository.UpdateWeek(A<WeekSchedule>._)).Returns(weekNew);
 
             // act
             IEnumerable<ScheduleDiff> result = await sut.ProcessAsync();

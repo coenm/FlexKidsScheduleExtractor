@@ -14,6 +14,6 @@ namespace FlexKids.Core.Repository.Model
 
         public int WeekId { get; set; }
 
-        public Week Week { get; set; }
+        public WeekSchedule WeekSchedule { get; set; }
     }
 }

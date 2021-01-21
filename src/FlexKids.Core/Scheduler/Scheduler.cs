@@ -48,7 +48,7 @@ namespace FlexKids.Core.Scheduler
 
                 weekAndHtml.Add(item.Key, new WeekAndHtml
                     {
-                        Week = await GetCreateOrUpdateWeek(week, item.Value.Year, item.Value.WeekNr, htmlHash),
+                        WeekSchedule = await GetCreateOrUpdateWeek(week, item.Value.Year, item.Value.WeekNr, htmlHash),
                         Hash = htmlHash,
                         Html = htmlSchedule,
                         ScheduleChanged = week == null || htmlHash != week.Hash,
@@ -96,27 +96,27 @@ namespace FlexKids.Core.Scheduler
 
             foreach (WeekAndHtml item in weekAndHtml.Select(a => a.Value))
             {
-                IList<Schedule> dbSchedules = await _repo.GetSchedules(item.Week.Year, item.Week.WeekNr);
+                IList<SingleShift> shfits = await _repo.GetSchedules(item.WeekSchedule.Year, item.WeekSchedule.WeekNumber);
                 IList<ScheduleDiff> diffResult;
                 if (item.ScheduleChanged)
                 {
-                    List<ScheduleItem> parsedSchedules = _parser.GetScheduleFromContent(item.Html, item.Week.Year);
-                    diffResult = GetDiffs(dbSchedules, parsedSchedules, item.Week);
+                    List<ScheduleItem> parsedSchedules = _parser.GetScheduleFromContent(item.Html, item.WeekSchedule.Year);
+                    diffResult = GetDiffs(shfits, parsedSchedules, item.WeekSchedule);
 
-                    Schedule[] schedulesToDelete = diffResult
-                                                   .Where(x => x.Status == ScheduleStatus.Removed)
-                                                   .Select(x => x.Schedule)
-                                                   .ToArray();
+                    SingleShift[] schedulesToDelete = diffResult
+                                                      .Where(x => x.Status == ScheduleStatus.Removed)
+                                                      .Select(x => x.SingleShift)
+                                                      .ToArray();
 
                     if (schedulesToDelete.Any())
                     {
                         _ = await _repo.DeleteSchedules(schedulesToDelete);
                     }
 
-                    IEnumerable<Schedule> schedulesToInsert = diffResult
-                                                              .Where(x => x.Status == ScheduleStatus.Added)
-                                                              .Select(x => x.Schedule);
-                    foreach (Schedule schedule in schedulesToInsert)
+                    IEnumerable<SingleShift> schedulesToInsert = diffResult
+                                                                 .Where(x => x.Status == ScheduleStatus.Added)
+                                                                 .Select(x => x.SingleShift);
+                    foreach (SingleShift schedule in schedulesToInsert)
                     {
                         _ = await _repo.InsertSchedule(schedule);
                     }
@@ -125,12 +125,12 @@ namespace FlexKids.Core.Scheduler
                 }
                 else
                 {
-                    diffResult = new List<ScheduleDiff>(dbSchedules.Count);
-                    foreach (Schedule dbSchedule in dbSchedules)
+                    diffResult = new List<ScheduleDiff>(shfits.Count);
+                    foreach (SingleShift singleShift in shfits)
                     {
                         diffResult.Add(new ScheduleDiff
                             {
-                                Schedule = dbSchedule,
+                                SingleShift = singleShift,
                                 Status = ScheduleStatus.Unchanged,
                             });
                     }
@@ -142,15 +142,15 @@ namespace FlexKids.Core.Scheduler
             return diffsResult;
         }
 
-        private IList<ScheduleDiff> GetDiffs(ICollection<Schedule> dbSchedules, ICollection<ScheduleItem> parsedSchedules, Week week)
+        private IList<ScheduleDiff> GetDiffs(ICollection<SingleShift> dbSchedules, ICollection<ScheduleItem> parsedSchedules, WeekSchedule week)
         {
             var diffResult = new List<ScheduleDiff>(parsedSchedules.Count + dbSchedules.Count);
 
-            foreach (Schedule item in dbSchedules)
+            foreach (SingleShift item in dbSchedules)
             {
                 var diffResultItem = new ScheduleDiff
                     {
-                        Schedule = item,
+                        SingleShift = item,
                     };
 
                 ScheduleItem selectItem = parsedSchedules.FirstOrDefault(scheduleItem =>
@@ -175,10 +175,10 @@ namespace FlexKids.Core.Scheduler
 
             foreach (ScheduleItem parsedSchedule in parsedSchedules)
             {
-                var schedule = new Schedule
-                    {
+                var schedule = new SingleShift
+                {
                         WeekId = week.Id,
-                        Week = week,
+                        WeekSchedule = week,
                         Location = parsedSchedule.Location,
                         StartDateTime = parsedSchedule.Start,
                         EndDateTime = parsedSchedule.End,
@@ -186,7 +186,7 @@ namespace FlexKids.Core.Scheduler
 
                 diffResult.Add(new ScheduleDiff
                     {
-                        Schedule = schedule,
+                        SingleShift = schedule,
                         Status = ScheduleStatus.Added,
                     });
             }
@@ -194,15 +194,15 @@ namespace FlexKids.Core.Scheduler
             return diffResult;
         }
 
-        private async Task<Week> GetCreateOrUpdateWeek(Week week, int year, int weekNr, string htmlHash)
+        private async Task<WeekSchedule> GetCreateOrUpdateWeek(WeekSchedule week, int year, int weekNr, string htmlHash)
         {
             if (week == null)
             {
-                week = await _repo.InsertWeek(new Week
+                week = await _repo.InsertWeek(new WeekSchedule
                     {
                         Hash = htmlHash,
                         Year = year,
-                        WeekNr = weekNr,
+                        WeekNumber = weekNr,
                     });
 
                 if (week == null)
