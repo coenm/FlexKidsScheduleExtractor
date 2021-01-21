@@ -1,6 +1,7 @@
 namespace FlexKids.Core.Parser
 {
     using System.Collections.Generic;
+    using FlexKids.Core.Interfaces;
     using FlexKids.Core.Scheduler;
     using FlexKids.Core.Scheduler.Model;
 

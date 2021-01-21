@@ -7,6 +7,7 @@ namespace Reporter.Email
     using System.Net.Mime;
     using System.Text;
     using System.Threading.Tasks;
+    using FlexKids.Core.Interfaces;
     using FlexKids.Core.Scheduler;
     using FlexKids.Core.Scheduler.Model;
     using Microsoft.Extensions.Logging;

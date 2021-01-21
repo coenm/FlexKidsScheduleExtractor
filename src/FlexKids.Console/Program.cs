@@ -8,6 +8,7 @@ namespace FlexKids.Console
     using System.Threading.Tasks;
     using FlexKids.Console.Configuration;
     using FlexKids.Core.FlexKidsClient;
+    using FlexKids.Core.Interfaces;
     using FlexKids.Core.Parser;
     using FlexKids.Core.Repository;
     using FlexKids.Core.Scheduler;
@@ -118,10 +119,7 @@ namespace FlexKids.Console
             RegisterLogging();
 
             _container.Register<Scheduler>(Lifestyle.Scoped);
-
             _container.RegisterInstance(Sha1Hash.Instance);
-            _container.RegisterInstance(DateTimeProvider.Instance);
-
             _container.Register<IEmailService, EmailService>();
             _container.Register<IKseParser, FlexKidsHtmlParser>();
             RegisterFlexKidsConnection(_container);

@@ -4,6 +4,7 @@ namespace FlexKids.Core.Scheduler
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
+    using FlexKids.Core.Interfaces;
 
     public class WriteToDiskFlexKidsClientDecorator : IFlexKidsClient
     {

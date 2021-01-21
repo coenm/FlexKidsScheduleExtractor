@@ -3,6 +3,7 @@ namespace FlexKids.Core.Test.Scheduler
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using FakeItEasy;
+    using FlexKids.Core.Interfaces;
     using FlexKids.Core.Repository;
     using FlexKids.Core.Repository.Model;
     using FlexKids.Core.Scheduler;

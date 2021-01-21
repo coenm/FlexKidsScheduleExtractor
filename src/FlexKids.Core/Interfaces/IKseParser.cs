@@ -1,4 +1,4 @@
-﻿namespace FlexKids.Core.Scheduler
+namespace FlexKids.Core.Interfaces
 {
     using System.Collections.Generic;
     using FlexKids.Core.Scheduler.Model;

@@ -5,6 +5,7 @@ namespace Reporter.Email.Test
     using System.Net.Mail;
     using System.Threading.Tasks;
     using FakeItEasy;
+    using FlexKids.Core.Interfaces;
     using FlexKids.Core.Repository.Model;
     using FlexKids.Core.Scheduler;
     using FlexKids.Core.Scheduler.Model;

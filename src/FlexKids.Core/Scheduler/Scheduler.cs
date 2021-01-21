@@ -4,6 +4,7 @@ namespace FlexKids.Core.Scheduler
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using FlexKids.Core.Interfaces;
     using FlexKids.Core.Repository;
     using FlexKids.Core.Repository.Model;
     using FlexKids.Core.Scheduler.Model;

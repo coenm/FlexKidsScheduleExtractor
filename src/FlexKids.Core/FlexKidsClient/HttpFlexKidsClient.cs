@@ -6,6 +6,7 @@ namespace FlexKids.Core.FlexKidsClient
     using System.Linq;
     using System.Net.Http;
     using System.Threading.Tasks;
+    using FlexKids.Core.Interfaces;
     using FlexKids.Core.Scheduler;
     using Microsoft.Extensions.Logging;
 
