@@ -1,7 +1,14 @@
 namespace FlexKids.Core.Repository.Model
 {
+    using System.Collections.Generic;
+
     public class WeekSchedule
     {
+        public WeekSchedule()
+        {
+            Shifts = new List<SingleShift>();
+        }
+
         public int Id { get; set; }
 
         public int Year { get; set; }
@@ -9,5 +16,7 @@ namespace FlexKids.Core.Repository.Model
         public int WeekNumber { get; set; }
 
         public string Hash { get; set; }
+
+        public List<SingleShift> Shifts { get; set; }
     }
 }

@@ -54,7 +54,9 @@ namespace Repository.EntityFramework
 
         public async Task<WeekSchedule> GetWeek(int year, int weekNr)
         {
-            return await _context.WeekSchedules.FirstOrDefaultAsync(x => x.Year == year && x.WeekNumber == weekNr);
+            return await _context.WeekSchedules
+                                 .Include(schedule => schedule.Shifts)
+                                 .FirstOrDefaultAsync(x => x.Year == year && x.WeekNumber == weekNr);
         }
     }
 }

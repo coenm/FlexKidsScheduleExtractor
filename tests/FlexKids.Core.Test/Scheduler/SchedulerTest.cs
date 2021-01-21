@@ -8,6 +8,7 @@ namespace FlexKids.Core.Test.Scheduler
     using FlexKids.Core.Repository.Model;
     using FlexKids.Core.Scheduler;
     using FlexKids.Core.Scheduler.Model;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Xunit;
 
     public class SchedulerTest
@@ -30,7 +31,7 @@ namespace FlexKids.Core.Test.Scheduler
 
             IScheduleRepository scheduleRepository = A.Dummy<IScheduleRepository>();
             IHash hash = A.Dummy<IHash>();
-            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository, hash);
+            var sut = new Scheduler(NullLogger.Instance, flexKidsClient, parser, scheduleRepository, hash);
 
             // act
             IEnumerable<ScheduleDiff> result = await sut.ProcessAsync();
@@ -60,7 +61,7 @@ namespace FlexKids.Core.Test.Scheduler
             IKseParser parser = A.Fake<IKseParser>();
             IScheduleRepository scheduleRepository = A.Dummy<IScheduleRepository>();
             IHash hash = A.Dummy<IHash>();
-            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository, hash);
+            var sut = new Scheduler(NullLogger.Instance, flexKidsClient, parser, scheduleRepository, hash);
 
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._))
                  .Returns(new IndexContent
@@ -115,7 +116,7 @@ namespace FlexKids.Core.Test.Scheduler
             IKseParser parser = A.Fake<IKseParser>();
             IScheduleRepository scheduleRepository = A.Dummy<IScheduleRepository>();
             IHash hash = A.Dummy<IHash>();
-            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository, hash);
+            var sut = new Scheduler(NullLogger.Instance, flexKidsClient, parser, scheduleRepository, hash);
 
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._))
                  .Returns(new IndexContent

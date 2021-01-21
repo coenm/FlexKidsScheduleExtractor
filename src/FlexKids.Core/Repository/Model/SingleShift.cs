@@ -12,7 +12,7 @@ namespace FlexKids.Core.Repository.Model
 
         public string Location { get; set; }
 
-        public int WeekId { get; set; }
+        public int WeekScheduleId { get; set; }
 
         public WeekSchedule WeekSchedule { get; set; }
     }

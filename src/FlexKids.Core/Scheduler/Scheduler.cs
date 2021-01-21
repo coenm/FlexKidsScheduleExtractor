@@ -8,16 +8,19 @@ namespace FlexKids.Core.Scheduler
     using FlexKids.Core.Repository;
     using FlexKids.Core.Repository.Model;
     using FlexKids.Core.Scheduler.Model;
+    using Microsoft.Extensions.Logging;
 
     public class Scheduler : IDisposable
     {
+        private readonly ILogger _logger;
         private readonly IFlexKidsClient _flexKidsClient;
         private readonly IHash _hash;
         private readonly IKseParser _parser;
         private readonly IScheduleRepository _repo;
 
-        public Scheduler(IFlexKidsClient flexKidsClient, IKseParser parser, IScheduleRepository scheduleRepository, IHash hash)
+        public Scheduler(ILogger logger, IFlexKidsClient flexKidsClient, IKseParser parser, IScheduleRepository scheduleRepository, IHash hash)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _flexKidsClient = flexKidsClient ?? throw new ArgumentNullException(nameof(flexKidsClient));
             _hash = hash ?? throw new ArgumentNullException(nameof(hash));
             _parser = parser ?? throw new ArgumentNullException(nameof(parser));
@@ -31,6 +34,7 @@ namespace FlexKids.Core.Scheduler
 
         public async Task<IEnumerable<ScheduleDiff>> ProcessAsync()
         {
+            _logger.LogInformation("Go process async");
             var indexPage = await _flexKidsClient.GetAvailableSchedulesPage();
             IndexContent indexContent = _parser.GetIndexContent(indexPage);
             var somethingChanged = false;
@@ -177,8 +181,8 @@ namespace FlexKids.Core.Scheduler
             foreach (ScheduleItem parsedSchedule in parsedSchedules)
             {
                 var schedule = new SingleShift
-                {
-                        WeekId = week.Id,
+                    {
+                        WeekScheduleId = week.Id,
                         WeekSchedule = week,
                         Location = parsedSchedule.Location,
                         StartDateTime = parsedSchedule.Start,

@@ -69,6 +69,9 @@ namespace FlexKids.Console
 
             await using Scope scope = AsyncScopedLifestyle.BeginScope(_container);
 
+            FlexKidsContext ctx = _container.GetInstance<FlexKidsContext>();
+            _ = await ctx.Database.EnsureCreatedAsync();
+
             Scheduler scheduler = _container.GetInstance<Scheduler>();
 
             IReportScheduleChange[] allHandlers = _container.GetAllInstances<IReportScheduleChange>().ToArray();
@@ -93,11 +96,22 @@ namespace FlexKids.Console
 
             scheduler.ScheduleChanged += DelegateScheduleChangedToReporters;
             // _logger.Info("Start scheduler");
-            _ = await scheduler.ProcessAsync();
-            // _logger.Info("Finished scheduler");
-            scheduler.ScheduleChanged -= DelegateScheduleChangedToReporters;
+            try
+            {
+                _ = await scheduler.ProcessAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            finally
+            {
+                // _logger.Info("Finished scheduler");
+                scheduler.ScheduleChanged -= DelegateScheduleChangedToReporters;
+            }
 
             scheduler.Dispose();
+            await _container.DisposeAsync();
 
             Console.WriteLine("END");
             Console.WriteLine(DateTime.Now);
@@ -130,6 +144,7 @@ namespace FlexKids.Console
                     {
                         var connectionString = _config.GetConnectionString("FlexKidsContext");
                         DbContextOptionsBuilder<FlexKidsContext> result = new DbContextOptionsBuilder<FlexKidsContext>()
+                            .UseLoggerFactory(_container.GetInstance<ILoggerFactory>()).EnableSensitiveDataLogging()
                             .UseSqlServer(connectionString);
 
                         return result.Options;
@@ -143,7 +158,13 @@ namespace FlexKids.Console
         private static void RegisterLogging()
         {
             // https://stackoverflow.com/questions/41243485/simple-injector-register-iloggert-by-using-iloggerfactory-createloggert
-            var loggerFactory = new LoggerFactory();
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+                _ = builder.AddFilter((category, filter) =>
+                    category == DbLoggerCategory.Database.Command.Name
+                    &&
+                    filter == LogLevel.Information));
+
+            // loggerFactory = new LoggerFactory();
             Serilog.Core.Logger loggerConfiguration = new LoggerConfiguration()
                                                       .ReadFrom.Configuration(_config)
                                                       .WriteTo.Console(LogEventLevel.Verbose)
@@ -152,7 +173,6 @@ namespace FlexKids.Console
             _ = loggerFactory.AddSerilog(loggerConfiguration);
 
             _container.RegisterInstance<ILoggerFactory>(loggerFactory);
-
             _container.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
 
             _container.RegisterConditional(

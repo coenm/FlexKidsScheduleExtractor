@@ -50,13 +50,13 @@ namespace Reporter.Email.Test
         public EmailReportScheduleChangeTest()
         {
             _singleShiftA.WeekSchedule = _weekSchedule;
-            _singleShiftA.WeekId = _weekSchedule.Id;
+            _singleShiftA.WeekScheduleId = _weekSchedule.Id;
 
             _singleShiftB.WeekSchedule = _weekSchedule;
-            _singleShiftB.WeekId = _weekSchedule.Id;
+            _singleShiftB.WeekScheduleId = _weekSchedule.Id;
 
             _singleShiftC.WeekSchedule = _weekSchedule;
-            _singleShiftC.WeekId = _weekSchedule.Id;
+            _singleShiftC.WeekScheduleId = _weekSchedule.Id;
         }
 
         [Fact]
