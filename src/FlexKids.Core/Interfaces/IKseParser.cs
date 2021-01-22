@@ -7,6 +7,6 @@ namespace FlexKids.Core.Interfaces
     {
         IndexContent GetIndexContent(string html);
 
-        List<ScheduleItem> GetScheduleFromContent(string html, int year);
+        IReadOnlyList<ScheduleItem> GetScheduleFromContent(string html, int year);
     }
 }

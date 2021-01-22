@@ -7,7 +7,6 @@ namespace FlexKids.Core.FlexKidsClient
     using System.Net.Http;
     using System.Threading.Tasks;
     using FlexKids.Core.Interfaces;
-    using FlexKids.Core.Scheduler;
     using Microsoft.Extensions.Logging;
 
     /// <summary>
@@ -15,14 +14,12 @@ namespace FlexKids.Core.FlexKidsClient
     /// </summary>
     public class HttpFlexKidsClient : IFlexKidsClient
     {
-        private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
         private readonly FlexKidsHttpClientConfig _config;
         private bool _isLoggedIn;
 
-        public HttpFlexKidsClient(ILogger logger, HttpClient httpClient, FlexKidsHttpClientConfig config)
+        public HttpFlexKidsClient(HttpClient httpClient, FlexKidsHttpClientConfig config)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }

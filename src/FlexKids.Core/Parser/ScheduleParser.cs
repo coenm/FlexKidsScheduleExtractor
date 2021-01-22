@@ -6,92 +6,132 @@ namespace FlexKids.Core.Parser
     using FlexKids.Core.Parser.Helper;
     using FlexKids.Core.Scheduler.Model;
     using HtmlAgilityPack;
+    using Microsoft.Extensions.Logging;
 
     internal class ScheduleParser
     {
-        private readonly string _content;
-        private readonly int _year;
+        private const int NUMBER_OF_WORKDAYS = 5;
+        private readonly ILogger _logger;
 
-        public ScheduleParser(string content, int year)
+        public ScheduleParser(ILogger logger)
         {
-            _year = year;
-            _content = content;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public List<ScheduleItem> GetScheduleFromContent()
+        public IReadOnlyList<ScheduleItem> GetScheduleFromContent(string content, int year)
         {
-            const int NUMBER_OF_WORKDAYS = 5;
-
             var document = new HtmlDocument();
-            document.LoadHtml(_content);
+            document.LoadHtml(content);
 
             var result = new List<ScheduleItem>();
 
-            var divsHourRegistration = document.DocumentNode.Descendants()
-                                                .Where(x => x.IsDiv() && x.IdEquals("urenregistratie"))
-                                                .ToList();
+            HtmlNode divHourRegistration = GetHourRegistration(document);
+            HtmlNode locationWeekOverview = GetWeekScheduleTable(divHourRegistration);
+            IReadOnlyList<HtmlNode> cols = GetColumns(locationWeekOverview);
+            IReadOnlyList<HtmlNode> rows = GetRows(locationWeekOverview);
 
-            if (divsHourRegistration.Count != 1)
+            foreach (HtmlNode row in rows)
             {
-                // _logger.Error("urenregistratieDiv");
-                return null;
-            }
-
-            var tablesIdLocatieWeekoverzicht = divsHourRegistration.First()
-                                                                   .Descendants()
-                                                                   .Where(x => x.IdEquals("locatie_weekoverzicht"))
-                                                                   .ToList();
-            if (tablesIdLocatieWeekoverzicht.Count != 1)
-            {
-                // _logger.Error("tableLocaties");
-                return null;
-            }
-
-            HtmlNode tableIdLocatieWeekOverzicht = tablesIdLocatieWeekoverzicht.First();
-
-            // get head (hierin zitten de dagen en de datums)
-            var theads = tableIdLocatieWeekOverzicht.Descendants().Where(x => x.IsThead()).ToList();
-            if (theads.Count != 1)
-            {
-                // _logger.Error("theads");
-                return null;
-            }
-
-            // get tr
-            var rows = theads.First().Descendants().Where(x => x.IsTr()).ToList();
-            if (rows.Count != 1)
-            {
-                // _logger.Error("rows");
-                return null;
-            }
-
-            // get columns
-            var cols = rows.First().Descendants().Where(x => x.IsTh()).ToList();
-
-            // Additional column contains info.
-            if (cols.Count != NUMBER_OF_WORKDAYS + 1)
-            {
-                // _logger.Error("cols");
-                return null;
-            }
-
-            // first column is nothing..
-            // second till 6th are Monday till Friday
-            var tbodys = tableIdLocatieWeekOverzicht.ChildNodes.Where(x => x.IsTbody()).ToList();
-            HtmlNode tbody = tbodys.First();
-
-            var trs2 = tbody.ChildNodes.Where(x => x.IsTr()).ToList();
-
-            foreach (HtmlNode tr in trs2)
-            {
-                IEnumerable<ScheduleItem> results = ProcessSingleRow(tr, cols);
+                IEnumerable<ScheduleItem> results = ProcessSingleRow(row, cols, year);
                 result.AddRange(results);
             }
 
             return result;
         }
 
-        private IEnumerable<ScheduleItem> ProcessSingleRow(HtmlNode tr, IReadOnlyList<HtmlNode> cols)
+        private IReadOnlyList<HtmlNode> GetRows(HtmlNode locationWeekOverview)
+        {
+            // first column is nothing..
+            // second till 6th are Monday till Friday
+            var tbodys = locationWeekOverview.ChildNodes.Where(x => x.IsTbody()).ToList();
+            HtmlNode tbody = tbodys.First();
+            return tbody.ChildNodes.Where(x => x.IsTr()).ToList();
+        }
+
+        private IReadOnlyList<HtmlNode> GetColumns(HtmlNode locationWeekOverview)
+        {
+            // get head (hierin zitten de dagen en de datums)
+            var tableHeads = locationWeekOverview.Descendants().Where(x => x.IsThead()).ToList();
+
+            if (tableHeads.Count == 0)
+            {
+                throw new FlexKidsParseException();
+            }
+
+            if (tableHeads.Count > 1)
+            {
+                _logger.LogWarning("Multiple {count} heads found. Resume with first one.", tableHeads.Count);
+            }
+
+            // get columns from first head row.
+            var rows = tableHeads.First().Descendants().Where(x => x.IsTr()).ToList();
+            if (rows.Count == 0)
+            {
+                throw new FlexKidsParseException();
+            }
+
+            // not sure
+            if (rows.Count > 1)
+            {
+                _logger.LogWarning("Multiple {count} rows. Resume with first one.", rows.Count);
+            }
+
+            // get columns
+            var cols = rows.First().Descendants().Where(x => x.IsTh()).ToList();
+
+            if (cols.Count < NUMBER_OF_WORKDAYS + 1)
+            {
+                throw new FlexKidsParseException();
+            }
+
+            if (cols.Count > NUMBER_OF_WORKDAYS + 1)
+            {
+                _logger.LogWarning("Expecting " + NUMBER_OF_WORKDAYS + 1 + " columns but {count} found. Only use the first ones.", rows.Count);
+            }
+
+            // check
+            return cols.Take(NUMBER_OF_WORKDAYS + 1).ToList();
+        }
+
+        private HtmlNode GetWeekScheduleTable(HtmlNode document)
+        {
+            var tableWeekOverview = document.Descendants()
+                                            .Where(x => x.IdEquals("locatie_weekoverzicht"))
+                                            .ToList();
+
+            if (tableWeekOverview.Count == 0)
+            {
+                throw new FlexKidsParseException();
+            }
+
+            if (tableWeekOverview.Count > 1)
+            {
+                _logger.LogWarning("Multiple {count} week overviews found. Resume with first one.", tableWeekOverview.Count);
+            }
+
+            return tableWeekOverview.First();
+        }
+
+        private HtmlNode GetHourRegistration(HtmlDocument document)
+        {
+            var divsHourRegistration = document.DocumentNode.Descendants()
+                                               .Where(x => x.IsDiv() && x.IdEquals("urenregistratie"))
+                                               .ToList();
+
+            if (divsHourRegistration.Count == 0)
+            {
+                throw new FlexKidsParseException();
+            }
+
+            if (divsHourRegistration.Count > 1)
+            {
+                _logger.LogWarning("Multiple {count} hour registration divs found. Resume with first one.", divsHourRegistration.Count);
+            }
+
+            return divsHourRegistration.First();
+        }
+
+        private IEnumerable<ScheduleItem> ProcessSingleRow(HtmlNode tr, IReadOnlyList<HtmlNode> cols, int year)
         {
             // get columns
             var rowColumns = tr.ChildNodes.Where(x => x.IsTd()).ToList();
@@ -155,7 +195,7 @@ namespace FlexKids.Core.Parser
 
                             var locationString = infoTdDivs[3].InnerText;
 
-                            DateTime dateWithoutTime = ParseDate.StringToDateTime(dateString, _year);
+                            DateTime dateWithoutTime = ParseDate.StringToDateTime(dateString, year);
                             (DateTime start, DateTime end) = ParseDate.CreateStartEndDateTimeTuple(dateWithoutTime, times);
 
                             yield return new ScheduleItem

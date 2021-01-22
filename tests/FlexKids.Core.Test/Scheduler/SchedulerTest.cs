@@ -8,15 +8,14 @@ namespace FlexKids.Core.Test.Scheduler
     using FlexKids.Core.Repository.Model;
     using FlexKids.Core.Scheduler;
     using FlexKids.Core.Scheduler.Model;
-    using Microsoft.Extensions.Logging.Abstractions;
     using Xunit;
 
     public class SchedulerTest
     {
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task GetChangesWithNoChangesReturnsEmptyListTest(bool isLoggedIn)
+        [InlineData("a@b.nl")]
+        [InlineData("")]
+        public async Task GetChangesWithNoChangesReturnsEmptyListTest(string email)
         {
             // arrange
             IFlexKidsClient flexKidsClient = A.Fake<IFlexKidsClient>();
@@ -24,14 +23,13 @@ namespace FlexKids.Core.Test.Scheduler
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._))
                  .Returns(new IndexContent
                      {
-                         Email = "a@b.nl",
-                         IsLoggedIn = isLoggedIn,
+                         Email = email,
                          Weeks = new Dictionary<int, WeekItem>(),
                      });
 
             IScheduleRepository scheduleRepository = A.Dummy<IScheduleRepository>();
             IHash hash = A.Dummy<IHash>();
-            var sut = new Scheduler(NullLogger.Instance, flexKidsClient, parser, scheduleRepository, hash);
+            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository, hash);
 
             // act
             IEnumerable<ScheduleDiff> result = await sut.ProcessAsync();
@@ -47,9 +45,9 @@ namespace FlexKids.Core.Test.Scheduler
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task GetChangesWithOneScheduleWhichAlreadyExistsAndDidNotChangeReturnsEmptyListTest(bool isLoggedIn)
+        [InlineData("a@b.nl")]
+        [InlineData("")]
+        public async Task GetChangesWithOneScheduleWhichAlreadyExistsAndDidNotChangeReturnsEmptyListTest(string email)
         {
             // arrange
             var weeks = new Dictionary<int, WeekItem>
@@ -61,13 +59,12 @@ namespace FlexKids.Core.Test.Scheduler
             IKseParser parser = A.Fake<IKseParser>();
             IScheduleRepository scheduleRepository = A.Dummy<IScheduleRepository>();
             IHash hash = A.Dummy<IHash>();
-            var sut = new Scheduler(NullLogger.Instance, flexKidsClient, parser, scheduleRepository, hash);
+            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository, hash);
 
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._))
                  .Returns(new IndexContent
                      {
-                         Email = "a@b.nl",
-                         IsLoggedIn = isLoggedIn,
+                         Email = email,
                          Weeks = weeks,
                      });
             _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).Returns("GetSchedulePage0");
@@ -88,9 +85,9 @@ namespace FlexKids.Core.Test.Scheduler
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public async Task GetaChangesWithOneScheduleWhichAlreadyExistsAndDidNotChangeReturnsEmptyListTest(bool isLoggedIn)
+        [InlineData("a@b.nl")]
+        [InlineData("")]
+        public async Task GetaChangesWithOneScheduleWhichAlreadyExistsAndDidNotChangeReturnsEmptyListTest(string email)
         {
             // arrange
             var weeks = new Dictionary<int, WeekItem>
@@ -116,13 +113,12 @@ namespace FlexKids.Core.Test.Scheduler
             IKseParser parser = A.Fake<IKseParser>();
             IScheduleRepository scheduleRepository = A.Dummy<IScheduleRepository>();
             IHash hash = A.Dummy<IHash>();
-            var sut = new Scheduler(NullLogger.Instance, flexKidsClient, parser, scheduleRepository, hash);
+            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository, hash);
 
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._))
                  .Returns(new IndexContent
                      {
-                         Email = "a@b.nl",
-                         IsLoggedIn = isLoggedIn,
+                         Email = email,
                          Weeks = weeks,
                      });
             _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).Returns("GetSchedulePage0");

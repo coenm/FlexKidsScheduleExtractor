@@ -12,15 +12,13 @@ namespace FlexKids.Core.Scheduler
 
     public class Scheduler : IDisposable
     {
-        private readonly ILogger _logger;
         private readonly IFlexKidsClient _flexKidsClient;
         private readonly IHash _hash;
         private readonly IKseParser _parser;
         private readonly IScheduleRepository _repo;
 
-        public Scheduler(ILogger logger, IFlexKidsClient flexKidsClient, IKseParser parser, IScheduleRepository scheduleRepository, IHash hash)
+        public Scheduler(IFlexKidsClient flexKidsClient, IKseParser parser, IScheduleRepository scheduleRepository, IHash hash)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _flexKidsClient = flexKidsClient ?? throw new ArgumentNullException(nameof(flexKidsClient));
             _hash = hash ?? throw new ArgumentNullException(nameof(hash));
             _parser = parser ?? throw new ArgumentNullException(nameof(parser));
@@ -34,7 +32,6 @@ namespace FlexKids.Core.Scheduler
 
         public async Task<IEnumerable<ScheduleDiff>> ProcessAsync()
         {
-            _logger.LogInformation("Go process async");
             var indexPage = await _flexKidsClient.GetAvailableSchedulesPage();
             IndexContent indexContent = _parser.GetIndexContent(indexPage);
             var somethingChanged = false;
@@ -44,19 +41,19 @@ namespace FlexKids.Core.Scheduler
             {
                 var htmlSchedule = await _flexKidsClient.GetSchedulePage(item.Key);
                 var htmlHash = _hash.Hash(htmlSchedule);
-                var week = await _repo.GetWeek(item.Value.Year, item.Value.WeekNr);
+                WeekSchedule weekSchedule = await _repo.GetWeek(item.Value.Year, item.Value.WeekNr);
 
-                if (week == null || htmlHash != week.Hash)
+                if (weekSchedule == null || htmlHash != weekSchedule.Hash)
                 {
                     somethingChanged = true;
                 }
 
                 weekAndHtml.Add(item.Key, new WeekAndHtml
                     {
-                        WeekSchedule = await GetCreateOrUpdateWeek(week, item.Value.Year, item.Value.WeekNr, htmlHash),
+                        WeekSchedule = await GetCreateOrUpdateWeek(weekSchedule, item.Value.Year, item.Value.WeekNr, htmlHash),
                         Hash = htmlHash,
                         Html = htmlSchedule,
-                        ScheduleChanged = week == null || htmlHash != week.Hash,
+                        ScheduleChanged = weekSchedule == null || htmlHash != weekSchedule.Hash,
                     });
             }
 
@@ -101,12 +98,12 @@ namespace FlexKids.Core.Scheduler
 
             foreach (WeekAndHtml item in weekAndHtml.Select(a => a.Value))
             {
-                IList<SingleShift> shfits = await _repo.GetSchedules(item.WeekSchedule.Year, item.WeekSchedule.WeekNumber);
+                IList<SingleShift> singleShifts = await _repo.GetSchedules(item.WeekSchedule.Year, item.WeekSchedule.WeekNumber);
                 IList<ScheduleDiff> diffResult;
                 if (item.ScheduleChanged)
                 {
-                    List<ScheduleItem> parsedSchedules = _parser.GetScheduleFromContent(item.Html, item.WeekSchedule.Year);
-                    diffResult = GetDiffs(shfits, parsedSchedules, item.WeekSchedule);
+                    var parsedSchedules = _parser.GetScheduleFromContent(item.Html, item.WeekSchedule.Year).ToList();
+                    diffResult = GetDiffs(singleShifts, parsedSchedules, item.WeekSchedule);
 
                     SingleShift[] schedulesToDelete = diffResult
                                                       .Where(x => x.Status == ScheduleStatus.Removed)
@@ -130,8 +127,8 @@ namespace FlexKids.Core.Scheduler
                 }
                 else
                 {
-                    diffResult = new List<ScheduleDiff>(shfits.Count);
-                    foreach (SingleShift singleShift in shfits)
+                    diffResult = new List<ScheduleDiff>(singleShifts.Count);
+                    foreach (SingleShift singleShift in singleShifts)
                     {
                         diffResult.Add(new ScheduleDiff
                             {
