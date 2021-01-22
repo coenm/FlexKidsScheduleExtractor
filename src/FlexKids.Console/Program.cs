@@ -139,7 +139,6 @@ namespace FlexKids.Console
             RegisterLogging(loggerFactory);
 
             _container.Register<Scheduler>(Lifestyle.Scoped);
-            _container.RegisterInstance(Sha1Hash.Instance);
             _container.Register<IEmailService, EmailService>();
             _container.Register<IKseParser, FlexKidsHtmlParser>();
             RegisterFlexKidsConnection(_container);

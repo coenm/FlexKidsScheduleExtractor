@@ -8,19 +8,16 @@ namespace FlexKids.Core.Scheduler
     using FlexKids.Core.Repository;
     using FlexKids.Core.Repository.Model;
     using FlexKids.Core.Scheduler.Model;
-    using Microsoft.Extensions.Logging;
 
     public class Scheduler : IDisposable
     {
         private readonly IFlexKidsClient _flexKidsClient;
-        private readonly IHash _hash;
         private readonly IKseParser _parser;
         private readonly IScheduleRepository _repo;
 
-        public Scheduler(IFlexKidsClient flexKidsClient, IKseParser parser, IScheduleRepository scheduleRepository, IHash hash)
+        public Scheduler(IFlexKidsClient flexKidsClient, IKseParser parser, IScheduleRepository scheduleRepository)
         {
             _flexKidsClient = flexKidsClient ?? throw new ArgumentNullException(nameof(flexKidsClient));
-            _hash = hash ?? throw new ArgumentNullException(nameof(hash));
             _parser = parser ?? throw new ArgumentNullException(nameof(parser));
             _repo = scheduleRepository ?? throw new ArgumentNullException(nameof(scheduleRepository));
         }
@@ -34,35 +31,27 @@ namespace FlexKids.Core.Scheduler
         {
             var indexPage = await _flexKidsClient.GetAvailableSchedulesPage();
             IndexContent indexContent = _parser.GetIndexContent(indexPage);
-            var somethingChanged = false;
-            var weekAndHtml = new Dictionary<int, WeekAndHtml>(indexContent.Weeks.Count);
+            var weekSchedulesToImport = new List<WeekAndImportedSchedules>(indexContent.Weeks.Count);
 
             foreach (KeyValuePair<int, WeekItem> item in indexContent.Weeks)
             {
-                var htmlSchedule = await _flexKidsClient.GetSchedulePage(item.Key);
-                var htmlHash = _hash.Hash(htmlSchedule);
-                WeekSchedule weekSchedule = await _repo.GetWeek(item.Value.Year, item.Value.WeekNr);
+                var htmlComboboxIndex = item.Key;
+                var year = item.Value.Year;
+                var weekNumber = item.Value.WeekNr;
 
-                if (weekSchedule == null || htmlHash != weekSchedule.Hash)
-                {
-                    somethingChanged = true;
-                }
+                var htmlSchedule = await _flexKidsClient.GetSchedulePage(htmlComboboxIndex);
+                var parsedSchedules = _parser.GetScheduleFromContent(htmlSchedule, year).ToList();
 
-                weekAndHtml.Add(item.Key, new WeekAndHtml
+                WeekSchedule weekSchedule = await _repo.Get(year, weekNumber);
+
+                weekSchedulesToImport.Add(new WeekAndImportedSchedules
                     {
-                        WeekSchedule = await GetCreateOrUpdateWeek(weekSchedule, item.Value.Year, item.Value.WeekNr, htmlHash),
-                        Hash = htmlHash,
-                        Html = htmlSchedule,
-                        ScheduleChanged = weekSchedule == null || htmlHash != weekSchedule.Hash,
+                        WeekSchedule = weekSchedule,
+                        ScheduleItems = parsedSchedules,
                     });
             }
 
-            if (!somethingChanged)
-            {
-                return Enumerable.Empty<ScheduleDiff>();
-            }
-
-            return await ProcessRawData(weekAndHtml);
+            return await ProcessRawData(weekSchedulesToImport);
         }
 
         public void Dispose()
@@ -92,50 +81,34 @@ namespace FlexKids.Core.Scheduler
             await Task.WhenAll(handlerTasks);
         }
 
-        private async Task<IEnumerable<ScheduleDiff>> ProcessRawData(Dictionary<int, WeekAndHtml> weekAndHtml)
+        private async Task<IEnumerable<ScheduleDiff>> ProcessRawData(IEnumerable<WeekAndImportedSchedules> weekAndHtml)
         {
             var diffsResult = new List<ScheduleDiff>();
 
-            foreach (WeekAndHtml item in weekAndHtml.Select(a => a.Value))
+            foreach (WeekAndImportedSchedules item in weekAndHtml)
             {
-                IList<SingleShift> singleShifts = await _repo.GetSchedules(item.WeekSchedule.Year, item.WeekSchedule.WeekNumber);
-                IList<ScheduleDiff> diffResult;
-                if (item.ScheduleChanged)
+                var scheduleChanged = false;
+
+                IList<SingleShift> shiftsInRepository = item.WeekSchedule.Shifts;
+                IList<ScheduleItem> parsedSchedules = item.ScheduleItems;
+                IList<ScheduleDiff> diffResult = GetDiffs(shiftsInRepository, parsedSchedules, item.WeekSchedule);
+
+                foreach (SingleShift shift in diffResult.Where(x => x.Status == ScheduleStatus.Removed).Select(x => x.SingleShift))
                 {
-                    var parsedSchedules = _parser.GetScheduleFromContent(item.Html, item.WeekSchedule.Year).ToList();
-                    diffResult = GetDiffs(singleShifts, parsedSchedules, item.WeekSchedule);
-
-                    SingleShift[] schedulesToDelete = diffResult
-                                                      .Where(x => x.Status == ScheduleStatus.Removed)
-                                                      .Select(x => x.SingleShift)
-                                                      .ToArray();
-
-                    if (schedulesToDelete.Any())
-                    {
-                        _ = await _repo.DeleteSchedules(schedulesToDelete);
-                    }
-
-                    IEnumerable<SingleShift> schedulesToInsert = diffResult
-                                                                 .Where(x => x.Status == ScheduleStatus.Added)
-                                                                 .Select(x => x.SingleShift);
-                    foreach (SingleShift schedule in schedulesToInsert)
-                    {
-                        _ = await _repo.InsertSchedule(schedule);
-                    }
-
-                    await OnScheduleChanged(diffResult.OrderBy(x => x.Start).ThenBy(x => x.Status));
+                    _ = item.WeekSchedule.Shifts.Remove(shift);
+                    scheduleChanged = true;
                 }
-                else
+
+                foreach (SingleShift shift in diffResult.Where(x => x.Status == ScheduleStatus.Added).Select(x => x.SingleShift))
                 {
-                    diffResult = new List<ScheduleDiff>(singleShifts.Count);
-                    foreach (SingleShift singleShift in singleShifts)
-                    {
-                        diffResult.Add(new ScheduleDiff
-                            {
-                                SingleShift = singleShift,
-                                Status = ScheduleStatus.Unchanged,
-                            });
-                    }
+                    item.WeekSchedule.Shifts.Add(shift);
+                    scheduleChanged = true;
+                }
+
+                if (scheduleChanged)
+                {
+                    _ = await _repo.Save(item.WeekSchedule);
+                    await OnScheduleChanged(diffResult.OrderBy(x => x.Start).ThenBy(x => x.Status));
                 }
 
                 diffsResult.AddRange(diffResult);
@@ -179,8 +152,8 @@ namespace FlexKids.Core.Scheduler
             {
                 var schedule = new SingleShift
                     {
-                        WeekScheduleId = week.Id,
-                        WeekSchedule = week,
+                        // WeekScheduleId = week.Id,
+                        // WeekSchedule = week,
                         Location = parsedSchedule.Location,
                         StartDateTime = parsedSchedule.Start,
                         EndDateTime = parsedSchedule.End,
@@ -194,37 +167,6 @@ namespace FlexKids.Core.Scheduler
             }
 
             return diffResult;
-        }
-
-        private async Task<WeekSchedule> GetCreateOrUpdateWeek(WeekSchedule week, int year, int weekNr, string htmlHash)
-        {
-            if (week == null)
-            {
-                week = await _repo.InsertWeek(new WeekSchedule
-                    {
-                        Hash = htmlHash,
-                        Year = year,
-                        WeekNumber = weekNr,
-                    });
-
-                if (week == null)
-                {
-                    throw new Exception();
-                }
-            }
-            else
-            {
-                if (week.Hash == htmlHash)
-                {
-                    return week;
-                }
-
-                week.Hash = htmlHash;
-
-                return await _repo.UpdateWeek(week);
-            }
-
-            return week;
         }
     }
 }

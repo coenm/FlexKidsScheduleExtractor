@@ -12,7 +12,6 @@ namespace Reporter.Email.Test
         private readonly WeekSchedule _weekSchedule = new WeekSchedule()
             {
                 Id = 2,
-                Hash = "sdfskdf83",
                 Year = 2012,
                 WeekNumber = 23,
             };

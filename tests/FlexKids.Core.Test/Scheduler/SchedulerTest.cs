@@ -28,8 +28,7 @@ namespace FlexKids.Core.Test.Scheduler
                      });
 
             IScheduleRepository scheduleRepository = A.Dummy<IScheduleRepository>();
-            IHash hash = A.Dummy<IHash>();
-            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository, hash);
+            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository);
 
             // act
             IEnumerable<ScheduleDiff> result = await sut.ProcessAsync();
@@ -40,7 +39,6 @@ namespace FlexKids.Core.Test.Scheduler
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._)).MustHaveHappenedOnceExactly();
 
             A.CallTo(() => flexKidsClient.GetSchedulePage(A<int>._)).MustNotHaveHappened();
-            A.CallTo(hash).MustNotHaveHappened();
             A.CallTo(scheduleRepository).MustNotHaveHappened();
         }
 
@@ -58,8 +56,7 @@ namespace FlexKids.Core.Test.Scheduler
             IFlexKidsClient flexKidsClient = A.Fake<IFlexKidsClient>();
             IKseParser parser = A.Fake<IKseParser>();
             IScheduleRepository scheduleRepository = A.Dummy<IScheduleRepository>();
-            IHash hash = A.Dummy<IHash>();
-            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository, hash);
+            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository);
 
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._))
                  .Returns(new IndexContent
@@ -68,9 +65,8 @@ namespace FlexKids.Core.Test.Scheduler
                          Weeks = weeks,
                      });
             _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).Returns("GetSchedulePage0");
-            _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).Returns("hash0");
-            _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6))
-                 .Returns(new WeekSchedule { Hash = "hash0", });
+            _ = A.CallTo(() => scheduleRepository.Get(2015, 6))
+                 .Returns(new WeekSchedule { });
 
             // act
             IEnumerable<ScheduleDiff> result = await sut.ProcessAsync();
@@ -80,8 +76,7 @@ namespace FlexKids.Core.Test.Scheduler
             _ = A.CallTo(() => flexKidsClient.GetAvailableSchedulesPage()).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._)).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6)).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => scheduleRepository.Get(2015, 6)).MustHaveHappenedOnceExactly();
         }
 
         [Theory]
@@ -96,14 +91,12 @@ namespace FlexKids.Core.Test.Scheduler
                 };
             var weekOld = new WeekSchedule
                 {
-                    Hash = "hashOld",
                     Id = 1,
                     WeekNumber = 6,
                     Year = 2015,
                 };
             var weekNew = new WeekSchedule
                 {
-                    Hash = "hashNew",
                     Id = 1,
                     WeekNumber = 6,
                     Year = 2015,
@@ -112,8 +105,7 @@ namespace FlexKids.Core.Test.Scheduler
             IFlexKidsClient flexKidsClient = A.Fake<IFlexKidsClient>();
             IKseParser parser = A.Fake<IKseParser>();
             IScheduleRepository scheduleRepository = A.Dummy<IScheduleRepository>();
-            IHash hash = A.Dummy<IHash>();
-            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository, hash);
+            var sut = new Scheduler(flexKidsClient, parser, scheduleRepository);
 
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._))
                  .Returns(new IndexContent
@@ -122,9 +114,8 @@ namespace FlexKids.Core.Test.Scheduler
                          Weeks = weeks,
                      });
             _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).Returns("GetSchedulePage0");
-            _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).Returns(weekNew.Hash);
-            _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6)).Returns(weekOld);
-            _ = A.CallTo(() => scheduleRepository.UpdateWeek(A<WeekSchedule>._)).Returns(weekNew);
+            _ = A.CallTo(() => scheduleRepository.Get(2015, 6)).Returns(weekOld);
+            _ = A.CallTo(() => scheduleRepository.Save(A<WeekSchedule>._)).Returns(weekNew);
 
             // act
             IEnumerable<ScheduleDiff> result = await sut.ProcessAsync();
@@ -134,8 +125,7 @@ namespace FlexKids.Core.Test.Scheduler
             _ = A.CallTo(() => flexKidsClient.GetAvailableSchedulesPage()).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._)).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => hash.Hash("GetSchedulePage0")).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => scheduleRepository.GetWeek(2015, 6)).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => scheduleRepository.Get(2015, 6)).MustHaveHappenedOnceExactly();
         }
     }
 }

@@ -7,7 +7,6 @@ namespace Reporter.Email.Test
     using FakeItEasy;
     using FlexKids.Core.Interfaces;
     using FlexKids.Core.Repository.Model;
-    using FlexKids.Core.Scheduler;
     using FlexKids.Core.Scheduler.Model;
     using Microsoft.Extensions.Logging.Abstractions;
     using Reporter.Email;
@@ -18,7 +17,6 @@ namespace Reporter.Email.Test
         private readonly WeekSchedule _weekSchedule = new WeekSchedule()
             {
                 Id = 2,
-                Hash = "abc123",
                 Year = 2012,
                 WeekNumber = 23,
             };

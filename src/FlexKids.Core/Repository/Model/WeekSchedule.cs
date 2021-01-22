@@ -15,8 +15,6 @@ namespace FlexKids.Core.Repository.Model
 
         public int WeekNumber { get; set; }
 
-        public string Hash { get; set; }
-
         public List<SingleShift> Shifts { get; set; }
     }
 }
