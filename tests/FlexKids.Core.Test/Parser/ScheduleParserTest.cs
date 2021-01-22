@@ -1,10 +1,11 @@
 namespace FlexKids.Core.Test.Parser
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using FlexKids.Core.Parser;
     using FlexKids.Core.Scheduler.Model;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Xunit;
 
     public class ScheduleParserTest
@@ -47,8 +48,8 @@ namespace FlexKids.Core.Test.Parser
 
             // act
             var htmlContent = GetFileContent("2020/page_0.txt");
-            var contentParser = new ScheduleParser(htmlContent, YEAR);
-            List<ScheduleItem> schedule = contentParser.GetScheduleFromContent();
+            var contentParser = new ScheduleParser(NullLogger.Instance);
+            var schedule = contentParser.GetScheduleFromContent(htmlContent, YEAR).ToList();
 
             // assert
             Assert.NotNull(schedule);

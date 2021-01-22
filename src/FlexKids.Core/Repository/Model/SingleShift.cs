@@ -2,7 +2,7 @@ namespace FlexKids.Core.Repository.Model
 {
     using System;
 
-    public class Schedule
+    public class SingleShift
     {
         public int Id { get; set; }
 
@@ -12,8 +12,8 @@ namespace FlexKids.Core.Repository.Model
 
         public string Location { get; set; }
 
-        public int WeekId { get; set; }
+        public int WeekScheduleId { get; set; }
 
-        public Week Week { get; set; }
+        public WeekSchedule WeekSchedule { get; set; }
     }
 }

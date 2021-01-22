@@ -20,11 +20,11 @@ namespace Reporter.Email
             {
                 _ = sb.Append(StatusToString(item))
                       .Append(" ")
-                      .Append(item.Schedule.StartDateTime.ToString("dd-MM HH:mm"))
+                      .Append(item.SingleShift.StartDateTime.ToString("dd-MM HH:mm"))
                       .Append("-")
-                      .Append(item.Schedule.EndDateTime.ToString("HH:mm"))
+                      .Append(item.SingleShift.EndDateTime.ToString("HH:mm"))
                       .Append(" ")
-                      .Append(item.Schedule.Location)
+                      .Append(item.SingleShift.Location)
                       .Append(Environment.NewLine);
             }
 
@@ -39,7 +39,7 @@ namespace Reporter.Email
             }
 
             var sb = new StringBuilder();
-            _ = sb.AppendLine($"<p>Hier is het rooster voor week {schedule.First().Schedule.Week.WeekNr}:</p>");
+            _ = sb.AppendLine($"<p>Hier is het rooster voor week {schedule.First().SingleShift.WeekSchedule.WeekNumber}:</p>");
             _ = sb.AppendLine("<table style='border: 1px solid black; border-collapse:collapse;'>");
 
             // header
@@ -54,12 +54,12 @@ namespace Reporter.Email
             {
                 _ = sb.AppendLine($"<tr style='{StyleString("left")}'>");
                 _ = sb.AppendLine($"<td style='{StyleString("center")}'>{StatusToString(item)}</td>");
-                _ = sb.AppendLine($"<td style='{StyleString("left")}{LineThrough(item.Status)} border-right:hidden;'>{item.Schedule.StartDateTime.ToString("ddd", CultureInfo.CreateSpecificCulture("nl-NL"))}</td>");
-                _ = sb.AppendLine($"<td style='{StyleString("left")}{LineThrough(item.Status)}'>{item.Schedule.StartDateTime:dd-MM}</td>");
-                _ = sb.AppendLine($"<td style='{StyleString("left")}{LineThrough(item.Status)} text-align: right; padding-right:0px;'>{item.Schedule.StartDateTime:HH:mm}</td>");
+                _ = sb.AppendLine($"<td style='{StyleString("left")}{LineThrough(item.Status)} border-right:hidden;'>{item.SingleShift.StartDateTime.ToString("ddd", CultureInfo.CreateSpecificCulture("nl-NL"))}</td>");
+                _ = sb.AppendLine($"<td style='{StyleString("left")}{LineThrough(item.Status)}'>{item.SingleShift.StartDateTime:dd-MM}</td>");
+                _ = sb.AppendLine($"<td style='{StyleString("left")}{LineThrough(item.Status)} text-align: right; padding-right:0px;'>{item.SingleShift.StartDateTime:HH:mm}</td>");
                 _ = sb.AppendLine($"<td style='{StyleString("center")} border-left: hidden; border-right: hidden;'>-</td>");
-                _ = sb.AppendLine($"<td style='{StyleString("left")}{LineThrough(item.Status)} padding-left:0px;'>{item.Schedule.EndDateTime:HH:mm}</td>");
-                _ = sb.AppendLine($"<td style='{StyleString("left")}{LineThrough(item.Status)}'>{item.Schedule.Location}</td>");
+                _ = sb.AppendLine($"<td style='{StyleString("left")}{LineThrough(item.Status)} padding-left:0px;'>{item.SingleShift.EndDateTime:HH:mm}</td>");
+                _ = sb.AppendLine($"<td style='{StyleString("left")}{LineThrough(item.Status)}'>{item.SingleShift.Location}</td>");
                 _ = sb.AppendLine("</tr>");
             }
 

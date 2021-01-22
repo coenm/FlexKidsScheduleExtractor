@@ -49,9 +49,9 @@ namespace Reporter.GoogleCalendar
                 throw new CalendarNotFoundException(_googleCalendarId);
             }
 
-            IEnumerable<Week> weeks = schedule.Select(x => x.Schedule.Week).Distinct();
+            IEnumerable<WeekSchedule> weeks = schedule.Select(x => x.SingleShift.WeekSchedule).Distinct();
 
-            foreach (Week week in weeks)
+            foreach (WeekSchedule week in weeks)
             {
                 EventsResource.ListRequest request = _calendarService.CreateListRequestForWeek(_googleCalendarId, week);
 
@@ -95,7 +95,7 @@ namespace Reporter.GoogleCalendar
                     {
                         Shared = new Dictionary<string, string>
                             {
-                                { "Week", item.Schedule.Week.Year + "-" + item.Schedule.Week.WeekNr },
+                                { "Week", item.SingleShift.WeekSchedule.Year + "-" + item.SingleShift.WeekSchedule.WeekNumber },
                             },
                     };
 
@@ -104,15 +104,15 @@ namespace Reporter.GoogleCalendar
                     {
                         Start = new EventDateTime
                             {
-                                DateTime = item.Schedule.StartDateTime,
+                                DateTime = item.SingleShift.StartDateTime,
                             },
                         End = new EventDateTime
                             {
-                                DateTime = item.Schedule.EndDateTime,
+                                DateTime = item.SingleShift.EndDateTime,
                             },
                         Description = "it is time to work",
-                        Location = item.Schedule.Location,
-                        Summary = item.Schedule.Location,
+                        Location = item.SingleShift.Location,
+                        Summary = item.SingleShift.Location,
                         ExtendedProperties = extendedProperty,
                     };
 

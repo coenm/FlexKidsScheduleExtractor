@@ -1,4 +1,4 @@
-namespace Repository.EntityFramework
+namespace FlexKids.Core.Repository
 {
     using FlexKids.Core.Repository.Model;
     using Microsoft.EntityFrameworkCore;
@@ -10,8 +10,8 @@ namespace Repository.EntityFramework
         {
         }
 
-        public DbSet<Week> WeekSchedules { get; set; }
+        public DbSet<WeekSchedule> WeekSchedules { get; set; }
 
-        public DbSet<Schedule> SingleShifts { get; set; }
+        public DbSet<SingleShift> SingleShifts { get; set; }
     }
 }

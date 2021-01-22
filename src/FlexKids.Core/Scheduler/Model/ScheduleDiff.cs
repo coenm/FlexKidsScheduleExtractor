@@ -7,8 +7,8 @@ namespace FlexKids.Core.Scheduler.Model
     {
         public ScheduleStatus Status { get; set; }
 
-        public DateTime Start => Schedule.StartDateTime;
+        public DateTime Start => SingleShift.StartDateTime;
 
-        public Schedule Schedule { get; set; }
+        public SingleShift SingleShift { get; set; }
     }
 }

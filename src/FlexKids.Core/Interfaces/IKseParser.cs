@@ -1,4 +1,4 @@
-﻿namespace FlexKids.Core.Scheduler
+namespace FlexKids.Core.Interfaces
 {
     using System.Collections.Generic;
     using FlexKids.Core.Scheduler.Model;
@@ -7,6 +7,6 @@
     {
         IndexContent GetIndexContent(string html);
 
-        List<ScheduleItem> GetScheduleFromContent(string html, int year);
+        IReadOnlyList<ScheduleItem> GetScheduleFromContent(string html, int year);
     }
 }

@@ -4,6 +4,7 @@ namespace FlexKids.Core.Scheduler
     using System.Net;
     using System.Net.Mail;
     using System.Threading.Tasks;
+    using FlexKids.Core.Interfaces;
 
     public class EmailService : IEmailService
     {

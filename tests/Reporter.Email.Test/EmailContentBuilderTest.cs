@@ -9,15 +9,14 @@ namespace Reporter.Email.Test
 
     public class EmailContentBuilderTest
     {
-        private readonly Week _week = new Week()
+        private readonly WeekSchedule _weekSchedule = new WeekSchedule()
             {
                 Id = 2,
-                Hash = "sdfskdf83",
                 Year = 2012,
-                WeekNr = 23,
+                WeekNumber = 23,
             };
 
-        private readonly Schedule _scheduleA = new Schedule()
+        private readonly SingleShift _singleShiftA = new SingleShift()
             {
                 Id = 1,
                 Location = "Jacob",
@@ -25,7 +24,7 @@ namespace Reporter.Email.Test
                 EndDateTime = new DateTime(2012, 4, 8, 17, 5, 4),
             };
 
-        private readonly Schedule _scheduleB = new Schedule()
+        private readonly SingleShift _singleShiftB = new SingleShift()
             {
                 Id = 3,
                 Location = "New York",
@@ -33,7 +32,7 @@ namespace Reporter.Email.Test
                 EndDateTime = new DateTime(2012, 1, 8, 12, 5, 4),
             };
 
-        private readonly Schedule _scheduleC = new Schedule()
+        private readonly SingleShift _singleShiftC = new SingleShift()
             {
                 Id = 6,
                 Location = "Madrid",
@@ -43,14 +42,14 @@ namespace Reporter.Email.Test
 
         public EmailContentBuilderTest()
         {
-            _scheduleA.Week = _week;
-            _scheduleA.WeekId = _week.Id;
+            _singleShiftA.WeekSchedule = _weekSchedule;
+            _singleShiftA.WeekScheduleId = _weekSchedule.Id;
 
-            _scheduleB.Week = _week;
-            _scheduleB.WeekId = _week.Id;
+            _singleShiftB.WeekSchedule = _weekSchedule;
+            _singleShiftB.WeekScheduleId = _weekSchedule.Id;
 
-            _scheduleC.Week = _week;
-            _scheduleC.WeekId = _week.Id;
+            _singleShiftC.WeekSchedule = _weekSchedule;
+            _singleShiftC.WeekScheduleId = _weekSchedule.Id;
         }
 
         [Fact]
@@ -74,17 +73,17 @@ namespace Reporter.Email.Test
             {
                 new ScheduleDiff
                 {
-                    Schedule = _scheduleA,
+                    SingleShift = _singleShiftA,
                     Status = ScheduleStatus.Added,
                 },
                 new ScheduleDiff
                 {
-                    Schedule = _scheduleB,
+                    SingleShift = _singleShiftB,
                     Status = ScheduleStatus.Removed,
                 },
                 new ScheduleDiff
                 {
-                    Schedule = _scheduleC,
+                    SingleShift = _singleShiftC,
                     Status = ScheduleStatus.Unchanged,
                 },
             };
@@ -121,17 +120,17 @@ namespace Reporter.Email.Test
             {
                 new ScheduleDiff
                 {
-                    Schedule = _scheduleA,
+                    SingleShift = _singleShiftA,
                     Status = ScheduleStatus.Added,
                 },
                 new ScheduleDiff
                 {
-                    Schedule = _scheduleB,
+                    SingleShift = _singleShiftB,
                     Status = ScheduleStatus.Removed,
                 },
                 new ScheduleDiff
                 {
-                    Schedule = _scheduleC,
+                    SingleShift = _singleShiftC,
                     Status = ScheduleStatus.Unchanged,
                 },
             };

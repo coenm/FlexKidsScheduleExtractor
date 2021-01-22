@@ -8,16 +8,16 @@ namespace FlexKids.Console
     using System.Threading.Tasks;
     using FlexKids.Console.Configuration;
     using FlexKids.Core.FlexKidsClient;
+    using FlexKids.Core.Interfaces;
     using FlexKids.Core.Parser;
     using FlexKids.Core.Repository;
     using FlexKids.Core.Scheduler;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Reporter.Email;
     using Reporter.GoogleCalendar;
-    using Repository;
-    using Repository.EntityFramework;
     using Serilog;
     using Serilog.Events;
     using SimpleInjector;
@@ -28,6 +28,7 @@ namespace FlexKids.Console
     {
         private static readonly Container _container = new Container();
         private static IConfigurationRoot _config;
+        private static ILogger<Program> _logger = NullLogger<Program>.Instance;
 
         protected Program()
         {
@@ -35,24 +36,14 @@ namespace FlexKids.Console
 
         public static async Task Main()
         {
-            // _logger.Info("Starting.. ");
-
             _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
 
-            IConfigurationBuilder builder = new ConfigurationBuilder()
-                                            .SetBasePath(Directory.GetCurrentDirectory())
-                                            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
-                                            .AddJsonFile("logging.json", optional: true, reloadOnChange: false)
-                                            .AddEnvironmentVariables();
+            _config = SetupConfiguration();
 
-            if (IsDevelopment())
-            {
-                _ = builder.AddUserSecrets<Program>();
-            }
+            ILoggerFactory loggerFactory = CreateLoggerFactory();
+            _logger = loggerFactory.CreateLogger<Program>();
 
-            _config = builder.Build();
-
-            SetupDependencyContainer();
+            SetupDependencyContainer(loggerFactory);
 
             try
             {
@@ -60,13 +51,16 @@ namespace FlexKids.Console
             }
             catch (Exception e)
             {
-                // _logger.Error(e, "Cannot verify the dependency injection container");
+                _logger.LogError(e, "Cannot verify the dependency injection container");
                 return;
             }
 
-            // _logger.Info("Dependencies registered");
+            _logger.LogInformation("Dependencies registered");
 
             await using Scope scope = AsyncScopedLifestyle.BeginScope(_container);
+
+            FlexKidsContext ctx = _container.GetInstance<FlexKidsContext>();
+            _ = await ctx.Database.EnsureCreatedAsync();
 
             Scheduler scheduler = _container.GetInstance<Scheduler>();
 
@@ -79,27 +73,54 @@ namespace FlexKids.Console
                     var handlerType = handler.GetType().Name;
                     try
                     {
-                        // _logger.Info($"Start handling using {handlerType}");
+                        _logger.LogInformation($"Start handling using {handlerType}");
                         _ = await handler.HandleChange(changedArgs.Diff);
-                        // _logger.Info($"Done handling using {handlerType}");
+                        _logger.LogInformation($"Done handling using {handlerType}");
                     }
                     catch (Exception e)
                     {
-                        // _logger.Error(e, $"Handling using {handlerType} failed.");
+                        _logger.LogError(e, $"Handling using {handlerType} failed.");
                     }
                 }
             }
 
             scheduler.ScheduleChanged += DelegateScheduleChangedToReporters;
-            // _logger.Info("Start scheduler");
-            _ = await scheduler.GetChanges();
-            // _logger.Info("Finished scheduler");
-            scheduler.ScheduleChanged -= DelegateScheduleChangedToReporters;
+            _logger.LogInformation("Start scheduler");
+            try
+            {
+                _ = await scheduler.ProcessAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            finally
+            {
+                _logger.LogInformation("Finished scheduler");
+                scheduler.ScheduleChanged -= DelegateScheduleChangedToReporters;
+            }
 
             scheduler.Dispose();
+            await _container.DisposeAsync();
 
             Console.WriteLine("END");
             Console.WriteLine(DateTime.Now);
+        }
+
+        private static IConfigurationRoot SetupConfiguration()
+        {
+            IConfigurationBuilder builder = new ConfigurationBuilder()
+                                            .SetBasePath(Directory.GetCurrentDirectory())
+                                            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+                                            .AddJsonFile("logging.json", optional: true, reloadOnChange: false)
+                                            .AddEnvironmentVariables();
+
+            if (IsDevelopment())
+            {
+                _ = builder.AddUserSecrets<Program>();
+            }
+
+            return builder.Build();
         }
 
         /// <summary>
@@ -112,16 +133,12 @@ namespace FlexKids.Console
             return "development".Equals(value, StringComparison.CurrentCultureIgnoreCase);
         }
 
-        private static void SetupDependencyContainer()
+        private static void SetupDependencyContainer(ILoggerFactory loggerFactory)
         {
             RegisterSettings();
-            RegisterLogging();
+            RegisterLogging(loggerFactory);
 
             _container.Register<Scheduler>(Lifestyle.Scoped);
-
-            _container.RegisterInstance(Sha1Hash.Instance);
-            _container.RegisterInstance(DateTimeProvider.Instance);
-
             _container.Register<IEmailService, EmailService>();
             _container.Register<IKseParser, FlexKidsHtmlParser>();
             RegisterFlexKidsConnection(_container);
@@ -132,6 +149,7 @@ namespace FlexKids.Console
                     {
                         var connectionString = _config.GetConnectionString("FlexKidsContext");
                         DbContextOptionsBuilder<FlexKidsContext> result = new DbContextOptionsBuilder<FlexKidsContext>()
+                            .UseLoggerFactory(_container.GetInstance<ILoggerFactory>()).EnableSensitiveDataLogging()
                             .UseSqlServer(connectionString);
 
                         return result.Options;
@@ -142,19 +160,33 @@ namespace FlexKids.Console
                 typeof(CalendarReportScheduleChange));
         }
 
-        private static void RegisterLogging()
+        private static ILoggerFactory CreateLoggerFactory()
         {
+            /*
+             ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+                _ = builder.AddFilter((category, filter) =>
+                    category == DbLoggerCategory.Database.Command.Name
+                    &&
+                    filter == LogLevel.Information));
+            */
+
+            ILoggerFactory loggerFactory = new LoggerFactory();
+
             // https://stackoverflow.com/questions/41243485/simple-injector-register-iloggert-by-using-iloggerfactory-createloggert
-            var loggerFactory = new LoggerFactory();
             Serilog.Core.Logger loggerConfiguration = new LoggerConfiguration()
                                                       .ReadFrom.Configuration(_config)
                                                       .WriteTo.Console(LogEventLevel.Verbose)
-                                                      //.WriteTo.RollingFile()
+                                                      /*.WriteTo.RollingFile()*/
                                                       .CreateLogger();
+
             _ = loggerFactory.AddSerilog(loggerConfiguration);
 
-            _container.RegisterInstance<ILoggerFactory>(loggerFactory);
+            return loggerFactory;
+        }
 
+        private static void RegisterLogging(ILoggerFactory loggerFactory)
+        {
+            _container.RegisterInstance<ILoggerFactory>(loggerFactory);
             _container.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
 
             _container.RegisterConditional(

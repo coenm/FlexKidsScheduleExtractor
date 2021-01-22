@@ -4,6 +4,7 @@ namespace Reporter.GoogleCalendar
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using FlexKids.Core.Interfaces;
     using FlexKids.Core.Scheduler;
     using FlexKids.Core.Scheduler.Model;
     using Microsoft.Extensions.Logging;

@@ -4,6 +4,7 @@ namespace FlexKids.Core.Test.Parser
     using System.IO;
     using FlexKids.Core.Parser;
     using FlexKids.Core.Scheduler.Model;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Xunit;
 
     public class IndexParserTest
@@ -25,8 +26,8 @@ namespace FlexKids.Core.Test.Parser
 
             // act
             var htmlContent = GetFileContent("index.txt");
-            var indexParser = new IndexParser(htmlContent);
-            IndexContent indexContent = indexParser.Parse();
+            var indexParser = new IndexParser(NullLogger.Instance);
+            IndexContent indexContent = indexParser.Parse(htmlContent);
 
             // assert
             Assert.NotNull(indexContent);

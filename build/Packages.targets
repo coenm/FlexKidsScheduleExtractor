@@ -7,12 +7,20 @@
     <PackageReference IsImplicitlyDefined="true" Update="SimpleInjector" Version="5.2.0" />
     <PackageReference IsImplicitlyDefined="true" Update="Google.Apis.Calendar.v3" Version="1.49.0.2161" />
 
+    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.EntityFrameworkCore" Version="3.1.11" />
+    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.11" />
     <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Extensions.Configuration" Version="3.1.11" />
     <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.11" />
     <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Extensions.Configuration.Binder" Version="3.1.11" />
     <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.0" />
     <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.0" />
     <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Extensions.Logging.Abstractions" Version="3.1.11" />
+
+    <PackageReference IsImplicitlyDefined="true" Update="Serilog.Extensions.Hosting" Version="3.1.0" />
+    <PackageReference IsImplicitlyDefined="true" Update="Serilog.Extensions.Logging" Version="3.0.1" />
+    <PackageReference IsImplicitlyDefined="true" Update="Serilog.Settings.Configuration" Version="3.1.0" />
+    <PackageReference IsImplicitlyDefined="true" Update="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference IsImplicitlyDefined="true" Update="Serilog.Sinks.File" Version="4.1.0" />
 
     <!-- Unittest -->
     <PackageReference IsImplicitlyDefined="true" Update="Microsoft.NET.Test.Sdk" Version="16.8.3" />

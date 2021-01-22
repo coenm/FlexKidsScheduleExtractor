@@ -7,32 +7,32 @@ namespace FlexKids.Core.Parser
     using FlexKids.Core.Parser.Helper;
     using FlexKids.Core.Scheduler.Model;
     using HtmlAgilityPack;
+    using Microsoft.Extensions.Logging;
 
     internal class IndexParser
     {
-        private readonly HtmlDocument _document;
+        private readonly ILogger _logger;
 
-        public IndexParser(string content)
+        public IndexParser(ILogger logger)
         {
-            _document = new HtmlDocument();
-            _document.LoadHtml(content);
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public IndexContent Parse()
+        public IndexContent Parse(string content)
         {
-            var result = new IndexContent
+            var document = new HtmlDocument();
+            document.LoadHtml(content);
+
+            return new IndexContent
                 {
-                    Email = ExtractEmailFromContent(),
+                    Email = ExtractEmailFromContent(document),
+                    Weeks = ExtractWeeksFromContent(document),
                 };
-
-            result.IsLoggedIn = !string.IsNullOrWhiteSpace(result.Email);
-            result.Weeks = ExtractWeeksFromContent();
-            return result;
         }
 
-        private Dictionary<int, WeekItem> ExtractWeeksFromContent()
+        private Dictionary<int, WeekItem> ExtractWeeksFromContent(HtmlDocument document)
         {
-            var weekSelections = _document.DocumentNode.Descendants()
+            var weekSelections = document.DocumentNode.Descendants()
                                           .Where(x => x.IsSelect() && x.IdEquals("week_selectie"))
                                           .ToList();
             if (weekSelections.Count != 1)
@@ -57,17 +57,17 @@ namespace FlexKids.Core.Parser
             {
                 if (option.Attributes?["value"] == null)
                 {
-                    throw new Exception();
+                    throw new FlexKidsParseException();
                 }
 
                 if (!int.TryParse(option.Attributes["value"].Value, out var nr))
                 {
-                    throw new Exception();
+                    throw new FlexKidsParseException();
                 }
 
                 if (option.NextSibling == null)
                 {
-                    throw new Exception();
+                    throw new FlexKidsParseException();
                 }
 
                 // Week 09 - 2015
@@ -90,19 +90,20 @@ namespace FlexKids.Core.Parser
                 }
                 else
                 {
-                    throw new Exception();
+                    throw new FlexKidsParseException();
                 }
             }
 
             return weeks;
         }
 
-        private string ExtractEmailFromContent()
+        private string ExtractEmailFromContent(HtmlDocument document)
         {
-            var logins = _document.DocumentNode.Descendants().Where(x => x.IsDiv() && x.ClassContains("username")).ToList();
+            var logins = document.DocumentNode.Descendants().Where(x => x.IsDiv() && x.ClassContains("username")).ToList();
             if (logins.Count != 1)
             {
-                throw new InvalidDataException("Cannot find email");
+                _logger.LogError("Cannot find email");
+                return string.Empty;
             }
 
             HtmlNode loginEmailAddress = logins.First();

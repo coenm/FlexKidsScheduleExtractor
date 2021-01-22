@@ -1,4 +1,4 @@
-namespace FlexKids.Core.Scheduler
+namespace FlexKids.Core.Interfaces
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;

@@ -7,6 +7,7 @@ namespace Reporter.Email
     using System.Net.Mime;
     using System.Text;
     using System.Threading.Tasks;
+    using FlexKids.Core.Interfaces;
     using FlexKids.Core.Scheduler;
     using FlexKids.Core.Scheduler.Model;
     using Microsoft.Extensions.Logging;
@@ -37,7 +38,7 @@ namespace Reporter.Email
             try
             {
                 ScheduleDiff[] orderedSchedule = schedule.OrderBy(x => x.Start).ThenBy(x => x.Status).ToArray();
-                var subject = "Werkrooster voor week " + orderedSchedule[0].Schedule.Week.WeekNr;
+                var subject = "Werkrooster voor week " + orderedSchedule[0].SingleShift.WeekSchedule.WeekNumber;
                 var schedulePlain = EmailContentBuilder.ScheduleToPlainTextString(orderedSchedule);
                 var scheduleHtml = EmailContentBuilder.ScheduleToHtmlString(orderedSchedule);
 
