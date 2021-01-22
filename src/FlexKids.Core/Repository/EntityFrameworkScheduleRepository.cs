@@ -1,10 +1,9 @@
-namespace Repository.EntityFramework
+namespace FlexKids.Core.Repository
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using FlexKids.Core.Repository;
     using FlexKids.Core.Repository.Model;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.ChangeTracking;

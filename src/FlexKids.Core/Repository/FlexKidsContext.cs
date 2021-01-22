@@ -1,4 +1,4 @@
-namespace Repository.EntityFramework
+namespace FlexKids.Core.Repository
 {
     using FlexKids.Core.Repository.Model;
     using Microsoft.EntityFrameworkCore;

@@ -17,8 +17,6 @@ namespace FlexKids.Console
     using Microsoft.Extensions.Logging;
     using Reporter.Email;
     using Reporter.GoogleCalendar;
-    using Repository;
-    using Repository.EntityFramework;
     using Serilog;
     using Serilog.Events;
     using SimpleInjector;
