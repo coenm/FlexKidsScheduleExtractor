@@ -59,7 +59,7 @@ namespace FlexKids.Core.Scheduler
             // should we dispose injected instances?
         }
 
-        private async Task OnScheduleChanged(IOrderedEnumerable<ScheduleDiff> diffs)
+        private async Task OnScheduleChanged(WeekSchedule updatedWeekSchedule, IOrderedEnumerable<ScheduleDiff> diffs)
         {
             Func<object, ScheduleChangedEventArgs, Task> handler = ScheduleChanged;
 
@@ -68,7 +68,7 @@ namespace FlexKids.Core.Scheduler
                 return;
             }
 
-            var evt = new ScheduleChangedEventArgs(diffs);
+            var evt = new ScheduleChangedEventArgs(updatedWeekSchedule, diffs);
 
             Delegate[] invocationList = handler.GetInvocationList();
             var handlerTasks = new Task[invocationList.Length];
@@ -107,8 +107,10 @@ namespace FlexKids.Core.Scheduler
 
                 if (scheduleChanged)
                 {
-                    _ = await _repo.Save(item.WeekSchedule);
-                    await OnScheduleChanged(diffResult.OrderBy(x => x.Start).ThenBy(x => x.Status));
+                    WeekSchedule updatedWeekSchedule = await _repo.Save(item.WeekSchedule);
+                    await OnScheduleChanged(
+                        updatedWeekSchedule,
+                        diffResult.OrderBy(x => x.Start).ThenBy(x => x.Status));
                 }
 
                 diffsResult.AddRange(diffResult);

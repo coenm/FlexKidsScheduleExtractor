@@ -66,7 +66,7 @@ namespace Reporter.Email.Test
             var sut = new EmailReportScheduleChange(flexKidsConfig, emailService, NullLogger.Instance);
 
             // act
-            var result = await sut.HandleChange(null);
+            var result = await sut.HandleChange(null, null);
 
             // assert
             Assert.True(result);
@@ -83,6 +83,12 @@ namespace Reporter.Email.Test
                 new MailAddress("and.you@you.com", "and you"));
             var sut = new EmailReportScheduleChange(flexKidsConfig, emailService, NullLogger.Instance);
 
+            var updatedWeekSchedule = new WeekSchedule()
+                {
+                    Year = 1234,
+                    WeekNumber = 3,
+                    Shifts = new List<SingleShift>(),
+                };
             var scheduleDiff = new List<ScheduleDiff>()
             {
                 new ScheduleDiff
@@ -103,7 +109,7 @@ namespace Reporter.Email.Test
             };
 
             // act
-            var result = await sut.HandleChange(scheduleDiff);
+            var result = await sut.HandleChange(scheduleDiff, updatedWeekSchedule);
 
             // assert
             Assert.True(result);

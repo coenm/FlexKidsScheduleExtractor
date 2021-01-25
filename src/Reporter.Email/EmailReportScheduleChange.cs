@@ -8,6 +8,7 @@ namespace Reporter.Email
     using System.Text;
     using System.Threading.Tasks;
     using FlexKids.Core.Interfaces;
+    using FlexKids.Core.Repository.Model;
     using FlexKids.Core.Scheduler;
     using FlexKids.Core.Scheduler.Model;
     using Microsoft.Extensions.Logging;
@@ -28,7 +29,7 @@ namespace Reporter.Email
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<bool> HandleChange(IReadOnlyList<ScheduleDiff> schedule)
+        public async Task<bool> HandleChange(IReadOnlyList<ScheduleDiff> schedule, WeekSchedule updatedWeekSchedule)
         {
             if (schedule == null || !schedule.Any())
             {
@@ -38,7 +39,7 @@ namespace Reporter.Email
             try
             {
                 ScheduleDiff[] orderedSchedule = schedule.OrderBy(x => x.Start).ThenBy(x => x.Status).ToArray();
-                var subject = "Werkrooster voor week " + orderedSchedule[0].SingleShift.WeekSchedule.WeekNumber;
+                var subject = "Werkrooster voor week " + updatedWeekSchedule.WeekNumber;
                 var schedulePlain = EmailContentBuilder.ScheduleToPlainTextString(orderedSchedule);
                 var scheduleHtml = EmailContentBuilder.ScheduleToHtmlString(orderedSchedule);
 
