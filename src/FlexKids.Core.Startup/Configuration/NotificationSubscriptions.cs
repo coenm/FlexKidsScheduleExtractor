@@ -1,4 +1,4 @@
-namespace FlexKids.Console.Configuration
+namespace FlexKids.Core.Startup.Configuration
 {
     using System.Collections.Generic;
 

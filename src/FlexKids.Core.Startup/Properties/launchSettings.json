@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "FlexKids.Console": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "Key": "Value",
+        "NETCORE_ENVIRONMENT": "development"
+      }
+    }
+  }
+}
