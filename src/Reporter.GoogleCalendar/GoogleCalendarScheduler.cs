@@ -2,6 +2,7 @@ namespace Reporter.GoogleCalendar
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Security.Cryptography.X509Certificates;
     using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace Reporter.GoogleCalendar
     using Google.Apis.Calendar.v3;
     using Google.Apis.Calendar.v3.Data;
     using Google.Apis.Services;
+    using Calendar = Google.Apis.Calendar.v3.Data.Calendar;
 
     internal class GoogleCalendarScheduler : IDisposable
     {
@@ -41,7 +43,7 @@ namespace Reporter.GoogleCalendar
             _calendarService = new GoogleCalendarService(service);
         }
 
-        public async Task MakeEvents(IReadOnlyList<ScheduleDiff> schedule)
+        public async Task MakeEvents(IReadOnlyList<ScheduleDiff> schedule, WeekSchedule updatedWeekSchedule)
         {
             Calendar calendar = await _calendarService.GetCalendarById(_googleCalendarId);
             if (calendar == null)
@@ -49,43 +51,38 @@ namespace Reporter.GoogleCalendar
                 throw new CalendarNotFoundException(_googleCalendarId);
             }
 
-            IEnumerable<WeekSchedule> weeks = schedule.Select(x => x.SingleShift.WeekSchedule).Distinct();
+            EventsResource.ListRequest request = _calendarService.CreateListRequestForWeek(_googleCalendarId, updatedWeekSchedule.Year, updatedWeekSchedule.WeekNumber);
 
-            foreach (WeekSchedule week in weeks)
+            Events result = await _calendarService.GetEvents(request);
+            var allRows = new List<Event>();
+            while (result.Items != null)
             {
-                EventsResource.ListRequest request = _calendarService.CreateListRequestForWeek(_googleCalendarId, week);
+                // Add the rows to the final list
+                allRows.AddRange(result.Items);
 
-                Events result = await _calendarService.GetEvents(request);
-                var allRows = new List<Event>();
-                while (result.Items != null)
+                // We will know we are on the last page when the next page token is
+                // null.
+                // If this is the case, break.
+                if (result.NextPageToken == null)
                 {
-                    // Add the rows to the final list
-                    allRows.AddRange(result.Items);
-
-                    // We will know we are on the last page when the next page token is
-                    // null.
-                    // If this is the case, break.
-                    if (result.NextPageToken == null)
-                    {
-                        break;
-                    }
-
-                    // Prepare the next page of results
-                    request.PageToken = result.NextPageToken;
-
-                    // Execute and process the next page request
-                    result = await _calendarService.GetEvents(request);
+                    break;
                 }
 
-                foreach (Event ev in allRows)
-                {
-                    _ = await _calendarService.DeleteEvent(_googleCalendarId, ev);
-                }
+                // Prepare the next page of results
+                request.PageToken = result.NextPageToken;
+
+                // Execute and process the next page request
+                result = await _calendarService.GetEvents(request);
+            }
+
+            foreach (Event ev in allRows)
+            {
+                _ = await _calendarService.DeleteEvent(_googleCalendarId, ev);
             }
 
             // add items to calendar.
             IOrderedEnumerable<ScheduleDiff> addedSchedules = schedule
-                                                              .Where(x => x.Status == ScheduleStatus.Added)
+                                                              .Where(x => x.Status is ScheduleStatus.Added or ScheduleStatus.Unchanged)
                                                               .OrderBy(x => x.Start)
                                                               .ThenBy(x => x.Status);
 
@@ -110,7 +107,7 @@ namespace Reporter.GoogleCalendar
                             {
                                 DateTime = item.SingleShift.EndDateTime,
                             },
-                        Description = "it is time to work",
+                        Description = $"it is time to work {DateTime.Now.ToString(CultureInfo.InvariantCulture)}" ,
                         Location = item.SingleShift.Location,
                         Summary = item.SingleShift.Location,
                         ExtendedProperties = extendedProperty,
