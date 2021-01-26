@@ -110,7 +110,7 @@ namespace FlexKids.Core.Startup
                     try
                     {
                         _logger.LogInformation($"Start handling using {handlerType}");
-                        _ = await handler.HandleChange(changedArgs.Diff);
+                        _ = await handler.HandleChange(changedArgs.Diff, changedArgs.UpdatedWeekSchedule);
                         _logger.LogInformation($"Done handling using {handlerType}");
                     }
                     catch (Exception e)

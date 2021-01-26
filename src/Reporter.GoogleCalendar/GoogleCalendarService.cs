@@ -20,15 +20,15 @@ namespace Reporter.GoogleCalendar
             return _service.Calendars.Get(id).ExecuteAsync();
         }
 
-        public EventsResource.ListRequest CreateListRequestForWeek(string calendarId, WeekSchedule weekSchedule)
+        public EventsResource.ListRequest CreateListRequestForWeek(string calendarId, int year, int weekNumber)
         {
-            DateTime mondayOfRequestedWeek = DateTimeHelper.GetMondayForGivenWeek(weekSchedule.Year, weekSchedule.WeekNumber);
+            DateTime mondayOfRequestedWeek = DateTimeHelper.GetMondayForGivenWeek(year, weekNumber);
 
             EventsResource.ListRequest request = _service.Events.List(calendarId);
             request.ShowDeleted = true;
             request.ShowDeleted = false;
             request.MaxResults = 100;
-            request.SharedExtendedProperty = "Week=" + weekSchedule.Year + "-" + weekSchedule.WeekNumber;
+            request.SharedExtendedProperty = "Week=" + year + "-" + weekNumber;
 
             DateTime start = mondayOfRequestedWeek.AddDays(-7); // one week before
             request.TimeMin = new DateTime(start.Year, start.Month, start.Day, 0, 0, 0);
