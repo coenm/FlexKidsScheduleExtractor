@@ -1,6 +1,7 @@
 namespace FlexKids.Console
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using FlexKids.Core.Startup;
     using Microsoft.Extensions.Configuration;
@@ -19,8 +20,11 @@ namespace FlexKids.Console
 
             using (executor)
             {
-                await executor.Main();
+                await executor.ProcessAsync(new UpdateFlexKidsScheduleCommand(), CancellationToken.None);
             }
+
+            Console.WriteLine("END");
+            Console.WriteLine(DateTime.Now);
         }
 
         /// <summary>

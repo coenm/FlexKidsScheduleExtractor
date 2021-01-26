@@ -27,7 +27,7 @@ namespace FlexKids.AzureFunction
 
             _ = builder.Services.AddSingleton<Executor>(services => new Executor(services.GetService<EnvironmentSetting>().BuilderAction));
             _ = builder.Services.AddSingleton<EnvironmentSetting>(environmentSetting);
-            _ = builder.Services.AddSingleton<Function1>();
+            _ = builder.Services.AddSingleton<UpdateFlexKidsScheduleCommandAzureFunction>();
         }
     }
 }

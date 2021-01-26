@@ -24,28 +24,6 @@ namespace FlexKids.Core.Startup
     using SimpleInjector.Lifestyles;
     using ILogger = Microsoft.Extensions.Logging.ILogger;
 
-    public interface ICommand
-    {
-    }
-
-    public class UpdateFlexKidsScheduleCommand : ICommand
-    {
-    }
-
-    internal interface ICommandHandler<T>
-        where T: ICommand
-    {
-        Task HandleAsync(T command, CancellationToken ct);
-    }
-
-    internal class UpdateFlexKidsScheduleCommandHandler : ICommandHandler<UpdateFlexKidsScheduleCommand>
-    {
-        public Task HandleAsync(UpdateFlexKidsScheduleCommand command, CancellationToken ct)
-        {
-            return Task.CompletedTask;
-        }
-    }
-
     public class Executor : IDisposable
     {
         private readonly Container _container = new Container();
@@ -84,63 +62,13 @@ namespace FlexKids.Core.Startup
             await using Scope scope = AsyncScopedLifestyle.BeginScope(_container);
 
             Type type = typeof(ICommandHandler<>).MakeGenericType(command.GetType());
-            var h = _container.GetInstance(type) as ICommandHandler<ICommand>;
-            await h.HandleAsync(command, ct);
 
-            // ICommandHandler<UpdateFlexKidsScheduleCommand> handler = _container.GetInstance<ICommandHandler<UpdateFlexKidsScheduleCommand>>();
-            // await handler.HandleAsync(command, ct);
-        }
-
-        public async Task Main()
-        {
-            await using Scope scope = AsyncScopedLifestyle.BeginScope(_container);
-
-            // FlexKidsContext ctx = _container.GetInstance<FlexKidsContext>();
-            // _ = await ctx.Database.EnsureCreatedAsync();
-
-            Scheduler scheduler = _container.GetInstance<Scheduler>();
-
-            IReportScheduleChange[] allHandlers = _container.GetAllInstances<IReportScheduleChange>().ToArray();
-
-            async Task DelegateScheduleChangedToReporters(object sender, ScheduleChangedEventArgs changedArgs)
+            if (_container.GetInstance(type) is not ICommandHandler handler)
             {
-                foreach (IReportScheduleChange handler in allHandlers)
-                {
-                    var handlerType = handler.GetType().Name;
-                    try
-                    {
-                        _logger.LogInformation($"Start handling using {handlerType}");
-                        _ = await handler.HandleChange(changedArgs.Diff, changedArgs.UpdatedWeekSchedule);
-                        _logger.LogInformation($"Done handling using {handlerType}");
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogError(e, $"Handling using {handlerType} failed.");
-                    }
-                }
+                throw new NotImplementedException();
             }
 
-            scheduler.ScheduleChanged += DelegateScheduleChangedToReporters;
-            _logger.LogInformation("Start scheduler");
-            try
-            {
-                _ = await scheduler.ProcessAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            finally
-            {
-                _logger.LogInformation("Finished scheduler");
-                scheduler.ScheduleChanged -= DelegateScheduleChangedToReporters;
-            }
-
-            scheduler.Dispose();
-            await _container.DisposeAsync();
-
-            Console.WriteLine("END");
-            Console.WriteLine(DateTime.Now);
+            await handler.HandleAsync(command, ct);
         }
 
         public void Dispose()
