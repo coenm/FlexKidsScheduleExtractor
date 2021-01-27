@@ -7,6 +7,7 @@ namespace FlexKids.Core.Startup
     using System.Net.Mail;
     using System.Threading;
     using System.Threading.Tasks;
+    using FlexKids.Core.Commands;
     using FlexKids.Core.FlexKidsClient;
     using FlexKids.Core.Interfaces;
     using FlexKids.Core.Parser;
@@ -40,10 +41,6 @@ namespace FlexKids.Core.Startup
 
             SetupDependencyContainer(loggerFactory);
 
-            _container.Register(
-                typeof(ICommandHandler<>),
-                typeof(ICommandHandler<>).Assembly);
-
             try
             {
                 _container.Verify();
@@ -65,7 +62,7 @@ namespace FlexKids.Core.Startup
 
             if (_container.GetInstance(type) is not ICommandHandler handler)
             {
-                throw new NotImplementedException();
+                throw new ApplicationException("Something is wrong. All typed ICommandHandler should also implement ICommandHandler.");
             }
 
             await handler.HandleAsync(command, ct);
@@ -121,6 +118,8 @@ namespace FlexKids.Core.Startup
             _container.Collection.Register<IReportScheduleChange>(
                 typeof(EmailReportScheduleChange),
                 typeof(CalendarReportScheduleChange));
+
+            _container.Register(typeof(ICommandHandler<>), typeof(ICommandHandler<>).Assembly);
         }
 
         private ILoggerFactory CreateLoggerFactory()

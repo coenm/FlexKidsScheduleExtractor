@@ -3,6 +3,7 @@ namespace FlexKids.Core.Scheduler
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using FlexKids.Core.Interfaces;
     using FlexKids.Core.Repository;
@@ -27,9 +28,9 @@ namespace FlexKids.Core.Scheduler
         /// </summary>
         public event Func<object, ScheduleChangedEventArgs, Task> ScheduleChanged;
 
-        public async Task<IEnumerable<ScheduleDiff>> ProcessAsync()
+        public async Task<IEnumerable<ScheduleDiff>> ProcessAsync(CancellationToken ct = default)
         {
-            var indexPage = await _flexKidsClient.GetAvailableSchedulesPage();
+            var indexPage = await _flexKidsClient.GetAvailableSchedulesPage(ct);
             IndexContent indexContent = _parser.GetIndexContent(indexPage);
             var weekSchedulesToImport = new List<WeekAndImportedSchedules>(indexContent.Weeks.Count);
 
@@ -39,7 +40,7 @@ namespace FlexKids.Core.Scheduler
                 var year = item.Value.Year;
                 var weekNumber = item.Value.WeekNr;
 
-                var htmlSchedule = await _flexKidsClient.GetSchedulePage(htmlComboboxIndex);
+                var htmlSchedule = await _flexKidsClient.GetSchedulePage(htmlComboboxIndex, ct);
                 var parsedSchedules = _parser.GetScheduleFromContent(htmlSchedule, year).ToList();
 
                 WeekSchedule weekSchedule = await _repo.Get(year, weekNumber);
@@ -154,8 +155,6 @@ namespace FlexKids.Core.Scheduler
             {
                 var schedule = new SingleShift
                     {
-                        // WeekScheduleId = week.Id,
-                        // WeekSchedule = week,
                         Location = parsedSchedule.Location,
                         StartDateTime = parsedSchedule.Start,
                         EndDateTime = parsedSchedule.End,

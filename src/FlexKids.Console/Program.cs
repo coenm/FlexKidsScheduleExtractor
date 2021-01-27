@@ -3,6 +3,7 @@ namespace FlexKids.Console
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using FlexKids.Core.Commands;
     using FlexKids.Core.Startup;
     using Microsoft.Extensions.Configuration;
 

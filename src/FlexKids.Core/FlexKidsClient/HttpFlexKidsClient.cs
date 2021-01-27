@@ -5,9 +5,9 @@ namespace FlexKids.Core.FlexKidsClient
     using System.Collections.Specialized;
     using System.Linq;
     using System.Net.Http;
+    using System.Threading;
     using System.Threading.Tasks;
     using FlexKids.Core.Interfaces;
-    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// FlexKids client using HttpClient.
@@ -24,25 +24,25 @@ namespace FlexKids.Core.FlexKidsClient
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
-        public async Task<string> GetSchedulePage(int id)
+        public async Task<string> GetSchedulePage(int id, CancellationToken cancellationToken)
         {
             if (!_isLoggedIn)
             {
-                await Login();
+                await Login(cancellationToken);
             }
 
             var urlSchedule = string.Format(_config.HostUrl + "/personeel/rooster/week?week={0}", id);
-            return await DownloadPageAsString(urlSchedule);
+            return await DownloadPageAsString(urlSchedule, cancellationToken);
         }
 
-        public async Task<string> GetAvailableSchedulesPage()
+        public async Task<string> GetAvailableSchedulesPage(CancellationToken cancellationToken)
         {
             if (!_isLoggedIn)
             {
-                await Login();
+                await Login(cancellationToken);
             }
 
-            return await DownloadPageAsString(_config.HostUrl + "/personeel/rooster/index");
+            return await DownloadPageAsString(_config.HostUrl + "/personeel/rooster/index", cancellationToken);
         }
 
         public void Dispose()
@@ -50,7 +50,7 @@ namespace FlexKids.Core.FlexKidsClient
             // do nothing
         }
 
-        private async Task Login()
+        private async Task Login(CancellationToken cancellationToken)
         {
             var requestParams = new NameValueCollection
                 {
@@ -60,21 +60,21 @@ namespace FlexKids.Core.FlexKidsClient
                     { "login", "Log in" },
                 };
 
-            _ = await PostValues(_config.HostUrl + "/user/process", requestParams);
+            _ = await PostValues(_config.HostUrl + "/user/process", requestParams, cancellationToken);
 
             _isLoggedIn = true;
         }
 
-        private async Task<byte[]> PostValues(string address, NameValueCollection data)
+        private async Task<byte[]> PostValues(string address, NameValueCollection data, CancellationToken cancellationToken)
         {
             var nameValueCollection = data.AllKeys.Select(key => new KeyValuePair<string, string>(key, data.Get(key))).ToList();
-            HttpResponseMessage result = await _httpClient.PostAsync(address, new FormUrlEncodedContent(nameValueCollection));
+            HttpResponseMessage result = await _httpClient.PostAsync(address, new FormUrlEncodedContent(nameValueCollection), cancellationToken);
             return await result.Content.ReadAsByteArrayAsync();
         }
 
-        private async Task<string> DownloadPageAsString(string address)
+        private async Task<string> DownloadPageAsString(string address, CancellationToken cancellationToken)
         {
-            HttpResponseMessage result = await _httpClient.GetAsync(address);
+            HttpResponseMessage result = await _httpClient.GetAsync(address, cancellationToken);
             return await result.Content.ReadAsStringAsync();
         }
     }
