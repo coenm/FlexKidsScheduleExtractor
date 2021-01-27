@@ -1,7 +1,6 @@
 namespace FlexKids.AzureFunction
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
     using FlexKids.Core.Commands;
     using FlexKids.Core.Startup;
@@ -16,10 +15,11 @@ namespace FlexKids.AzureFunction
             _commandHandler = commandHandler ?? throw new ArgumentNullException(nameof(commandHandler));
         }
 
-        [FunctionName("UpdateFlexKidsSchedule")]
-        public async Task Run([TimerTrigger("0 */1 * * * *")]TimerInfo myTimer)
+        [FunctionName("UpdateFlexKidsScheduleTimer")]
+        public async Task UpdateFlexKidsScheduleTimer([TimerTrigger("%FrequencyUpdateFlexKidsScheduleTimer%")]TimerInfo myTimer)
         {
-            await _commandHandler.ProcessAsync(new UpdateFlexKidsScheduleCommand(), CancellationToken.None);
+            var cmd = new UpdateFlexKidsScheduleCommand();
+            await _commandHandler.ProcessAsync(cmd, default);
         }
     }
 }
