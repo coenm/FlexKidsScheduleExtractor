@@ -22,6 +22,26 @@
     <PackageReference IsImplicitlyDefined="true" Update="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference IsImplicitlyDefined="true" Update="Serilog.Sinks.File" Version="4.1.0" />
 
+
+
+    <!-- Misc packages -->
+    <PackageReference IsImplicitlyDefined="true" Update="Newtonsoft.Json" Version="12.0.3" />
+
+    <!-- Azure packages-->
+    <PackageReference IsImplicitlyDefined="true" Update="Azure.Storage.Blobs" Version="12.6.0" />
+    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.NET.Sdk.Functions" Version="3.0.11" />
+    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.AspNetCore.AzureKeyVault.HostingStartup" Version="2.0.4" />
+    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.10" />
+
+    <!--OAuth, OpenConnect, Identity-->
+    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.0" />
+    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Extensions.Http" Version="3.1.7" />
+    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Identity.Client" Version="4.17.1" />
+    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.IdentityModel.Protocols" Version="6.7.1" />
+    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.7.1" />
+
+
     <!-- Unittest -->
     <PackageReference IsImplicitlyDefined="true" Update="Microsoft.NET.Test.Sdk" Version="16.8.3" />
     <PackageReference IsImplicitlyDefined="true" Update="FluentAssertions" Version="5.10.3" />

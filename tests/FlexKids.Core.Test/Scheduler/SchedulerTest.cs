@@ -1,6 +1,7 @@
 namespace FlexKids.Core.Test.Scheduler
 {
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using FakeItEasy;
     using FlexKids.Core.Interfaces;
@@ -18,6 +19,7 @@ namespace FlexKids.Core.Test.Scheduler
         public async Task GetChangesWithNoChangesReturnsEmptyListTest(string email)
         {
             // arrange
+            var ct = new CancellationToken(false);
             IFlexKidsClient flexKidsClient = A.Fake<IFlexKidsClient>();
             IKseParser parser = A.Fake<IKseParser>();
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._))
@@ -31,14 +33,14 @@ namespace FlexKids.Core.Test.Scheduler
             var sut = new Scheduler(flexKidsClient, parser, scheduleRepository);
 
             // act
-            IEnumerable<ScheduleDiff> result = await sut.ProcessAsync();
+            IEnumerable<ScheduleDiff> result = await sut.ProcessAsync(ct);
 
             // assert
             Assert.Empty(result);
-            _ = A.CallTo(() => flexKidsClient.GetAvailableSchedulesPage()).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => flexKidsClient.GetAvailableSchedulesPage(ct)).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._)).MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => flexKidsClient.GetSchedulePage(A<int>._)).MustNotHaveHappened();
+            A.CallTo(() => flexKidsClient.GetSchedulePage(A<int>._, ct)).MustNotHaveHappened();
             A.CallTo(scheduleRepository).MustNotHaveHappened();
         }
 
@@ -48,6 +50,7 @@ namespace FlexKids.Core.Test.Scheduler
         public async Task GetChangesWithOneScheduleWhichAlreadyExistsAndDidNotChangeReturnsEmptyListTest(string email)
         {
             // arrange
+            var ct = new CancellationToken(false);
             var weeks = new Dictionary<int, WeekItem>
                 {
                     { 0, new WeekItem(6, 2015) },
@@ -64,18 +67,18 @@ namespace FlexKids.Core.Test.Scheduler
                          Email = email,
                          Weeks = weeks,
                      });
-            _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).Returns("GetSchedulePage0");
+            _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0, ct)).Returns("GetSchedulePage0");
             _ = A.CallTo(() => scheduleRepository.Get(2015, 6))
                  .Returns(new WeekSchedule { });
 
             // act
-            IEnumerable<ScheduleDiff> result = await sut.ProcessAsync();
+            IEnumerable<ScheduleDiff> result = await sut.ProcessAsync(ct);
 
             // assert
             Assert.Empty(result);
-            _ = A.CallTo(() => flexKidsClient.GetAvailableSchedulesPage()).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => flexKidsClient.GetAvailableSchedulesPage(ct)).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._)).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0, ct)).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => scheduleRepository.Get(2015, 6)).MustHaveHappenedOnceExactly();
         }
 
@@ -85,6 +88,7 @@ namespace FlexKids.Core.Test.Scheduler
         public async Task GetaChangesWithOneScheduleWhichAlreadyExistsAndDidNotChangeReturnsEmptyListTest(string email)
         {
             // arrange
+            var ct = new CancellationToken(false);
             var weeks = new Dictionary<int, WeekItem>
                 {
                     { 0, new WeekItem(6, 2015) },
@@ -113,18 +117,18 @@ namespace FlexKids.Core.Test.Scheduler
                          Email = email,
                          Weeks = weeks,
                      });
-            _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).Returns("GetSchedulePage0");
+            _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0, ct)).Returns("GetSchedulePage0");
             _ = A.CallTo(() => scheduleRepository.Get(2015, 6)).Returns(weekOld);
             _ = A.CallTo(() => scheduleRepository.Save(A<WeekSchedule>._)).Returns(weekNew);
 
             // act
-            IEnumerable<ScheduleDiff> result = await sut.ProcessAsync();
+            IEnumerable<ScheduleDiff> result = await sut.ProcessAsync(ct);
 
             // assert
             Assert.Empty(result);
-            _ = A.CallTo(() => flexKidsClient.GetAvailableSchedulesPage()).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => flexKidsClient.GetAvailableSchedulesPage(ct)).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => parser.GetIndexContent(A<string>._)).MustHaveHappenedOnceExactly();
-            _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0)).MustHaveHappenedOnceExactly();
+            _ = A.CallTo(() => flexKidsClient.GetSchedulePage(0, ct)).MustHaveHappenedOnceExactly();
             _ = A.CallTo(() => scheduleRepository.Get(2015, 6)).MustHaveHappenedOnceExactly();
         }
     }

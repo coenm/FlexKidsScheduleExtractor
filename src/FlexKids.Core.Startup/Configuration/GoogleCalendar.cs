@@ -1,4 +1,4 @@
-namespace FlexKids.Console.Configuration
+namespace FlexKids.Core.Startup.Configuration
 {
     public class GoogleCalendar
     {

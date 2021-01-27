@@ -3,6 +3,7 @@ namespace FlexKids.Core.Scheduler
     using System;
     using System.IO;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using FlexKids.Core.Interfaces;
 
@@ -22,9 +23,9 @@ namespace FlexKids.Core.Scheduler
             _flexKidsClientImplementation.Dispose();
         }
 
-        public async Task<string> GetSchedulePage(int id)
+        public async Task<string> GetSchedulePage(int id, CancellationToken cancellationToken)
         {
-            var result = await _flexKidsClientImplementation.GetSchedulePage(id);
+            var result = await _flexKidsClientImplementation.GetSchedulePage(id, cancellationToken);
 
             try
             {
@@ -39,9 +40,9 @@ namespace FlexKids.Core.Scheduler
             return result;
         }
 
-        public async Task<string> GetAvailableSchedulesPage()
+        public async Task<string> GetAvailableSchedulesPage(CancellationToken cancellationToken)
         {
-            var result = await _flexKidsClientImplementation.GetAvailableSchedulesPage();
+            var result = await _flexKidsClientImplementation.GetAvailableSchedulesPage(cancellationToken);
 
             try
             {
