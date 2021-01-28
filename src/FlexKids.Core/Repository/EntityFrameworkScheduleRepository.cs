@@ -18,9 +18,8 @@ namespace FlexKids.Core.Repository
         public async Task<WeekSchedule> Save(WeekSchedule weekSchedule)
         {
             EntityEntry<WeekSchedule> result;
-            // todo
 
-            if (weekSchedule.Id == 0)
+            if (weekSchedule.Id == default)
             {
                 result = await _context.WeekSchedules.AddAsync(weekSchedule);
             }
