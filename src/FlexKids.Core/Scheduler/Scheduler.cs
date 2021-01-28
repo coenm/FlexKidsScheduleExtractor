@@ -92,7 +92,7 @@ namespace FlexKids.Core.Scheduler
 
                 IList<SingleShift> shiftsInRepository = item.WeekSchedule.Shifts;
                 IList<ScheduleItem> parsedSchedules = item.ScheduleItems;
-                IList<ScheduleDiff> diffResult = GetDiffs(shiftsInRepository, parsedSchedules, item.WeekSchedule);
+                IList<ScheduleDiff> diffResult = GetDiffs(shiftsInRepository, parsedSchedules);
 
                 foreach (SingleShift shift in diffResult.Where(x => x.Status == ScheduleStatus.Removed).Select(x => x.SingleShift))
                 {
@@ -120,7 +120,7 @@ namespace FlexKids.Core.Scheduler
             return diffsResult;
         }
 
-        private IList<ScheduleDiff> GetDiffs(ICollection<SingleShift> dbSchedules, ICollection<ScheduleItem> parsedSchedules, WeekSchedule week)
+        private IList<ScheduleDiff> GetDiffs(ICollection<SingleShift> dbSchedules, ICollection<ScheduleItem> parsedSchedules)
         {
             var diffResult = new List<ScheduleDiff>(parsedSchedules.Count + dbSchedules.Count);
 

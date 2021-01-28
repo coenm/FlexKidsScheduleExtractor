@@ -185,7 +185,6 @@ namespace FlexKids.Core.Startup
 
         private void RegisterFlexKidsConnection(Container container)
         {
-            // todo, fix this
             // https://github.com/simpleinjector/SimpleInjector/issues/668
             // https://github.com/simpleinjector/SimpleInjector/issues/654
             container.Register<HttpClient>(() => new HttpClient(), Lifestyle.Scoped);

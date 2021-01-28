@@ -55,46 +55,57 @@ namespace FlexKids.Core.Parser
 
             foreach (HtmlNode option in options)
             {
-                if (option.Attributes?["value"] == null)
+                (int Id, WeekItem WeekItem)? result = GetWeek(option);
+                if (result != null)
                 {
-                    throw new FlexKidsParseException();
-                }
-
-                if (!int.TryParse(option.Attributes["value"].Value, out var nr))
-                {
-                    throw new FlexKidsParseException();
-                }
-
-                if (option.NextSibling == null)
-                {
-                    throw new FlexKidsParseException();
-                }
-
-                // Week 09 - 2015
-                var weekText = option.NextSibling.InnerText.Trim();
-                weekText = weekText.Replace("Week", string.Empty).Trim();
-                var split = weekText.Split('-');
-
-                if (split.Length != 2)
-                {
-                    continue;
-                }
-
-                var sWeek = split[0].Trim(); // 09
-                var sYear = split[1].Trim(); // 2015
-
-                if (int.TryParse(sWeek, out var weekNr) && int.TryParse(sYear, out var year))
-                {
-                    var w = new WeekItem(weekNr, year);
-                    weeks.Add(nr, w);
-                }
-                else
-                {
-                    throw new FlexKidsParseException();
+                    weeks.Add(result.Value.Id, result.Value.WeekItem);
                 }
             }
 
             return weeks;
+        }
+
+        private (int, WeekItem)? GetWeek(HtmlNode option)
+        {
+            if (option.Attributes?["value"] == null)
+            {
+                throw new FlexKidsParseException();
+            }
+
+            if (!int.TryParse(option.Attributes["value"].Value, out var nr))
+            {
+                throw new FlexKidsParseException();
+            }
+
+            if (option.NextSibling == null)
+            {
+                throw new FlexKidsParseException();
+            }
+
+            // Week 09 - 2015
+            var weekText = option.NextSibling.InnerText.Trim();
+            weekText = weekText.Replace("Week", string.Empty).Trim();
+            var split = weekText.Split('-');
+
+            if (split.Length != 2)
+            {
+                throw new FlexKidsParseException();
+            }
+
+            var sWeek = split[0].Trim(); // 09
+            var sYear = split[1].Trim(); // 2015
+
+            if (!int.TryParse(sWeek, out var weekNr))
+            {
+                throw new FlexKidsParseException();
+            }
+
+            if (!int.TryParse(sYear, out var year))
+            {
+                throw new FlexKidsParseException();
+            }
+
+            return (nr, new WeekItem(weekNr, year));
         }
 
         private string ExtractEmailFromContent(HtmlDocument document)

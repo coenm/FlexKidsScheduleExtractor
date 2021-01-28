@@ -32,7 +32,6 @@ namespace Reporter.GoogleCalendar
                         Scopes = new[] { CalendarService.Scope.Calendar, },
                     }.FromCertificate(certificate));
 
-            // Create the service.
             var service = new CalendarService(new BaseClientService.Initializer
                 {
                     HttpClientFactory = new Google.Apis.Http.HttpClientFactory(),
@@ -60,8 +59,7 @@ namespace Reporter.GoogleCalendar
                 // Add the rows to the final list
                 allRows.AddRange(result.Items);
 
-                // We will know we are on the last page when the next page token is
-                // null.
+                // We will know we are on the last page when the next page token is null.
                 // If this is the case, break.
                 if (result.NextPageToken == null)
                 {
@@ -96,18 +94,17 @@ namespace Reporter.GoogleCalendar
                             },
                     };
 
-                // queryEvent.SharedExtendedProperty = "EventID=3684";
                 var newEvent = new Event
                     {
                         Start = new EventDateTime
-                            {
-                                DateTime = item.SingleShift.StartDateTime,
-                            },
+                        {
+                            DateTime = item.SingleShift.StartDateTime,
+                        },
                         End = new EventDateTime
-                            {
-                                DateTime = item.SingleShift.EndDateTime,
-                            },
-                        Description = $"it is time to work {DateTime.Now.ToString(CultureInfo.InvariantCulture)}" ,
+                        {
+                            DateTime = item.SingleShift.EndDateTime,
+                        },
+                        Description = $"it is time to work {DateTime.Now.ToString(CultureInfo.InvariantCulture)}",
                         Location = item.SingleShift.Location,
                         Summary = item.SingleShift.Location,
                         ExtendedProperties = extendedProperty,

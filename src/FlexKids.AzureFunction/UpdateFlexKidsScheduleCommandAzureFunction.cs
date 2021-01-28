@@ -1,6 +1,7 @@
 namespace FlexKids.AzureFunction
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using FlexKids.Core.Commands;
     using FlexKids.Core.Startup;
@@ -16,7 +17,8 @@ namespace FlexKids.AzureFunction
         }
 
         [FunctionName("UpdateFlexKidsScheduleTimer")]
-        public async Task UpdateFlexKidsScheduleTimer([TimerTrigger("%FrequencyUpdateFlexKidsScheduleTimer%")]TimerInfo myTimer)
+        [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Contains required attribute")]
+        public async Task UpdateFlexKidsScheduleTimer([TimerTrigger("%FrequencyUpdateFlexKidsScheduleTimer%")]TimerInfo timer)
         {
             var cmd = new UpdateFlexKidsScheduleCommand();
             await _commandHandler.ProcessAsync(cmd, default);
