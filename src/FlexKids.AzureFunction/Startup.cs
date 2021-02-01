@@ -13,20 +13,17 @@ namespace FlexKids.AzureFunction
         public override void Configure(IFunctionsHostBuilder builder)
         {
             FunctionsHostBuilderContext context = builder.GetContext();
-            EnvironmentSetting environmentSetting;
 
             if ("development".Equals(context.EnvironmentName, StringComparison.CurrentCultureIgnoreCase))
             {
-                environmentSetting = new EnvironmentSetting(
-                    configurationBuilder => configurationBuilder.AddUserSecrets<Startup>());
+                var executor = new Executor(configurationBuilder => configurationBuilder.AddUserSecrets<Startup>());
+                _ = builder.Services.AddSingleton<Executor>(executor);
             }
             else
             {
-                environmentSetting = new EnvironmentSetting(_ => { });
+                _ = builder.Services.AddSingleton<Executor>(services => new Executor());
             }
 
-            _ = builder.Services.AddSingleton<Executor>(services => new Executor(services.GetService<EnvironmentSetting>().BuilderAction));
-            _ = builder.Services.AddSingleton<EnvironmentSetting>(environmentSetting);
             _ = builder.Services.AddSingleton<UpdateFlexKidsScheduleCommandAzureFunction>();
         }
     }

@@ -31,7 +31,7 @@ namespace FlexKids.Core.Startup
         private readonly IConfigurationRoot _config;
         private readonly ILogger<Executor> _logger;
 
-        public Executor(Action<IConfigurationBuilder> builderAction)
+        public Executor(Action<IConfigurationBuilder> builderAction = null)
         {
             _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
             _config = SetupConfiguration(builderAction);
@@ -190,7 +190,29 @@ namespace FlexKids.Core.Startup
             container.Register<HttpClient>(() => new HttpClient(), Lifestyle.Scoped);
 
             container.Register<IFlexKidsClient, HttpFlexKidsClient>(Lifestyle.Scoped);
-            container.Register<WriteToDiskOptions>(() => new WriteToDiskOptions { Directory = $"C:\\temp\\{DateTime.Now:yyyyMMddHHmmss}", });
+
+            var configKey = "WriteToDiskEnabled";
+            var isWriteToDiskEnabled = _config.GetValue<bool>(configKey);
+            if (!isWriteToDiskEnabled)
+            {
+                _logger.LogTrace($"No {nameof(WriteToDiskFlexKidsClientDecorator)} enabled because of config '{configKey}'.");
+                return;
+            }
+
+            configKey = "WriteToDiskPath";
+            var writeToDiskPath = _config.GetValue<string>(configKey);
+            if (string.IsNullOrWhiteSpace(writeToDiskPath))
+            {
+                _logger.LogTrace($"No {nameof(WriteToDiskFlexKidsClientDecorator)} enabled because of config '{configKey}'.");
+                return;
+            }
+
+            container.Register<WriteToDiskOptions>(
+                () => new WriteToDiskOptions
+                    {
+                        Directory = Path.Combine(writeToDiskPath, $"{DateTime.Now:yyyyMMddHHmmss}"),
+                    },
+                Lifestyle.Scoped);
             container.RegisterDecorator(typeof(IFlexKidsClient), typeof(WriteToDiskFlexKidsClientDecorator), Lifestyle.Scoped);
         }
     }

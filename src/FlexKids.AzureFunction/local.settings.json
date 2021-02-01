@@ -3,6 +3,8 @@
     "Values": {
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
         "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-        "FrequencyUpdateFlexKidsScheduleTimer": "0 */1 * * * *"
+        "FrequencyUpdateFlexKidsScheduleTimer": "0 */1 * * * *",
+        "WriteToDiskEnabled": true,
+        "WriteToDiskPath": "C:/temp/flexkids2020/"
     }
 }
