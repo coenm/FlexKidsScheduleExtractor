@@ -5,7 +5,10 @@ namespace FlexKids.AzureFunction
     using System.Threading.Tasks;
     using FlexKids.Core.Commands;
     using FlexKids.Core.Startup;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
     using Microsoft.Azure.WebJobs;
+    using Microsoft.Azure.WebJobs.Extensions.Http;
 
     public class UpdateFlexKidsScheduleCommandAzureFunction
     {
@@ -22,6 +25,13 @@ namespace FlexKids.AzureFunction
         {
             var cmd = new UpdateFlexKidsScheduleCommand();
             await _commandHandler.ProcessAsync(cmd, default);
+        }
+
+        [FunctionName("UpdateFlexKidsSchedule")]
+        public async Task<IActionResult> UpdateFlexKidsSchedule([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req)
+        {
+            await _commandHandler.ProcessAsync(new UpdateFlexKidsScheduleCommand(), default);
+            return new OkResult();
         }
     }
 }

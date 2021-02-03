@@ -19,30 +19,27 @@ namespace FlexKids.Core.Startup
     using Microsoft.Extensions.Logging;
     using Reporter.Email;
     using Reporter.GoogleCalendar;
-    using Serilog;
-    using Serilog.Events;
     using SimpleInjector;
     using SimpleInjector.Lifestyles;
-    using ILogger = Microsoft.Extensions.Logging.ILogger;
 
     public class Executor : IDisposable
     {
         private readonly Container _container = new Container();
-        private readonly IConfigurationRoot _config;
+        private readonly IConfiguration _config;
+        private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger<Executor> _logger;
 
-        public Executor(Action<IConfigurationBuilder> builderAction = null)
+        public Executor(IConfiguration configuration, ILoggerFactory loggerFactory)
         {
-            _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
-            _config = SetupConfiguration(builderAction);
-
-            ILoggerFactory loggerFactory = CreateLoggerFactory();
+            _config = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
             _logger = loggerFactory.CreateLogger<Executor>();
 
-            SetupDependencyContainer(loggerFactory);
+            _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
 
             try
             {
+                SetupDependencyContainer();
                 _container.Verify();
             }
             catch (Exception e)
@@ -56,6 +53,7 @@ namespace FlexKids.Core.Startup
 
         public async Task ProcessAsync(ICommand command, CancellationToken ct)
         {
+            _logger.LogInformation("Processing");
             await using Scope scope = AsyncScopedLifestyle.BeginScope(_container);
 
             Type type = typeof(ICommandHandler<>).MakeGenericType(command.GetType());
@@ -73,30 +71,10 @@ namespace FlexKids.Core.Startup
             _container.Dispose();
         }
 
-        private IConfigurationRoot SetupConfiguration(Action<IConfigurationBuilder> builderAction)
-        {
-            IConfigurationBuilder builder = new ConfigurationBuilder()
-                                            .SetBasePath(Directory.GetCurrentDirectory())
-                                            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
-                                            .AddJsonFile("logging.json", optional: true, reloadOnChange: false)
-                                            .AddEnvironmentVariables();
-
-            try
-            {
-                builderAction?.Invoke(builder);
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, "Invoking builder action failed");
-            }
-
-            return builder.Build();
-        }
-
-        private void SetupDependencyContainer(ILoggerFactory loggerFactory)
+        private void SetupDependencyContainer()
         {
             RegisterSettings();
-            RegisterLogging(loggerFactory);
+            RegisterLogging();
 
             _container.Register<Scheduler>(Lifestyle.Scoped);
             _container.Register<IEmailService, EmailService>();
@@ -119,28 +97,12 @@ namespace FlexKids.Core.Startup
                 typeof(EmailReportScheduleChange),
                 typeof(CalendarReportScheduleChange));
 
-            _container.Register(typeof(ICommandHandler<>), typeof(ICommandHandler<>).Assembly);
+            _container.Register(typeof(ICommandHandler<>), typeof(ICommandHandler<>).Assembly, typeof(Executor).Assembly);
         }
 
-        private ILoggerFactory CreateLoggerFactory()
+        private void RegisterLogging()
         {
-            ILoggerFactory loggerFactory = new LoggerFactory();
-
-            // https://stackoverflow.com/questions/41243485/simple-injector-register-iloggert-by-using-iloggerfactory-createloggert
-            Serilog.Core.Logger loggerConfiguration = new LoggerConfiguration()
-                                                      .ReadFrom.Configuration(_config)
-                                                      .WriteTo.Console(LogEventLevel.Verbose)
-                                                      /*.WriteTo.RollingFile()*/
-                                                      .CreateLogger();
-
-            _ = loggerFactory.AddSerilog(loggerConfiguration);
-
-            return loggerFactory;
-        }
-
-        private void RegisterLogging(ILoggerFactory loggerFactory)
-        {
-            _container.RegisterInstance<ILoggerFactory>(loggerFactory);
+            _container.RegisterInstance<ILoggerFactory>(_loggerFactory);
             _container.RegisterSingleton(typeof(ILogger<>), typeof(Logger<>));
 
             _container.RegisterConditional(
@@ -168,7 +130,7 @@ namespace FlexKids.Core.Startup
             var staticGoogleCalendarConfig = new GoogleCalendarConfig(
                 googleCalendarConfig.Account,
                 googleCalendarConfig.CalendarId,
-                System.Convert.FromBase64String(googleCalendarConfig.KeyFileContent));
+                googleCalendarConfig.PrivateKey);
             _container.RegisterInstance(staticGoogleCalendarConfig);
 
             var staticEmailConfig = new EmailConfig(

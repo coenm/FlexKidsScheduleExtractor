@@ -42,6 +42,7 @@ namespace FlexKids.Core.Commands
                     catch (Exception e)
                     {
                         _logger.LogError(e, $"Handling using {handlerType} failed.");
+                        throw;
                     }
                 }
             }
@@ -55,6 +56,7 @@ namespace FlexKids.Core.Commands
             catch (Exception e)
             {
                 _logger.LogError(e, "Could not process FlexKids data.");
+                throw;
             }
             finally
             {
