@@ -4,7 +4,6 @@ namespace Reporter.GoogleCalendar
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using System.Security.Cryptography.X509Certificates;
     using System.Threading.Tasks;
     using FlexKids.Core.Repository.Model;
     using FlexKids.Core.Scheduler.Model;
@@ -24,13 +23,12 @@ namespace Reporter.GoogleCalendar
             _ = config ?? throw new ArgumentNullException(nameof(config));
             _googleCalendarId = config.GoogleCalendarId;
 
-            var certificate = new X509Certificate2(config.GoogleCalendarKey);
-
             var credential = new ServiceAccountCredential(
                 new ServiceAccountCredential.Initializer(config.GoogleCalendarAccount)
                     {
                         Scopes = new[] { CalendarService.Scope.Calendar, },
-                    }.FromCertificate(certificate));
+                    }
+                    .FromPrivateKey(config.Pkcs8PrivateKey));
 
             var service = new CalendarService(new BaseClientService.Initializer
                 {

@@ -7,5 +7,7 @@ namespace FlexKids.Core.Startup.Configuration
         public string CalendarId { get; set; }
 
         public string KeyFileContent { get; set; }
+
+        public string PrivateKey { get; set; }
     }
 }

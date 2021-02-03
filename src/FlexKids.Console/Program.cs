@@ -1,11 +1,16 @@
 namespace FlexKids.Console
 {
     using System;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     using FlexKids.Core.Commands;
     using FlexKids.Core.Startup;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
+    using Serilog;
+    using Serilog.Core;
+    using Serilog.Events;
 
     public class Program
     {
@@ -15,9 +20,9 @@ namespace FlexKids.Console
 
         public static async Task Main()
         {
-            Executor executor = IsDevelopment()
-                ? new Executor(builder => _ = builder?.AddUserSecrets<Program>())
-                : new Executor(_ => { });
+            IConfiguration builder = SetupConfiguration();
+            ILoggerFactory loggerFactory = CreateLoggerFactory(builder);
+            var executor = new Executor(builder, loggerFactory);
 
             using (executor)
             {
@@ -36,6 +41,39 @@ namespace FlexKids.Console
         {
             var environmentVariable = Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT");
             return "development".Equals(environmentVariable, StringComparison.CurrentCultureIgnoreCase);
+        }
+
+        private static IConfiguration SetupConfiguration()
+        {
+            IConfigurationBuilder builder = new ConfigurationBuilder()
+                                            .SetBasePath(Directory.GetCurrentDirectory())
+                                            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+                                            .AddJsonFile("logging.json", optional: true, reloadOnChange: false)
+                                            .AddEnvironmentVariables();
+
+            if (IsDevelopment())
+            {
+                _ = builder.AddUserSecrets<Program>();
+            }
+
+            return builder.Build();
+        }
+
+        private static ILoggerFactory CreateLoggerFactory(IConfiguration config)
+        {
+            ILoggerFactory loggerFactory = new LoggerFactory();
+
+            // https://stackoverflow.com/questions/41243485/simple-injector-register-iloggert-by-using-iloggerfactory-createloggert
+            LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
+                                                      .ReadFrom.Configuration(config)
+                                                      .WriteTo.Console(LogEventLevel.Verbose)
+                                                      /*.WriteTo.File()*/;
+
+            Logger logger = loggerConfiguration.CreateLogger();
+
+            _ = loggerFactory.AddSerilog(logger);
+
+            return loggerFactory;
         }
     }
 }
