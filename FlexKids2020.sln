@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKids.AzureFunction", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKids.Core.Startup", "src\FlexKids.Core.Startup\FlexKids.Core.Startup.csproj", "{80B0DE55-971A-437F-BC49-D050D1D8FA1D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexKids.Core.Startup.Test", "tests\FlexKids.Core.Startup.Test\FlexKids.Core.Startup.Test.csproj", "{35DBF653-F4CC-42AC-8F8C-265A30F93B73}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{80B0DE55-971A-437F-BC49-D050D1D8FA1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80B0DE55-971A-437F-BC49-D050D1D8FA1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80B0DE55-971A-437F-BC49-D050D1D8FA1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35DBF653-F4CC-42AC-8F8C-265A30F93B73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35DBF653-F4CC-42AC-8F8C-265A30F93B73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35DBF653-F4CC-42AC-8F8C-265A30F93B73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35DBF653-F4CC-42AC-8F8C-265A30F93B73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
