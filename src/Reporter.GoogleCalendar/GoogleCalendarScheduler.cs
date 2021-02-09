@@ -2,7 +2,6 @@ namespace Reporter.GoogleCalendar
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
     using FlexKids.Core.Repository.Model;
@@ -34,7 +33,7 @@ namespace Reporter.GoogleCalendar
                 {
                     HttpClientFactory = new Google.Apis.Http.HttpClientFactory(),
                     HttpClientInitializer = credential,
-                    ApplicationName = "FlexKids Rooster by CoenM",
+                    ApplicationName = "FlexKids Rooster",
                 });
 
             _calendarService = new GoogleCalendarService(service);
@@ -48,7 +47,11 @@ namespace Reporter.GoogleCalendar
                 throw new CalendarNotFoundException(_googleCalendarId);
             }
 
-            EventsResource.ListRequest request = _calendarService.CreateListRequestForWeek(_googleCalendarId, updatedWeekSchedule.Year, updatedWeekSchedule.WeekNumber);
+            var timezone = calendar.TimeZone;
+            EventsResource.ListRequest request = _calendarService.CreateListRequestForWeek(
+                _googleCalendarId,
+                updatedWeekSchedule.Year,
+                updatedWeekSchedule.WeekNumber);
 
             Events result = await _calendarService.GetEvents(request);
             var allRows = new List<Event>();
@@ -94,15 +97,9 @@ namespace Reporter.GoogleCalendar
 
                 var newEvent = new Event
                     {
-                        Start = new EventDateTime
-                        {
-                            DateTime = item.SingleShift.StartDateTime,
-                        },
-                        End = new EventDateTime
-                        {
-                            DateTime = item.SingleShift.EndDateTime,
-                        },
-                        Description = $"it is time to work {DateTime.Now.ToString(CultureInfo.InvariantCulture)}",
+                        Start = CreateEventDateTime(item.SingleShift.StartDateTime, timezone),
+                        End = CreateEventDateTime(item.SingleShift.EndDateTime, timezone),
+                        Description = string.Empty,
                         Location = item.SingleShift.Location,
                         Summary = item.SingleShift.Location,
                         ExtendedProperties = extendedProperty,
@@ -115,6 +112,25 @@ namespace Reporter.GoogleCalendar
         public void Dispose()
         {
             // do nothing
+        }
+
+        private static EventDateTime CreateEventDateTime(DateTime date, string timezone)
+        {
+            if (string.IsNullOrWhiteSpace(timezone))
+            {
+                return new EventDateTime
+                    {
+                        DateTime = date,
+                    };
+            }
+            else
+            {
+                return new EventDateTime
+                    {
+                        DateTimeRaw = date.ToString("yyyy-MM-dd'T'HH:mm:ss.fff"),
+                        TimeZone = timezone,
+                    };
+            }
         }
     }
 }

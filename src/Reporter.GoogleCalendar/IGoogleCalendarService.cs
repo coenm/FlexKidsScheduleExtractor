@@ -2,7 +2,6 @@ namespace Reporter.GoogleCalendar
 {
     using System;
     using System.Threading.Tasks;
-    using FlexKids.Core.Repository.Model;
     using Google.Apis.Calendar.v3;
     using Google.Apis.Calendar.v3.Data;
 

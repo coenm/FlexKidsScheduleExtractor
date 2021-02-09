@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FlexKids.Core.Startup\FlexKids.Core.Startup.csproj" />
+    <ProjectReference Include="..\..\src\FlexKids.Core\FlexKids.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -24,7 +24,7 @@ namespace FlexKids.Core.Startup
 
     public class Executor : IDisposable
     {
-        private readonly Container _container = new Container();
+        private protected readonly Container _container;
         private readonly IConfiguration _config;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger<Executor> _logger;
@@ -35,16 +35,17 @@ namespace FlexKids.Core.Startup
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
             _logger = loggerFactory.CreateLogger<Executor>();
 
+            _container = new Container();
             _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
+            _container.Options.EnableAutoVerification = false;
 
             try
             {
                 SetupDependencyContainer();
-                _container.Verify();
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Cannot verify the dependency injection container");
+                _logger.LogError(e, $"Cannot configure DI container. {e.Message}");
                 throw;
             }
 

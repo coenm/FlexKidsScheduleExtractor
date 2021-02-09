@@ -9,7 +9,6 @@ namespace Reporter.Email
     using System.Threading.Tasks;
     using FlexKids.Core.Interfaces;
     using FlexKids.Core.Repository.Model;
-    using FlexKids.Core.Scheduler;
     using FlexKids.Core.Scheduler.Model;
     using Microsoft.Extensions.Logging;
 

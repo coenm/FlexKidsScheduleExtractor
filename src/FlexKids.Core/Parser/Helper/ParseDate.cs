@@ -34,7 +34,7 @@ namespace FlexKids.Core.Parser.Helper
                 throw new InvalidDataException("Minutes not in range");
             }
 
-            return new DateTime(date.Year, date.Month, date.Day, hour, min, 0);
+            return new DateTime(date.Year, date.Month, date.Day, hour, min, 0, DateTimeKind.Unspecified);
         }
 
         // startEndTime = 09:00-13:30
@@ -115,7 +115,7 @@ namespace FlexKids.Core.Parser.Helper
                 _ => throw new InvalidDataException(monthTxt + " is not catched"),
             };
 
-            var result = new DateTime(year, month, day, 0, 0, 0);
+            var result = new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Unspecified);
             return result;
         }
     }
