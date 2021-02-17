@@ -1,0 +1,18 @@
+{
+  IsLoggedIn: true,
+  Email: fake.login@github.com,
+  Weeks: {
+    0: {
+      Year: 2020,
+      WeekNr: 50
+    },
+    1: {
+      Year: 2020,
+      WeekNr: 51
+    },
+    2: {
+      Year: 2020,
+      WeekNr: 52
+    }
+  }
+}

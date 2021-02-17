@@ -37,13 +37,6 @@
     <PackageReference IsImplicitlyDefined="true" Update="Microsoft.AspNetCore.AzureKeyVault.HostingStartup" Version="2.0.4" />
     <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.10" />
 
-    <!--OAuth, OpenConnect, Identity-->
-
-
-    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.Identity.Client" Version="4.17.1" />
-    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.IdentityModel.Protocols" Version="6.7.1" />
-    <PackageReference IsImplicitlyDefined="true" Update="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.7.1" />
-
     <!-- Unittest -->
     <PackageReference IsImplicitlyDefined="true" Update="Microsoft.NET.Test.Sdk" Version="16.8.3" />
     <PackageReference IsImplicitlyDefined="true" Update="FluentAssertions" Version="5.10.3" />
@@ -53,6 +46,7 @@
     <PackageReference IsImplicitlyDefined="true" Update="coverlet.collector" Version="1.2.1" />
     <PackageReference IsImplicitlyDefined="true" Update="xunit" Version="2.4.1" />
     <PackageReference IsImplicitlyDefined="true" Update="xunit.runner.visualstudio" Version="2.4.3" />
+    <PackageReference IsImplicitlyDefined="true" Update="Verify.Xunit" Version="10.9.1"/>
 
   </ItemGroup>
 </Project>
