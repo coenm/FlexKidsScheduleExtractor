@@ -1,46 +1,30 @@
 namespace FlexKids.Core.Test.Parser
 {
-    using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
     using FlexKids.Core.Parser;
     using FlexKids.Core.Scheduler.Model;
     using Microsoft.Extensions.Logging.Abstractions;
+    using VerifyXunit;
     using Xunit;
 
+    [UsesVerify]
     public class IndexParserTest
     {
         private const string RESOURCE_DIRECTORY = "resources/2020";
 
         [Fact]
-        public void IndexPageTest()
+        public async Task IndexPageTest()
         {
             // arrange
-            const string EXPECTED_EMAIL = "fake.login@github.com";
-            const bool EXPECTED_IS_LOGGEDIN = true;
-            var expectedWeeks = new Dictionary<int, WeekItem>
-                {
-                    { 0, new WeekItem(50, 2020) },
-                    { 1, new WeekItem(51, 2020) },
-                    { 2, new WeekItem(52, 2020) },
-                };
-
-            // act
             var htmlContent = GetFileContent("index.txt");
             var indexParser = new IndexParser(NullLogger.Instance);
+
+            // act
             IndexContent indexContent = indexParser.Parse(htmlContent);
 
             // assert
-            Assert.NotNull(indexContent);
-            Assert.Equal(indexContent.Email, EXPECTED_EMAIL);
-            Assert.Equal(indexContent.IsLoggedIn, EXPECTED_IS_LOGGEDIN);
-            Assert.Equal(indexContent.Weeks.Count, expectedWeeks.Count);
-
-            foreach (KeyValuePair<int, WeekItem> item in indexContent.Weeks)
-            {
-                Assert.True(expectedWeeks.ContainsKey(item.Key));
-                Assert.Equal(expectedWeeks[item.Key].Year, item.Value.Year);
-                Assert.Equal(expectedWeeks[item.Key].WeekNr, item.Value.WeekNr);
-            }
+            await Verifier.Verify(indexContent);
         }
 
         private static string GetFileContent(string filename)
