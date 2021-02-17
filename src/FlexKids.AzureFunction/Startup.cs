@@ -2,7 +2,6 @@
 
 namespace FlexKids.AzureFunction
 {
-    using System;
     using System.IO;
     using FlexKids.Core.Startup;
     using Microsoft.Azure.Functions.Extensions.DependencyInjection;
@@ -20,10 +19,12 @@ namespace FlexKids.AzureFunction
                        .AddJsonFile(Path.Combine(context.ApplicationRootPath, $"appsettings.{context.EnvironmentName}.json"), true, false)
                        .AddEnvironmentVariables();
 
-            if ("development".Equals(context.EnvironmentName, StringComparison.CurrentCultureIgnoreCase))
+#if DEBUG
+            if ("development".Equals(context.EnvironmentName, System.StringComparison.CurrentCultureIgnoreCase))
             {
                 _ = builder.ConfigurationBuilder.AddUserSecrets<Startup>();
             }
+#endif
         }
 
         public override void Configure(IFunctionsHostBuilder builder)
